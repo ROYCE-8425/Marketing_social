@@ -2,7 +2,10 @@ using System.Text.Json;
 using DXOS.Application;
 using DXOS.Domain;
 using DXOS.Infrastructure.Integrations;
+using DXOS.Infrastructure.Persistence;
+using DXOS.Infrastructure.Persistence.Entities;
 using Elsa.Workflows;
+using Microsoft.EntityFrameworkCore;
 
 namespace DXOS.Api;
 
@@ -255,6 +258,7 @@ internal static class MarketingEndpoints
             HttpContext http,
             LeadService leads,
             FacebookLeadAdsClient facebookClient,
+            BootstrapDbContext db,
             IConfiguration config,
             ILoggerFactory loggerFactory,
             CancellationToken cancellationToken) =>
@@ -290,6 +294,68 @@ internal static class MarketingEndpoints
 
                     foreach (var entry in entries.EnumerateArray())
                     {
+                        var entryPageId = entry.TryGetProperty("id", out var entryIdProp) ? entryIdProp.GetString() : "988656934325292";
+
+                        // 1. Messenger Messaging Events
+                        if (entry.TryGetProperty("messaging", out var messagingList) && messagingList.ValueKind == JsonValueKind.Array)
+                        {
+                            foreach (var msgEvent in messagingList.EnumerateArray())
+                            {
+                                var senderId = msgEvent.TryGetProperty("sender", out var sProp) && sProp.TryGetProperty("id", out var sId) ? sId.GetString() : null;
+                                var recipientId = msgEvent.TryGetProperty("recipient", out var rProp) && rProp.TryGetProperty("id", out var rId) ? rId.GetString() : entryPageId;
+
+                                if (string.IsNullOrWhiteSpace(senderId)) continue;
+
+                                if (msgEvent.TryGetProperty("message", out var msgObj))
+                                {
+                                    var mid = msgObj.TryGetProperty("mid", out var mProp) ? mProp.GetString() : $"msg_{Guid.NewGuid():N}";
+                                    var text = msgObj.TryGetProperty("text", out var tProp) ? tProp.GetString() : "(Đính kèm)";
+                                    var timestampMs = msgEvent.TryGetProperty("timestamp", out var tsProp) ? tsProp.GetInt64() : DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+                                    var messageTime = DateTimeOffset.FromUnixTimeMilliseconds(timestampMs);
+
+                                    string senderName = $"Khách Facebook {senderId.Substring(0, Math.Min(4, senderId.Length))}";
+                                    if (!string.IsNullOrWhiteSpace(pageToken) && !string.Equals(fbMode, "mock", StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        var fetchedName = await facebookClient.FetchUserProfileNameAsync(senderId, pageToken, cancellationToken: cancellationToken);
+                                        if (!string.IsNullOrWhiteSpace(fetchedName))
+                                        {
+                                            senderName = fetchedName;
+                                        }
+                                    }
+
+                                    var convId = $"fb_{recipientId}_{senderId}";
+                                    var custId = $"fb_user_{senderId}";
+
+                                    await IngestSocialMessageAsync(
+                                        db,
+                                        recipientId ?? "988656934325292",
+                                        custId,
+                                        senderName,
+                                        convId,
+                                        mid ?? Guid.NewGuid().ToString("N"),
+                                        senderId,
+                                        senderName,
+                                        "customer",
+                                        text ?? "",
+                                        messageTime,
+                                        cancellationToken);
+
+                                    await leads.IntakePlatformWebhookAsync(
+                                        "facebook",
+                                        mid ?? Guid.NewGuid().ToString("N"),
+                                        senderName,
+                                        null,
+                                        null,
+                                        null,
+                                        rawBody,
+                                        cancellationToken);
+
+                                    logger.LogInformation("Processed Messenger message from {Sender} ({SenderId}): {Text}", senderName, senderId, text);
+                                }
+                            }
+                        }
+
+                        // 2. Lead Ads Changes Events
                         if (entry.TryGetProperty("changes", out var changes) && changes.ValueKind == JsonValueKind.Array)
                         {
                             foreach (var change in changes.EnumerateArray())
@@ -314,6 +380,12 @@ internal static class MarketingEndpoints
                                             phone = extracted.Phone;
                                             email = extracted.Email;
                                         }
+                                        else
+                                        {
+                                            if (val.TryGetProperty("name", out var nVal)) name = nVal.GetString() ?? name;
+                                            if (val.TryGetProperty("phone", out var pVal)) phone = pVal.GetString();
+                                            if (val.TryGetProperty("email", out var eVal)) email = eVal.GetString();
+                                        }
                                     }
                                     else
                                     {
@@ -322,6 +394,24 @@ internal static class MarketingEndpoints
                                         if (val.TryGetProperty("phone", out var pVal)) phone = pVal.GetString();
                                         if (val.TryGetProperty("email", out var eVal)) email = eVal.GetString();
                                     }
+
+                                    var convId = $"fb_lead_conv_{leadgenId}";
+                                    var custId = $"fb_lead_cust_{leadgenId}";
+                                    var content = $"Khách hàng để lại form: SĐT: {phone ?? "—"}, Email: {email ?? "—"}";
+
+                                    await IngestSocialMessageAsync(
+                                        db,
+                                        entryPageId ?? "988656934325292",
+                                        custId,
+                                        name,
+                                        convId,
+                                        $"msg_lead_{leadgenId}",
+                                        leadgenId,
+                                        name,
+                                        "customer",
+                                        content,
+                                        DateTimeOffset.UtcNow,
+                                        cancellationToken);
 
                                     await leads.IntakePlatformWebhookAsync(
                                         "facebook",
@@ -347,6 +437,68 @@ internal static class MarketingEndpoints
                 logger.LogError(ex, "Error processing Facebook webhook");
                 return Results.Ok("EVENT_RECEIVED");
             }
+        });
+
+        // ── Social CRM REST Endpoints for Admin UI ──
+        app.MapGet("/pages", async (BootstrapDbContext db, CancellationToken ct) =>
+        {
+            var list = await db.SocialPages.AsNoTracking().ToListAsync(ct);
+            if (list.Count == 0)
+            {
+                return Results.Ok(new[]
+                {
+                    new { id = "988656934325292", name = "Royce Shop", type = "facebook", is_active = true, total_conversations = 0, total_messages = 0 }
+                });
+            }
+            return Results.Ok(list);
+        });
+
+        app.MapGet("/customers", async (BootstrapDbContext db, CancellationToken ct) =>
+        {
+            var list = await db.SocialCustomers.AsNoTracking().OrderByDescending(c => c.LastSeenAt).ToListAsync(ct);
+            return Results.Ok(list.Select(c => new
+            {
+                id = c.Id,
+                name = c.Name,
+                page_id = c.PageId,
+                phone_numbers = c.PhoneNumbersJson,
+                emails = c.EmailsJson,
+                first_seen_at = c.FirstSeenAt,
+                last_seen_at = c.LastSeenAt
+            }));
+        });
+
+        app.MapGet("/conversations", async (BootstrapDbContext db, CancellationToken ct) =>
+        {
+            var list = await db.SocialConversations.AsNoTracking().OrderByDescending(c => c.UpdatedAt).ToListAsync(ct);
+            return Results.Ok(list.Select(c => new
+            {
+                id = c.Id,
+                page_id = c.PageId,
+                customer_id = c.CustomerId,
+                customer_name = c.CustomerName,
+                snippet = c.Snippet,
+                message_count = c.MessageCount,
+                has_phone = c.HasPhone,
+                is_replied = c.IsReplied,
+                updated_at = c.UpdatedAt
+            }));
+        });
+
+        app.MapGet("/messages", async (BootstrapDbContext db, CancellationToken ct) =>
+        {
+            var list = await db.SocialMessages.AsNoTracking().OrderByDescending(m => m.CreatedTime).Take(1000).ToListAsync(ct);
+            return Results.Ok(list.Select(m => new
+            {
+                id = m.Id,
+                conversation_id = m.ConversationId,
+                page_id = m.PageId,
+                sender_id = m.SenderId,
+                sender_name = m.SenderName,
+                sender_type = m.SenderType,
+                content = m.Content,
+                created_time = m.CreatedTime
+            }));
         });
 
         app.MapGet("/analytics/leads-by-platform", async (LeadService leads, HttpContext http, CancellationToken cancellationToken) =>
@@ -804,6 +956,127 @@ internal static class MarketingEndpoints
             snapshot = ToTrafficSnapshotResponse(result.Snapshot),
             totals = ToCampaignTrafficTotalsResponse(result.Totals)
         };
+    }
+
+    private static async Task IngestSocialMessageAsync(
+        BootstrapDbContext db,
+        string pageId,
+        string customerId,
+        string customerName,
+        string conversationId,
+        string messageId,
+        string senderId,
+        string senderName,
+        string senderType,
+        string content,
+        DateTimeOffset createdTime,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            // 1. Page
+            var page = await db.SocialPages.FirstOrDefaultAsync(p => p.Id == pageId, cancellationToken);
+            if (page is null)
+            {
+                page = new SocialPageRecord
+                {
+                    Id = pageId,
+                    Name = "Royce Shop",
+                    Type = "facebook",
+                    IsActive = true,
+                    TotalConversations = 1,
+                    TotalMessages = 1,
+                    LastSyncAt = createdTime,
+                    CreatedAt = createdTime,
+                    UpdatedAt = createdTime
+                };
+                db.SocialPages.Add(page);
+            }
+            else
+            {
+                page.TotalMessages += 1;
+                page.LastSyncAt = createdTime;
+                page.UpdatedAt = DateTimeOffset.UtcNow;
+            }
+            await db.SaveChangesAsync(cancellationToken);
+
+            // 2. Customer
+            var customer = await db.SocialCustomers.FirstOrDefaultAsync(c => c.Id == customerId, cancellationToken);
+            if (customer is null)
+            {
+                customer = new SocialCustomerRecord
+                {
+                    Id = customerId,
+                    Name = customerName,
+                    PageId = pageId,
+                    FirstSeenAt = createdTime,
+                    LastSeenAt = createdTime,
+                    CreatedAt = createdTime,
+                    UpdatedAt = createdTime
+                };
+                db.SocialCustomers.Add(customer);
+            }
+            else
+            {
+                customer.Name = customerName;
+                customer.LastSeenAt = createdTime;
+                customer.UpdatedAt = DateTimeOffset.UtcNow;
+            }
+            await db.SaveChangesAsync(cancellationToken);
+
+            // 3. Conversation
+            var conv = await db.SocialConversations.FirstOrDefaultAsync(c => c.Id == conversationId, cancellationToken);
+            if (conv is null)
+            {
+                conv = new SocialConversationRecord
+                {
+                    Id = conversationId,
+                    PageId = pageId,
+                    CustomerId = customerId,
+                    CustomerName = customerName,
+                    Snippet = content,
+                    MessageCount = 1,
+                    InsertedAt = createdTime,
+                    UpdatedAt = createdTime,
+                    SyncedAt = DateTimeOffset.UtcNow
+                };
+                db.SocialConversations.Add(conv);
+            }
+            else
+            {
+                conv.CustomerName = customerName;
+                conv.Snippet = content;
+                conv.MessageCount += 1;
+                conv.UpdatedAt = createdTime;
+                conv.SyncedAt = DateTimeOffset.UtcNow;
+            }
+            await db.SaveChangesAsync(cancellationToken);
+
+            // 4. Message
+            var exists = await db.SocialMessages.AnyAsync(m => m.Id == messageId, cancellationToken);
+            if (!exists)
+            {
+                var msg = new SocialMessageRecord
+                {
+                    Id = messageId,
+                    ConversationId = conversationId,
+                    PageId = pageId,
+                    SenderId = senderId,
+                    SenderName = senderName,
+                    SenderType = senderType,
+                    Content = content,
+                    CreatedTime = createdTime,
+                    CreatedAt = DateTimeOffset.UtcNow,
+                    SyncedAt = DateTimeOffset.UtcNow
+                };
+                db.SocialMessages.Add(msg);
+                await db.SaveChangesAsync(cancellationToken);
+            }
+        }
+        catch
+        {
+            // Fail open for background ingest logging
+        }
     }
 }
 

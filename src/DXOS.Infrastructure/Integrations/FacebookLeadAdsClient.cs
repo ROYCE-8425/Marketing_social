@@ -160,4 +160,43 @@ public sealed class FacebookLeadAdsClient
 
         return (name, phone, email);
     }
+
+    public async Task<string?> FetchUserProfileNameAsync(
+        string psid,
+        string pageAccessToken,
+        string apiVersion = "v21.0",
+        CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(psid) || string.IsNullOrWhiteSpace(pageAccessToken))
+        {
+            return null;
+        }
+
+        try
+        {
+            var url = $"https://graph.facebook.com/{apiVersion}/{psid}?fields=first_name,last_name,name&access_token={Uri.EscapeDataString(pageAccessToken)}";
+            using var response = await _httpClient.GetAsync(url, cancellationToken);
+            if (!response.IsSuccessStatusCode) return null;
+
+            var json = await response.Content.ReadAsStringAsync(cancellationToken);
+            using var doc = JsonDocument.Parse(json);
+            var root = doc.RootElement;
+            if (root.TryGetProperty("name", out var n) && !string.IsNullOrWhiteSpace(n.GetString()))
+            {
+                return n.GetString();
+            }
+            if (root.TryGetProperty("first_name", out var fn))
+            {
+                var ln = root.TryGetProperty("last_name", out var lnProp) ? lnProp.GetString() : "";
+                return $"{ln} {fn.GetString()}".Trim();
+            }
+        }
+        catch
+        {
+            // Ignored - fallback to default naming
+        }
+
+        return null;
+    }
 }
+

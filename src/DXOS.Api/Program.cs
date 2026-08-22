@@ -23,7 +23,8 @@ if (string.IsNullOrWhiteSpace(connectionString))
 }
 
 builder.Services.AddDbContext<BootstrapDbContext>(options =>
-    options.UseNpgsql(connectionString));
+    options.UseNpgsql(connectionString)
+           .ConfigureWarnings(w => w.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning)));
 builder.Services.AddSingleton<IClock, SystemClock>();
 builder.Services.AddSingleton<CampaignCopyStub>();
 builder.Services.AddScoped<ICampaignStore, CampaignStore>();

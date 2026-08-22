@@ -50,10 +50,14 @@ public sealed class WebhookEventStore : IWebhookEventStore
         {
             var raced = await _db.WebhookEvents
                 .AsNoTracking()
-                .FirstAsync(
+                .FirstOrDefaultAsync(
                     e => e.Provider == provider && e.ExternalEventId == externalEventId,
                     cancellationToken);
-            return new WebhookBeginResult(true, raced.Id, raced.LeadId);
+            if (raced is not null)
+            {
+                return new WebhookBeginResult(true, raced.Id, raced.LeadId);
+            }
+            throw;
         }
 
         return new WebhookBeginResult(false, record.Id, null);
