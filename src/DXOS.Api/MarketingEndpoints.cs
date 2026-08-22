@@ -309,9 +309,49 @@ internal static class MarketingEndpoints
                                 if (msgEvent.TryGetProperty("message", out var msgObj))
                                 {
                                     var mid = msgObj.TryGetProperty("mid", out var mProp) ? mProp.GetString() : $"msg_{Guid.NewGuid():N}";
-                                    var text = msgObj.TryGetProperty("text", out var tProp) ? tProp.GetString() : "(Đính kèm)";
+                                    var text = msgObj.TryGetProperty("text", out var tProp) ? tProp.GetString() : null;
                                     var timestampMs = msgEvent.TryGetProperty("timestamp", out var tsProp) ? tsProp.GetInt64() : DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
                                     var messageTime = DateTimeOffset.FromUnixTimeMilliseconds(timestampMs);
+
+                                    string messageType = "text";
+                                    var attachmentsList = new List<object>();
+
+                                    if (msgObj.TryGetProperty("attachments", out var attArray) && attArray.ValueKind == JsonValueKind.Array)
+                                    {
+                                        foreach (var att in attArray.EnumerateArray())
+                                        {
+                                            var attType = att.TryGetProperty("type", out var typeProp) ? typeProp.GetString() : "file";
+                                            string? url = null;
+                                            string? title = null;
+                                            if (att.TryGetProperty("payload", out var payloadProp))
+                                            {
+                                                url = payloadProp.TryGetProperty("url", out var urlProp) ? urlProp.GetString() : null;
+                                                title = payloadProp.TryGetProperty("title", out var titleProp) ? titleProp.GetString() : null;
+                                            }
+
+                                            if (!string.IsNullOrWhiteSpace(url))
+                                            {
+                                                attachmentsList.Add(new { type = attType ?? "file", url = url, title = title });
+                                                if (messageType == "text")
+                                                {
+                                                    messageType = attType ?? "file";
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    if (string.IsNullOrWhiteSpace(text))
+                                    {
+                                        text = messageType switch
+                                        {
+                                            "image" => "[Hình ảnh]",
+                                            "audio" => "[Tin nhắn thoại]",
+                                            "video" => "[Video]",
+                                            "file" => "[Tập tin]",
+                                            _ => "(Đính kèm)"
+                                        };
+                                    }
+                                    var attachmentsJson = attachmentsList.Count > 0 ? JsonSerializer.Serialize(attachmentsList) : "[]";
 
                                     var isEcho = (msgObj.TryGetProperty("is_echo", out var echoProp) && echoProp.GetBoolean()) || string.Equals(senderId, entryPageId, StringComparison.OrdinalIgnoreCase);
 
@@ -356,7 +396,9 @@ internal static class MarketingEndpoints
                                         senderType,
                                         text ?? "",
                                         messageTime,
-                                        cancellationToken);
+                                        cancellationToken,
+                                        messageType,
+                                        attachmentsJson);
 
                                     if (!isEcho)
                                     {
@@ -663,6 +705,8 @@ internal static class MarketingEndpoints
                 sender_name = m.SenderName,
                 sender_type = m.SenderType,
                 content = m.Content,
+                message_type = m.MessageType ?? "text",
+                attachments_json = m.AttachmentsJson,
                 created_time = m.CreatedTime
             }));
         });
@@ -1136,7 +1180,9 @@ internal static class MarketingEndpoints
         string senderType,
         string content,
         DateTimeOffset createdTime,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        string messageType = "text",
+        string attachmentsJson = "[]")
     {
         try
         {
@@ -1242,6 +1288,8 @@ internal static class MarketingEndpoints
                     SenderName = senderName,
                     SenderType = senderType,
                     Content = content,
+                    MessageType = messageType,
+                    AttachmentsJson = attachmentsJson,
                     CreatedTime = createdTime,
                     CreatedAt = DateTimeOffset.UtcNow,
                     SyncedAt = DateTimeOffset.UtcNow

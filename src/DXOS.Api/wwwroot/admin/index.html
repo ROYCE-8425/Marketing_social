@@ -225,6 +225,20 @@
   .inbox-reply-bar button { padding:8px 18px; border-radius:20px; display:inline-flex; align-items:center; gap:6px; font-size:13px; font-weight:600; cursor:pointer; }
   .status-select { padding:4px 10px; border:1px solid var(--border); border-radius:8px; font-size:11px; font-weight:600; background:var(--bg-subtle); color:var(--text); cursor:pointer; outline:none; }
 
+  /* Media & Voice attachments */
+  .msg-media-img { max-width:260px; max-height:280px; border-radius:10px; display:block; margin-top:4px; cursor:pointer; object-fit:cover; transition:transform .2s, box-shadow .2s; box-shadow:0 2px 6px rgba(0,0,0,0.12); }
+  .msg-media-img:hover { transform:scale(1.02); box-shadow:0 4px 12px rgba(0,0,0,0.2); }
+  .msg-media-video { max-width:280px; max-height:220px; border-radius:10px; margin-top:4px; display:block; outline:none; }
+  .voice-card { display:flex; align-items:center; gap:8px; margin-top:4px; padding:6px 10px; background:rgba(0,0,0,0.06); border-radius:12px; max-width:280px; }
+  [data-theme="dark"] .voice-card { background:rgba(255,255,255,0.08); }
+  .voice-audio { height:32px; max-width:220px; outline:none; }
+  .file-card { display:inline-flex; align-items:center; gap:8px; margin-top:4px; padding:8px 12px; background:rgba(0,0,0,0.04); border:1px solid var(--border); border-radius:8px; font-size:12px; text-decoration:none; color:var(--text); }
+  .file-card:hover { background:var(--bg-subtle); }
+  #mediaLightbox { position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:10000; display:none; align-items:center; justify-content:center; backdrop-filter:blur(4px); }
+  #mediaLightbox.open { display:flex; }
+  #mediaLightbox img { max-width:90vw; max-height:90vh; border-radius:8px; box-shadow:0 8px 32px rgba(0,0,0,0.5); }
+  #mediaLightbox .close-btn { position:absolute; top:20px; right:20px; color:#fff; font-size:24px; cursor:pointer; background:rgba(0,0,0,0.4); width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; border:none; }
+
   /* ── KPI cards with delta ── */
   .stat-card .delta { font-size:11px; font-weight:600; display:inline-block; padding:1px 6px; border-radius:4px; margin-left:6px; vertical-align:middle; }
   .delta.up { background:rgba(16,185,129,.12); color:var(--green); }
@@ -1511,10 +1525,45 @@ function renderInboxDetail() {
     }
     const isAgent = m.sender_type === 'agent';
     const initial = (m.sender_name||'?').charAt(0).toUpperCase();
+
+    let attHtml = '';
+    let atts = [];
+    try {
+      if (m.attachments_json && typeof m.attachments_json === 'string') {
+        atts = JSON.parse(m.attachments_json);
+      } else if (Array.isArray(m.attachments)) {
+        atts = m.attachments;
+      }
+    } catch(e){}
+
+    if (Array.isArray(atts) && atts.length > 0) {
+      atts.forEach(att => {
+        const type = att.type || 'file';
+        const url = att.url || '';
+        if (type === 'image') {
+          attHtml += `<img src="${esc(url)}" alt="Hình ảnh" loading="lazy" class="msg-media-img" onclick="openLightbox('${esc(url)}')">`;
+        } else if (type === 'audio') {
+          attHtml += `<div class="voice-card"><i data-lucide="mic" style="color:var(--accent); width:16px; height:16px; flex-shrink:0;"></i><audio controls preload="none" src="${esc(url)}" class="voice-audio"></audio></div>`;
+        } else if (type === 'video') {
+          attHtml += `<video controls preload="none" src="${esc(url)}" class="msg-media-video"></video>`;
+        } else {
+          attHtml += `<a href="${esc(url)}" target="_blank" download class="file-card"><i data-lucide="file" class="icon-sm"></i><span>${esc(att.title || 'Tập tin đính kèm')}</span><i data-lucide="download" class="icon-sm" style="margin-left:auto;"></i></a>`;
+        }
+      });
+    }
+
+    let bubbleText = esc(m.content || '');
+    if (attHtml && (bubbleText === '[Hình ảnh]' || bubbleText === '[Tin nhắn thoại]' || bubbleText === '[Video]' || bubbleText === '[Tập tin]' || bubbleText === '(Đính kèm)')) {
+      bubbleText = '';
+    }
+
     html += `<div class="msg-row ${m.sender_type}">
       <div class="avatar-c sm ${isAgent ? 'replied' : stage}">${esc(initial)}</div>
       <div>
-        <div class="bubble">${esc(m.content)}</div>
+        <div class="bubble">
+          ${bubbleText ? `<div>${bubbleText}</div>` : ''}
+          ${attHtml}
+        </div>
         <div class="time-mini">${esc(m.sender_name||'?')} · ${(m.created_time||'').slice(11,16)}</div>
       </div>
     </div>`;
@@ -1880,6 +1929,21 @@ document.getElementById('cmdkInput').addEventListener('input', renderCmdK);
 const _origCopy = window.copyText;
 window.copyText = function(btn) { _origCopy(btn); toast('Copied to clipboard', 'success', 1500); };
 
+// ═══════════════ Media Lightbox ═══════════════
+function openLightbox(url) {
+  const lb = document.getElementById('mediaLightbox');
+  const img = document.getElementById('lightboxImg');
+  if (lb && img) {
+    img.src = url;
+    lb.classList.add('open');
+  }
+}
+function closeLightbox(e) {
+  if (e && e.target && e.target.id === 'lightboxImg') return;
+  const lb = document.getElementById('mediaLightbox');
+  if (lb) lb.classList.remove('open');
+}
+
 // ═══════════════ Init ═══════════════
 document.getElementById('cfgUrl').value = CFG.url;
 document.getElementById('cfgKey').value = CFG.key;
@@ -1892,5 +1956,10 @@ setInterval(() => {
   }
 }, 3000);
 </script>
+
+<div id="mediaLightbox" onclick="closeLightbox(event)">
+  <button class="close-btn" onclick="closeLightbox()">&times;</button>
+  <img id="lightboxImg" src="" alt="Xem ảnh phóng to">
+</div>
 </body>
 </html>
