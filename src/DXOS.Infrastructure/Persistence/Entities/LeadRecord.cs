@@ -12,6 +12,9 @@ public sealed class LeadRecord
     public string Label { get; set; } = string.Empty;
     public string? ScoreBreakdownJson { get; set; }
     public string? ReasonsJson { get; set; }
+    public string? ScoreModel { get; set; }
+    public string? ScoreVersion { get; set; }
+    public DateTimeOffset? ScoredAtUtc { get; set; }
     public Guid? CampaignId { get; set; }
     public string? AssignedToActor { get; set; }
     public DateTimeOffset? AssignedAtUtc { get; set; }

@@ -6,11 +6,13 @@ public sealed class LeadService
 {
     private readonly ILeadStore _store;
     private readonly IClock _clock;
+    private readonly IWebhookEventStore? _webhooks;
 
-    public LeadService(ILeadStore store, IClock clock)
+    public LeadService(ILeadStore store, IClock clock, IWebhookEventStore? webhooks = null)
     {
         _store = store;
         _clock = clock;
+        _webhooks = webhooks;
     }
 
     public async Task<Lead> IntakeFormAsync(
@@ -90,6 +92,117 @@ public sealed class LeadService
         if (!string.IsNullOrWhiteSpace(assigned))
         {
             await _store.SetLastAssignedSalesActorAsync(assigned, cancellationToken);
+        }
+
+        return lead;
+    }
+
+    public async Task<PlatformLeadIntakeResult> IntakePlatformWebhookAsync(
+        string provider,
+        string externalEventId,
+        string name,
+        string? phone,
+        string? email,
+        Guid? campaignId,
+        string? rawPayload,
+        CancellationToken cancellationToken)
+    {
+        if (!PlatformCatalog.TryParseSource(provider, out var source))
+        {
+            throw new DomainRuleException("UnknownProvider", $"Provider '{provider}' is not a mock platform connector.");
+        }
+
+        if (string.IsNullOrWhiteSpace(externalEventId))
+        {
+            throw new DomainRuleException("InvalidEvent", "externalEventId is required for idempotent webhook intake.");
+        }
+
+        if (_webhooks is null)
+        {
+            throw new DomainRuleException("WebhookStoreMissing", "Webhook event store is required for platform intake.");
+        }
+
+        var payloadHash = Convert.ToHexString(
+            System.Security.Cryptography.SHA256.HashData(
+                System.Text.Encoding.UTF8.GetBytes(rawPayload ?? $"{provider}|{externalEventId}|{name}|{phone}|{email}")));
+
+        var begin = await _webhooks.TryBeginAsync(
+            PlatformCatalog.CanonicalProvider(source),
+            externalEventId.Trim(),
+            payloadHash,
+            cancellationToken);
+
+        if (begin.IsDuplicate)
+        {
+            if (begin.ExistingLeadId is Guid existingId)
+            {
+                var existing = await _store.GetAsync(existingId, cancellationToken)
+                    ?? throw new DomainRuleException("MissingLead", "Duplicate webhook referenced a lead that no longer exists.");
+                return new PlatformLeadIntakeResult(existing, true);
+            }
+
+            throw new DomainRuleException("DuplicateEvent", "Webhook event is already being processed.");
+        }
+
+        var lead = await IntakeFromSourceAsync(name, phone, email, source, campaignId, cancellationToken);
+        await _webhooks.CompleteAsync(begin.WebhookEventId, lead.Id, cancellationToken);
+        return new PlatformLeadIntakeResult(lead, false);
+    }
+
+    public async Task<IReadOnlyList<PlatformLeadSummary>> SummarizeByPlatformAsync(CancellationToken cancellationToken)
+    {
+        var leads = await ListAsync(cancellationToken);
+        return leads
+            .SelectMany(lead => lead.Sources.DefaultIfEmpty(lead.Source).Select(source => (lead, source)))
+            .GroupBy(row => PlatformCatalog.CanonicalProvider(row.source))
+            .OrderBy(group => group.Key)
+            .Select(group =>
+            {
+                var distinct = group.Select(g => g.lead).DistinctBy(l => l.Id).ToList();
+                return new PlatformLeadSummary(
+                    group.Key,
+                    distinct.Count,
+                    distinct.Count(l => l.Label == LeadLabel.Hot),
+                    distinct.Count(l => l.Label == LeadLabel.Warm),
+                    distinct.Count(l => l.Label == LeadLabel.Cold));
+            })
+            .ToList();
+    }
+
+    private async Task<Lead> IntakeFromSourceAsync(
+        string name,
+        string? phone,
+        string? email,
+        LeadSource source,
+        Guid? campaignId,
+        CancellationToken cancellationToken)
+    {
+        var now = _clock.UtcNow;
+        var normalizedPhone = PhoneNormalizer.Normalize(phone);
+        var normalizedEmail = EmailValidator.Normalize(email);
+
+        var existing = await _store.FindByPhoneOrEmailAsync(normalizedPhone, normalizedEmail, cancellationToken);
+        if (existing is not null)
+        {
+            existing.AddInteraction(source, campaignId, name, now);
+            await _store.UpdateAsync(existing, cancellationToken);
+            return existing;
+        }
+
+        var (_, label, _, _) = LeadScoring.Calculate(name, normalizedPhone, normalizedEmail, source, campaignId, now);
+        string? assignedNew = null;
+        if (label is LeadLabel.Hot or LeadLabel.Warm)
+        {
+            var salesActors = await _store.ListSalesActorsAsync(cancellationToken);
+            var lastAssigned = await _store.GetLastAssignedSalesActorAsync(cancellationToken);
+            assignedNew = SalesRoundRobin.Next(salesActors, lastAssigned);
+        }
+
+        var lead = Lead.Intake(name, phone, email, source, campaignId, assignedNew, now);
+        await _store.AddAsync(lead, cancellationToken);
+        if (!string.IsNullOrWhiteSpace(assignedNew))
+        {
+            await _store.SetLastAssignedSalesActorAsync(assignedNew, cancellationToken);
         }
 
         return lead;
@@ -191,6 +304,15 @@ public sealed class LeadService
         return new CplDashboard(effectiveSpend, leadCount, cpl, "VND", safeDaily, safeBudget, days, projected);
     }
 }
+
+public sealed record PlatformLeadIntakeResult(Lead Lead, bool Duplicate);
+
+public sealed record PlatformLeadSummary(
+    string Provider,
+    int LeadCount,
+    int HotCount,
+    int WarmCount,
+    int ColdCount);
 
 public sealed record CplDashboard(
     decimal Spend,

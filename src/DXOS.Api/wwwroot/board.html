@@ -913,6 +913,15 @@
                         <button type="button" id="btn-lead-call" class="btn-success">
                             <span>📞</span> Cuộc gọi (stub-call)
                         </button>
+                        <button type="button" id="btn-lead-facebook" class="btn-primary">
+                            <span>📘</span> Mock Facebook
+                        </button>
+                        <button type="button" id="btn-lead-tiktok" class="btn-warning">
+                            <span>🎵</span> Mock TikTok
+                        </button>
+                        <button type="button" id="btn-lead-zalo" class="btn-success">
+                            <span>💬</span> Mock Zalo
+                        </button>
                     </div>
                 </form>
 
@@ -1751,6 +1760,32 @@
         document.getElementById("btn-lead-form").addEventListener("click", () => submitLead("/leads/webhook"));
         document.getElementById("btn-lead-msg").addEventListener("click", () => submitLead("/leads/message"));
         document.getElementById("btn-lead-call").addEventListener("click", () => submitLead("/leads/call"));
+
+        async function submitPlatformLead(provider) {
+            const name = document.getElementById("lead-name").value.trim() || "Nguyễn Văn A";
+            const phone = document.getElementById("lead-phone").value.trim() || "0901234567";
+            const email = document.getElementById("lead-email").value.trim() || "a@example.com";
+            const campaignIdVal = document.getElementById("lead-campaign-select").value;
+            const campaignId = campaignIdVal ? campaignIdVal : null;
+            try {
+                const res = await api(`/webhooks/${provider}/leads`, "POST", {
+                    externalEventId: `${provider}-${crypto.randomUUID()}`,
+                    name,
+                    phone,
+                    email,
+                    campaignId
+                });
+                const lead = res.lead || res;
+                log(200, `${res.duplicate ? "Trùng event" : "Mock " + provider}: ${lead.name} (${lead.label} · ${lead.score}đ · ${lead.scoreModel} ${lead.scoreVersion})`);
+                await refreshAll();
+            } catch (err) {
+                alert(err.message);
+            }
+        }
+
+        document.getElementById("btn-lead-facebook").addEventListener("click", () => submitPlatformLead("facebook"));
+        document.getElementById("btn-lead-tiktok").addEventListener("click", () => submitPlatformLead("tiktok"));
+        document.getElementById("btn-lead-zalo").addEventListener("click", () => submitPlatformLead("zalo"));
 
         // Spend Proposal Form
         document.getElementById("form-create-proposal").addEventListener("submit", async (e) => {

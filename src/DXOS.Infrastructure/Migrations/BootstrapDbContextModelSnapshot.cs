@@ -128,6 +128,17 @@ namespace DXOS.Infrastructure.Migrations
                     b.Property<string>("ScoreBreakdownJson")
                         .HasColumnType("text");
 
+                    b.Property<string>("ScoreModel")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("ScoreVersion")
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<DateTimeOffset?>("ScoredAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Source")
                         .IsRequired()
                         .HasMaxLength(32)
@@ -243,6 +254,49 @@ namespace DXOS.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("spend_proposals", (string)null);
+                });
+
+            modelBuilder.Entity("DXOS.Infrastructure.Persistence.Entities.WebhookEventRecord", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ExternalEventId")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<Guid?>("LeadId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("PayloadHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<DateTimeOffset?>("ProcessedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Provider")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<DateTimeOffset>("ReceivedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Provider", "ExternalEventId")
+                        .IsUnique();
+
+                    b.ToTable("webhook_events", (string)null);
                 });
 
             modelBuilder.Entity("DXOS.Infrastructure.Persistence.Entities.TrafficSnapshotRecord", b =>

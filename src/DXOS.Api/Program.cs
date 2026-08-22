@@ -27,6 +27,7 @@ builder.Services.AddSingleton<IClock, SystemClock>();
 builder.Services.AddSingleton<CampaignCopyStub>();
 builder.Services.AddScoped<ICampaignStore, CampaignStore>();
 builder.Services.AddScoped<ILeadStore, LeadStore>();
+builder.Services.AddScoped<IWebhookEventStore, WebhookEventStore>();
 builder.Services.AddScoped<ITrafficStore, TrafficStore>();
 builder.Services.AddScoped<ISpendProposalStore, SpendProposalStore>();
 builder.Services.AddScoped<CampaignService>();

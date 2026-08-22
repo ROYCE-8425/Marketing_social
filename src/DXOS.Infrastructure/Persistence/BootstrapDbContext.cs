@@ -16,6 +16,7 @@ public sealed class BootstrapDbContext : DbContext
     public DbSet<SalesAssignmentState> SalesAssignment => Set<SalesAssignmentState>();
     public DbSet<TrafficSnapshotRecord> TrafficSnapshots => Set<TrafficSnapshotRecord>();
     public DbSet<SpendProposalRecord> SpendProposals => Set<SpendProposalRecord>();
+    public DbSet<WebhookEventRecord> WebhookEvents => Set<WebhookEventRecord>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -58,6 +59,9 @@ public sealed class BootstrapDbContext : DbContext
             entity.Property(e => e.Label).IsRequired().HasMaxLength(32);
             entity.Property(e => e.ScoreBreakdownJson);
             entity.Property(e => e.ReasonsJson);
+            entity.Property(e => e.ScoreModel).HasMaxLength(64);
+            entity.Property(e => e.ScoreVersion).HasMaxLength(32);
+            entity.Property(e => e.ScoredAtUtc);
             entity.Property(e => e.AssignedToActor).HasMaxLength(128);
             entity.Property(e => e.ClaimedByActor).HasMaxLength(128);
             entity.Property(e => e.RejectedByActorsJson);
@@ -105,6 +109,18 @@ public sealed class BootstrapDbContext : DbContext
             entity.Property(e => e.DecidedByActor).HasMaxLength(128);
             entity.Property(e => e.CreatedAtUtc).IsRequired();
             entity.Property(e => e.DecidedAtUtc);
+        });
+
+        modelBuilder.Entity<WebhookEventRecord>(entity =>
+        {
+            entity.ToTable("webhook_events");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Provider).IsRequired().HasMaxLength(32);
+            entity.Property(e => e.ExternalEventId).IsRequired().HasMaxLength(128);
+            entity.Property(e => e.PayloadHash).IsRequired().HasMaxLength(64);
+            entity.Property(e => e.Status).IsRequired().HasMaxLength(32);
+            entity.Property(e => e.ReceivedAtUtc).IsRequired();
+            entity.HasIndex(e => new { e.Provider, e.ExternalEventId }).IsUnique();
         });
     }
 }

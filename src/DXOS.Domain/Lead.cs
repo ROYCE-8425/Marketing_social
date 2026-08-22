@@ -19,6 +19,9 @@ public sealed class Lead
     public int Score { get; private set; }
     public LeadLabel Label { get; private set; }
     public ScoreBreakdown Breakdown { get; private set; } = new(0, 0, 0, 0, 0, 0);
+    public string ScoreModel { get; private set; } = LeadScoring.ModelId;
+    public string ScoreVersion { get; private set; } = LeadScoring.Version;
+    public DateTimeOffset ScoredAtUtc { get; private set; }
     public IReadOnlyList<string> Reasons => _reasons;
     public Guid? CampaignId { get; private set; }
     public string? AssignedToActor { get; private set; }
@@ -69,6 +72,9 @@ public sealed class Lead
             Score = score,
             Label = label,
             Breakdown = breakdown,
+            ScoreModel = LeadScoring.ModelId,
+            ScoreVersion = LeadScoring.Version,
+            ScoredAtUtc = nowUtc,
             CampaignId = campaignId,
             AssignedToActor = assigned,
             AssignedAtUtc = assigned is null ? null : nowUtc,
@@ -100,7 +106,10 @@ public sealed class Lead
         IEnumerable<string>? rejectedByActors,
         string? lastRejectionReason,
         DateTimeOffset createdAtUtc,
-        DateTimeOffset updatedAtUtc)
+        DateTimeOffset updatedAtUtc,
+        string? scoreModel = null,
+        string? scoreVersion = null,
+        DateTimeOffset? scoredAtUtc = null)
     {
         var lead = new Lead
         {
@@ -112,6 +121,9 @@ public sealed class Lead
             Score = score,
             Label = label,
             Breakdown = breakdown ?? new ScoreBreakdown(0, 0, 0, 0, 0, score),
+            ScoreModel = string.IsNullOrWhiteSpace(scoreModel) ? LeadScoring.ModelId : scoreModel,
+            ScoreVersion = string.IsNullOrWhiteSpace(scoreVersion) ? LeadScoring.Version : scoreVersion,
+            ScoredAtUtc = scoredAtUtc ?? updatedAtUtc,
             CampaignId = campaignId,
             AssignedToActor = assignedToActor,
             AssignedAtUtc = assignedAtUtc,
@@ -216,6 +228,9 @@ public sealed class Lead
         Score = score;
         Label = label;
         Breakdown = breakdown;
+        ScoreModel = LeadScoring.ModelId;
+        ScoreVersion = LeadScoring.Version;
+        ScoredAtUtc = nowUtc;
         _reasons.Clear();
         _reasons.AddRange(reasons);
         UpdatedAtUtc = nowUtc;

@@ -175,6 +175,71 @@ internal static class MarketingEndpoints
             }
         });
 
+        app.MapPost("/webhooks/{provider}/leads", async (
+            string provider,
+            PlatformLeadWebhookRequest request,
+            LeadService leads,
+            HttpContext http,
+            CancellationToken cancellationToken) =>
+        {
+            try
+            {
+                ReadActor(http);
+                var raw = System.Text.Json.JsonSerializer.Serialize(request);
+                var result = await leads.IntakePlatformWebhookAsync(
+                    provider,
+                    request.ExternalEventId ?? string.Empty,
+                    request.Name ?? string.Empty,
+                    request.Phone,
+                    request.Email,
+                    request.CampaignId,
+                    raw,
+                    cancellationToken);
+                return Results.Ok(new
+                {
+                    duplicate = result.Duplicate,
+                    lead = ToLeadResponse(result.Lead, DateTimeOffset.UtcNow)
+                });
+            }
+            catch (DomainRuleException ex)
+            {
+                return MapDomainException(ex);
+            }
+        });
+
+        app.MapGet("/platform-connections", (HttpContext http) =>
+        {
+            ReadActor(http);
+            return Results.Ok(PlatformCatalog.MockConnections.Select(c => new
+            {
+                provider = c.Provider,
+                displayName = c.DisplayName,
+                capabilities = c.Capabilities,
+                mode = c.Mode,
+                token = (string?)null
+            }));
+        });
+
+        app.MapGet("/analytics/leads-by-platform", async (LeadService leads, HttpContext http, CancellationToken cancellationToken) =>
+        {
+            try
+            {
+                ReadActor(http);
+                var rows = await leads.SummarizeByPlatformAsync(cancellationToken);
+                return Results.Ok(new
+                {
+                    fetchedAt = DateTimeOffset.UtcNow,
+                    source = "unified-data-layer",
+                    dataFreshness = "demo",
+                    platforms = rows
+                });
+            }
+            catch (DomainRuleException ex)
+            {
+                return MapDomainException(ex);
+            }
+        });
+
         app.MapPost("/leads/webhook", async (FormLeadRequest request, LeadService leads, HttpContext http, CancellationToken cancellationToken) =>
         {
             try
@@ -436,6 +501,9 @@ internal static class MarketingEndpoints
                 total = lead.Breakdown.Total
             },
             reasons = lead.Reasons,
+            scoreModel = lead.ScoreModel,
+            scoreVersion = lead.ScoreVersion,
+            scoredAtUtc = lead.ScoredAtUtc,
             campaignId = lead.CampaignId,
             assignedToActor = lead.AssignedToActor,
             assignedAtUtc = lead.AssignedAtUtc,
@@ -521,6 +589,13 @@ internal sealed record CreateSpendProposalRequest(
     string? Rationale);
 
 internal sealed record FormLeadRequest(string? Name, string? Phone, string? Email, Guid? CampaignId);
+
+internal sealed record PlatformLeadWebhookRequest(
+    string? ExternalEventId,
+    string? Name,
+    string? Phone,
+    string? Email,
+    Guid? CampaignId);
 
 internal sealed record RecordTrafficRequest(
     DateOnly? PeriodDate,

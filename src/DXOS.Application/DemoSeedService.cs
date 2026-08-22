@@ -26,8 +26,26 @@ public sealed class DemoSeedService
 
         var lead80 = await _leads.IntakeFormAsync("Nguyen Van A", "0901234567", "a@example.com", campaign.Id, cancellationToken);
         var lead50 = await _leads.IntakeFormAsync("Le Thi B", "0907654321", null, campaign.Id, cancellationToken);
+        var facebook = await _leads.IntakePlatformWebhookAsync(
+            "facebook",
+            "demo-fb-lead-001",
+            "Nguyễn Văn A",
+            "0901234567",
+            "a@example.com",
+            campaign.Id,
+            null,
+            cancellationToken);
+        var tiktok = await _leads.IntakePlatformWebhookAsync(
+            "tiktok",
+            "demo-tt-lead-001",
+            "Nguyễn Văn A",
+            "0901234567",
+            "a@example.com",
+            campaign.Id,
+            null,
+            cancellationToken);
 
-        return new DemoSeedResult(campaign, new[] { lead80, lead50 });
+        return new DemoSeedResult(campaign, new[] { lead80, lead50, facebook.Lead, tiktok.Lead });
     }
 }
 

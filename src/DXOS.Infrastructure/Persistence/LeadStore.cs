@@ -76,6 +76,9 @@ public sealed class LeadStore : ILeadStore
         record.Label = lead.Label.ToString();
         record.ScoreBreakdownJson = JsonSerializer.Serialize(lead.Breakdown);
         record.ReasonsJson = JsonSerializer.Serialize(lead.Reasons);
+        record.ScoreModel = lead.ScoreModel;
+        record.ScoreVersion = lead.ScoreVersion;
+        record.ScoredAtUtc = lead.ScoredAtUtc;
         record.CampaignId = lead.CampaignId;
         record.AssignedToActor = lead.AssignedToActor;
         record.AssignedAtUtc = lead.AssignedAtUtc;
@@ -167,6 +170,9 @@ public sealed class LeadStore : ILeadStore
             Label = lead.Label.ToString(),
             ScoreBreakdownJson = JsonSerializer.Serialize(lead.Breakdown),
             ReasonsJson = JsonSerializer.Serialize(lead.Reasons),
+            ScoreModel = lead.ScoreModel,
+            ScoreVersion = lead.ScoreVersion,
+            ScoredAtUtc = lead.ScoredAtUtc,
             CampaignId = lead.CampaignId,
             AssignedToActor = lead.AssignedToActor,
             AssignedAtUtc = lead.AssignedAtUtc,
@@ -228,6 +234,9 @@ public sealed class LeadStore : ILeadStore
             rejectedBy,
             record.LastRejectionReason,
             record.CreatedAtUtc,
-            record.UpdatedAtUtc == default ? record.CreatedAtUtc : record.UpdatedAtUtc);
+            record.UpdatedAtUtc == default ? record.CreatedAtUtc : record.UpdatedAtUtc,
+            record.ScoreModel,
+            record.ScoreVersion,
+            record.ScoredAtUtc);
     }
 }

@@ -68,7 +68,7 @@ public sealed class ArchitectureTests
     public void Domain_MustNotReference_ProhibitedAssemblies()
     {
         var referenced = DomainAssembly.GetReferencedAssemblies().Select(a => a.Name).ToList();
-        var prohibitedPrefixes = new[] { "Elsa", "Microsoft.EntityFrameworkCore", "Npgsql", "Aspire", "Testcontainers" };
+        var prohibitedPrefixes = new[] { "Elsa", "Microsoft.EntityFrameworkCore", "Npgsql", "Aspire", "Testcontainers", "Facebook", "TikTok", "Zalo" };
 
         foreach (var prefix in prohibitedPrefixes)
         {

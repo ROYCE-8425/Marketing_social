@@ -2,6 +2,9 @@ namespace DXOS.Domain;
 
 public static class LeadScoring
 {
+    public const string ModelId = "rules";
+    public const string Version = "1.1.0";
+
     public const int PhoneAndEmailScore = 80;
     public const int PhoneOrEmailScore = 50;
     public const int FallbackScore = 20;
@@ -44,22 +47,22 @@ public static class LeadScoring
         var hasPhone = !string.IsNullOrWhiteSpace(phone);
         var hasEmail = !string.IsNullOrWhiteSpace(email);
         int behavior;
-        if (source == LeadSource.Form)
+        if (source is LeadSource.Form or LeadSource.Facebook or LeadSource.TikTok)
         {
             if (hasPhone && hasEmail)
             {
                 behavior = 40;
-                reasons.Add("Hành vi: Điền form website cung cấp đủ SĐT và Email (+40đ)");
+                reasons.Add("Hành vi: Lead form cung cấp đủ SĐT và Email (+40đ)");
             }
             else if (hasPhone || hasEmail)
             {
                 behavior = 30;
-                reasons.Add("Hành vi: Điền form website cung cấp một thông tin liên hệ (+30đ)");
+                reasons.Add("Hành vi: Lead form cung cấp một thông tin liên hệ (+30đ)");
             }
             else
             {
                 behavior = 10;
-                reasons.Add("Hành vi: Điền form không để lại thông tin liên hệ (+10đ)");
+                reasons.Add("Hành vi: Lead form không để lại thông tin liên hệ (+10đ)");
             }
         }
         else if (source == LeadSource.Call)
@@ -67,7 +70,7 @@ public static class LeadScoring
             behavior = hasPhone ? 30 : 10;
             reasons.Add(hasPhone ? "Hành vi: Cuộc gọi trực tiếp có số điện thoại (+30đ)" : "Hành vi: Cuộc gọi không rõ số (+10đ)");
         }
-        else // Message
+        else // Message or Zalo OA
         {
             behavior = (hasPhone || hasEmail) ? 25 : 10;
             reasons.Add((hasPhone || hasEmail) ? "Hành vi: Tin nhắn có thông tin liên hệ (+25đ)" : "Hành vi: Tin nhắn vãng lai (+10đ)");
@@ -79,6 +82,21 @@ public static class LeadScoring
         {
             channel = 20;
             reasons.Add("Kênh: Form Website (+20đ)");
+        }
+        else if (source == LeadSource.Facebook)
+        {
+            channel = 17;
+            reasons.Add("Kênh: Facebook lead ads / mock connector (+17đ)");
+        }
+        else if (source == LeadSource.TikTok)
+        {
+            channel = 16;
+            reasons.Add("Kênh: TikTok lead ads / mock connector (+16đ)");
+        }
+        else if (source == LeadSource.Zalo)
+        {
+            channel = 17;
+            reasons.Add("Kênh: Zalo OA / mock connector (+17đ)");
         }
         else if (source == LeadSource.Call)
         {
