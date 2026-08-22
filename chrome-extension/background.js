@@ -9,8 +9,8 @@ chrome.runtime.onInstalled.addListener(async () => {
   console.log('[AIECOS] Extension v4.1.0 installed');
 
   chrome.storage.local.get(['agentUrl', 'agentToken', 'syncStats', 'isSyncing'], (result) => {
-    if (!result.agentUrl) chrome.storage.local.set({ agentUrl: 'https://your-sync-domain.com' });
-    if (!result.agentToken) chrome.storage.local.set({ agentToken: '' });
+    if (!result.agentUrl || result.agentUrl.includes('your-sync-domain')) chrome.storage.local.set({ agentUrl: 'http://localhost:8080' });
+    if (!result.agentToken) chrome.storage.local.set({ agentToken: 'dev-token-change-me-in-prod' });
     if (!result.syncStats) chrome.storage.local.set({ syncStats: {} });
     if (result.isSyncing === undefined) chrome.storage.local.set({ isSyncing: true });
   });

@@ -94,6 +94,11 @@ function isValidMessage(text) {
 function detectChannelType() {
   const url = window.location.href;
 
+  // Direct Zalo Web
+  if (url.includes('chat.zalo.me') || url.includes('zalo.me')) {
+    return 'zalo_user';
+  }
+
   // Zalo OA: URL contains pzl_ or zalo indicators
   if (url.includes('pzl_') || url.includes('/zalo/') || url.includes('zalo_oa')) {
     return 'zalo_oa';
@@ -130,6 +135,10 @@ function detectPageName() {
   try {
     let pageName = null;
 
+    if (window.location.hostname.includes('zalo.me')) {
+      return { name: 'Zalo Cá Nhân (Trần Như Ý)', type: 'zalo_user' };
+    }
+
     // Try specific Pancake selectors
     const selectors = ['.page-name', '[class*="page-selector"]', '[class*="page-title"]', '.shop-name', '[class*="shop-name"]'];
     for (const sel of selectors) {
@@ -165,6 +174,14 @@ function detectPageName() {
 // ── Customer name detection ─────────────────────────────────────────────
 function getCustomerName() {
   try {
+    if (window.location.hostname.includes('zalo.me')) {
+      const zlTitle = document.querySelector('.header-title, [data-id="conv-title"], .chat-header .title, .title.name, .user-name, [class*="header-title"], .chat-name, .header-user-name');
+      if (zlTitle && zlTitle.textContent.trim()) {
+        const t = zlTitle.textContent.trim();
+        if (t.length > 0 && t.length < 100) return t;
+      }
+    }
+
     const selectors = [
       '.contact-name',
       '[class*="contact-name"]',
@@ -202,15 +219,18 @@ function getCustomerName() {
   }
 }
 
-// ── Sender type detection [v4.6 Pancake-specific] ─────────────────────
-// DOM evidence from Pancake (Zalo OA channel):
-//   Outer wrapper: <div id="message_pzl_m_..." class="media inbox-message-ele media-current-customer">
-//   Inner body:    <div class="media-body-text media-message-from-customer">
-//   Inner text:    <div class="message-text-ele client-message">
-//   ALL 3 above appear ONLY for messages from the OTHER PARTY (= customer from page's POV).
-//   For page-side replies, "current-customer" / "from-customer" / "client-message" do NOT appear.
+// ── Sender type detection [v4.6 Pancake & Zalo Web] ─────────────────────
 function detectSenderType(el) {
   try {
+    if (window.location.hostname.includes('zalo.me')) {
+      const parentMsg = el.closest('.chat-item, .msg-item, .card--text, [class*="chat-item"], [class*="msg-item"], [class*="bubble"], .bubble-item') || el;
+      const cls = (parentMsg.className || '') + ' ' + (el.className || '') + ' ' + (parentMsg.parentElement?.className || '');
+      if (/me|outgoing|self|is-me|right|from-me|bubble--me/i.test(cls) || parentMsg.querySelector('.me, .outgoing, .is-me, .from-me')) {
+        return 'agent';
+      }
+      return 'customer';
+    }
+
     // Lấy class của bản thân el + parent + outerHTML để detect
     const selfClass = (el.className || '').toString();
     const parentClass = (el.parentElement?.className || '').toString();
@@ -227,8 +247,6 @@ function detectSenderType(el) {
     }
 
     // Agent markers — Pancake typically uses:
-    //   media-current-page / media-message-from-page / page-message / agent-message
-    //   or absence of customer markers in inbox-message-ele
     if (/media-current-page|media-message-from-page|page-message|agent-message|from-staff|from-admin/i.test(combined)) {
       return 'agent';
     }
@@ -237,8 +255,6 @@ function detectSenderType(el) {
     if (/(?:agent|admin|staff|reply|outgoing|sent|self|right)/i.test(combined)) return 'agent';
     if (/(?:incoming|received|left)/i.test(combined)) return 'customer';
 
-    // Nếu el là 1 inbox-message-ele nhưng KHÔNG có customer marker → mặc định là agent
-    // (vì Pancake gắn "current-customer" chỉ cho msg KH; msg page không có marker này)
     if (/inbox-message-ele/i.test(wrapperClass) && !/current-customer|from-customer|client-message/i.test(combined)) {
       return 'agent';
     }
@@ -584,7 +600,7 @@ function isDOMInChatArea(node) {
     if (!node) return false;
     const rect = node.getBoundingClientRect();
     if (rect.width === 0 || rect.height === 0) return false;
-    return rect.x > 350;
+    return rect.x > 150;
   } catch {
     return false;
   }
@@ -713,18 +729,22 @@ function scanExistingMessages() {
     //        → eliminates duplicate scan của child elements (bubble, body, text)
     let elements = document.querySelectorAll('[id^="message_pzl_m_"], [id^="message_fb_m_"]');
 
-    // Fallback nếu không tìm thấy outer wrapper (kênh khác Pancake hoặc DOM thay đổi)
+    // Fallback nếu không tìm thấy outer wrapper (kênh khác Pancake hoặc DOM thay đổi hoặc Zalo Web)
     if (elements.length === 0) {
       const specificSelectors = [
+        '.chat-item',
+        '.msg-view',
+        '.card--text',
+        '.bubble-item',
+        '.msg-item',
+        '.rel.msg-item',
+        '.chat-message',
         '[class*="inbox-message-ele"]',
         '[class*="bubble"]',
         '[role="article"]',
         '.msg-content',
         '.message-content',
         '.message-text',
-        '.chat-message',
-        '[class*="msg-bubble"]',
-        '[class*="message-bubble"]',
       ];
       elements = document.querySelectorAll(specificSelectors.join(', '));
     }

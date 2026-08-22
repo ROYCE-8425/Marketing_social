@@ -7,12 +7,20 @@
   "host_permissions": [
     "http://localhost:*/*",
     "https://*.pancake.vn/*",
-    "http://*.pancake.vn/*"
+    "http://*.pancake.vn/*",
+    "https://*.zalo.me/*",
+    "http://*.zalo.me/*"
   ],
   "optional_host_permissions": ["https://*/*", "http://*/*"],
   "background": { "service_worker": "background.js" },
   "content_scripts": [{
-    "matches": ["*://app.pancake.vn/*", "*://pancake.vn/*", "*://*.pancake.vn/*"],
+    "matches": [
+      "*://app.pancake.vn/*",
+      "*://pancake.vn/*",
+      "*://*.pancake.vn/*",
+      "*://chat.zalo.me/*",
+      "*://*.zalo.me/*"
+    ],
     "js": ["content.js"],
     "run_at": "document_idle"
   }],
