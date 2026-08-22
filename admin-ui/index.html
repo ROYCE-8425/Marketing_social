@@ -181,8 +181,12 @@
   .theme-toggle:hover { background:var(--bg-subtle); color:var(--text); }
 
   /* ── Status pill (improved) ── */
-  .pill { display:inline-flex; align-items:center; gap:4px; padding:2px 8px; border-radius:6px; font-size:11px; font-weight:600; }
-  .pill-active { background:rgba(16,185,129,.12); color:var(--green); }
+  .pill { display:inline-flex; align-items:center; gap:4px; padding:2px 8px; border-radius:6px; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.3px; }
+  .pill-active { background:rgba(16,185,129,.15); color:var(--green); border:1px solid rgba(16,185,129,.25); }
+  .pill-replied { background:rgba(59,130,246,.15); color:#2563eb; border:1px solid rgba(59,130,246,.25); }
+  .pill-lead { background:rgba(245,158,11,.18); color:#d97706; border:1px solid rgba(245,158,11,.3); }
+  .pill-waiting { background:rgba(139,92,246,.18); color:#7c3aed; border:1px solid rgba(139,92,246,.3); }
+  .pill-closed { background:rgba(100,116,139,.18); color:#475569; border:1px solid rgba(100,116,139,.3); }
   .pill-sleeping { background:rgba(245,158,11,.12); color:var(--yellow); }
   .pill-at_risk { background:rgba(249,115,22,.12); color:var(--orange); }
   .pill-dormant { background:rgba(236,72,153,.12); color:var(--pink); }
@@ -193,13 +197,33 @@
   tbody tr:hover { background:var(--bg-hover); }
 
   /* ── Avatar circles (color by stage) ── */
-  .avatar-c { width:36px; height:36px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; color:#fff; font-weight:600; font-size:12px; flex-shrink:0; }
+  .avatar-wrapper { position:relative; display:inline-flex; flex-shrink:0; }
+  .avatar-c { width:38px; height:38px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; color:#fff; font-weight:700; font-size:13px; flex-shrink:0; }
   .avatar-c.active { background:linear-gradient(135deg, #10b981, #059669); }
+  .avatar-c.replied { background:linear-gradient(135deg, #3b82f6, #1d4ed8); }
+  .avatar-c.lead { background:linear-gradient(135deg, #f59e0b, #b45309); }
+  .avatar-c.waiting { background:linear-gradient(135deg, #8b5cf6, #6d28d9); }
+  .avatar-c.closed { background:linear-gradient(135deg, #64748b, #475569); }
   .avatar-c.sleeping { background:linear-gradient(135deg, #f59e0b, #d97706); }
   .avatar-c.at_risk { background:linear-gradient(135deg, #f97316, #ea580c); }
   .avatar-c.dormant { background:linear-gradient(135deg, #ec4899, #db2777); }
   .avatar-c.churned { background:linear-gradient(135deg, #ef4444, #dc2626); }
   .avatar-c.sm { width:28px; height:28px; font-size:10px; }
+
+  /* Platform badge */
+  .platform-badge { position:absolute; bottom:-2px; right:-2px; width:17px; height:17px; border-radius:50%; display:flex; align-items:center; justify-content:center; box-shadow:0 1px 3px rgba(0,0,0,0.25); border:1.5px solid #fff; }
+  .platform-badge.facebook { background:#1877F2; color:#fff; }
+  .platform-badge.lead { background:#f59e0b; color:#fff; }
+  .platform-badge.zalo { background:#0068FF; color:#fff; }
+  .platform-badge.instagram { background:linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); color:#fff; }
+  .platform-badge svg, .platform-badge i { width:9px !important; height:9px !important; stroke-width:2.5px; }
+
+  /* Chat reply bar */
+  .inbox-reply-bar { display:flex; gap:10px; padding:12px 18px; border-top:1px solid var(--border); background:var(--bg-card); align-items:center; }
+  .inbox-reply-bar input { flex:1; padding:9px 16px; border:1px solid var(--border); border-radius:20px; font-size:13px; outline:none; background:var(--bg-subtle); color:var(--text); font-family:inherit; transition:all .2s; }
+  .inbox-reply-bar input:focus { border-color:var(--accent); background:#fff; box-shadow:0 0 0 3px rgba(59,130,246,.15); }
+  .inbox-reply-bar button { padding:8px 18px; border-radius:20px; display:inline-flex; align-items:center; gap:6px; font-size:13px; font-weight:600; cursor:pointer; }
+  .status-select { padding:4px 10px; border:1px solid var(--border); border-radius:8px; font-size:11px; font-weight:600; background:var(--bg-subtle); color:var(--text); cursor:pointer; outline:none; }
 
   /* ── KPI cards with delta ── */
   .stat-card .delta { font-size:11px; font-weight:600; display:inline-block; padding:1px 6px; border-radius:4px; margin-left:6px; vertical-align:middle; }
@@ -449,9 +473,13 @@
             <div class="tab active" onclick="switchInboxTab('msgs', this)"><i data-lucide="message-circle" class="icon-sm"></i>Tin nhắn</div>
             <div class="tab" onclick="switchInboxTab('info', this)"><i data-lucide="user" class="icon-sm"></i>Thông tin khách</div>
           </div>
-          <div class="inbox-pane-body">
-            <div id="inboxTabMsgs" class="msg-thread"></div>
-            <div id="inboxTabInfo" class="info-panel" style="display:none;"></div>
+          <div class="inbox-pane-body" style="display:flex; flex-direction:column; height:100%; overflow:hidden;">
+            <div id="inboxTabMsgs" class="msg-thread" style="flex:1; overflow-y:auto;"></div>
+            <div id="inboxTabInfo" class="info-panel" style="display:none; flex:1; overflow-y:auto;"></div>
+            <div class="inbox-reply-bar" id="inboxReplyBar" style="display:none;">
+              <input type="text" id="inboxReplyInput" placeholder="Nhập tin nhắn trả lời khách hàng..." onkeydown="if(event.key==='Enter') sendReply()">
+              <button class="btn btn-primary" id="btnSendReply" onclick="sendReply()"><i data-lucide="send" class="icon-sm"></i> Gửi</button>
+            </div>
           </div>
         </div>
       </div>
@@ -1401,10 +1429,16 @@ function renderInbox() {
 
   document.getElementById('inboxList').innerHTML = convs.length === 0 ? '<div class="empty-state" style="padding:30px 20px;"><i data-lucide="inbox" style="opacity:.3;"></i><h3>Không có hội thoại</h3></div>' : convs.map(c => {
     const cust = _customers.find(cu => c.id.endsWith((cu.name||'').toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,'')));
-    const stage = cust?._stage || 'active';
+    const platform = c.platform || (c.id.startsWith('fb_') ? (c.id.includes('lead') ? 'lead' : 'facebook') : (c.id.startsWith('zalo_') ? 'zalo' : 'facebook'));
+    const stage = c.stage || (c.id.includes('lead') ? 'lead' : c.is_replied ? 'replied' : (cust?._stage || 'active'));
     const initial = (c.customer_name || c.id).charAt(0).toUpperCase();
+    const pIcon = platform === 'facebook' ? '<i data-lucide="facebook"></i>' : platform === 'lead' ? '<i data-lucide="file-text"></i>' : platform === 'zalo' ? '<i data-lucide="message-square"></i>' : '<i data-lucide="instagram"></i>';
+
     return `<div class="conv-item ${_selectedConv === c.id ? 'active' : ''}" onclick="selectConv('${esc(c.id)}')">
-      <div class="avatar-c ${stage}">${esc(initial)}</div>
+      <div class="avatar-wrapper">
+        <div class="avatar-c ${stage}">${esc(initial)}</div>
+        <span class="platform-badge ${platform}" title="${platform}">${pIcon}</span>
+      </div>
       <div class="body">
         <div class="top">
           <span class="name">${esc((c.customer_name||c.id).slice(0,28))}</span>
@@ -1419,6 +1453,7 @@ function renderInbox() {
     </div>`;
   }).join('');
 
+  if (window.lucide) lucide.createIcons();
   if (_selectedConv) renderInboxDetail();
 }
 
@@ -1432,19 +1467,34 @@ function renderInboxDetail() {
   const conv = _conversations.find(c => c.id === _selectedConv);
   if (!conv) return;
   const cust = _customers.find(cu => conv.id.endsWith((cu.name||'').toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,'')));
-  const stage = cust?._stage || 'active';
+  const platform = conv.platform || (conv.id.startsWith('fb_') ? (conv.id.includes('lead') ? 'lead' : 'facebook') : (conv.id.startsWith('zalo_') ? 'zalo' : 'facebook'));
+  const stage = conv.stage || (conv.id.includes('lead') ? 'lead' : conv.is_replied ? 'replied' : (cust?._stage || 'active'));
   const msgs = _messages.filter(m => m.conversation_id === _selectedConv).slice().reverse(); // chronological
+  const pIcon = platform === 'facebook' ? '<i data-lucide="facebook"></i>' : platform === 'lead' ? '<i data-lucide="file-text"></i>' : platform === 'zalo' ? '<i data-lucide="message-square"></i>' : '<i data-lucide="instagram"></i>';
 
-  // Header
+  // Header with Status selector
   document.getElementById('inboxDetailHeader').innerHTML = `
-    <div style="display:flex; align-items:center; gap:10px; text-transform:none; font-weight:normal;">
-      <div class="avatar-c sm ${stage}">${esc((conv.customer_name||'?').charAt(0).toUpperCase())}</div>
-      <div>
-        <div style="font-weight:600; color:var(--text); font-size:14px;">${esc(conv.customer_name || conv.id)}</div>
-        <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">
-          <span class="pill pill-${stage}">${stage.toUpperCase()}</span>
-          · ${msgs.length} messages
+    <div style="display:flex; align-items:center; gap:10px; width:100%; justify-content:space-between;">
+      <div style="display:flex; align-items:center; gap:10px;">
+        <div class="avatar-wrapper">
+          <div class="avatar-c sm ${stage}">${esc((conv.customer_name||'?').charAt(0).toUpperCase())}</div>
+          <span class="platform-badge ${platform}" style="width:13px; height:13px; font-size:7px;">${pIcon}</span>
         </div>
+        <div>
+          <div style="font-weight:600; color:var(--text); font-size:14px;">${esc(conv.customer_name || conv.id)}</div>
+          <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">
+            ${msgs.length} tin nhắn · ${platform.toUpperCase()}
+          </div>
+        </div>
+      </div>
+      <div style="display:flex; align-items:center; gap:8px;">
+        <select class="status-select" onchange="changeConvStatus('${esc(conv.id)}', this.value)">
+          <option value="active" ${stage==='active'?'selected':''}>🟢 ACTIVE (Mới / Đang chat)</option>
+          <option value="replied" ${stage==='replied'?'selected':''}>🔵 REPLIED (Đã trả lời)</option>
+          <option value="lead" ${stage==='lead'?'selected':''}>🟠 LEAD (Khách để lại form)</option>
+          <option value="waiting" ${stage==='waiting'?'selected':''}>🟣 WAITING (Chờ khách)</option>
+          <option value="closed" ${stage==='closed'?'selected':''}>⚪ CLOSED (Đã chốt / Đóng)</option>
+        </select>
       </div>
     </div>`;
 
@@ -1459,16 +1509,23 @@ function renderInboxDetail() {
       html += `<div class="date-sep"><span>${label}</span></div>`;
       lastDate = date;
     }
+    const isAgent = m.sender_type === 'agent';
     const initial = (m.sender_name||'?').charAt(0).toUpperCase();
     html += `<div class="msg-row ${m.sender_type}">
-      <div class="avatar-c sm ${m.sender_type==='customer'?stage:'active'}">${esc(initial)}</div>
+      <div class="avatar-c sm ${isAgent ? 'replied' : stage}">${esc(initial)}</div>
       <div>
         <div class="bubble">${esc(m.content)}</div>
         <div class="time-mini">${esc(m.sender_name||'?')} · ${(m.created_time||'').slice(11,16)}</div>
       </div>
     </div>`;
   });
-  document.getElementById('inboxTabMsgs').innerHTML = html;
+  const thread = document.getElementById('inboxTabMsgs');
+  thread.innerHTML = html;
+  setTimeout(() => { thread.scrollTop = thread.scrollHeight; }, 50);
+
+  // Show reply bar
+  const replyBar = document.getElementById('inboxReplyBar');
+  if (replyBar) replyBar.style.display = 'flex';
 
   // Customer info tab
   if (cust) {
@@ -1484,9 +1541,80 @@ function renderInboxDetail() {
       <div class="info-row"><span class="label">First seen</span><span class="value">${(cust.first_seen_at||'').slice(0,10) || '—'}</span></div>
       <div class="info-row"><span class="label">Last seen</span><span class="value">${(cust.last_seen_at||'').slice(0,16) || '—'}</span></div>
       <div style="margin-top:18px; display:flex; gap:8px;">
-        <button class="btn btn-primary" style="flex:1;" onclick="toast('Reply sent (demo)','success');"><i data-lucide="send" class="icon-sm"></i> Reply</button>
+        <button class="btn btn-primary" style="flex:1;" onclick="document.getElementById('inboxReplyInput')?.focus();"><i data-lucide="send" class="icon-sm"></i> Reply</button>
         <button class="btn" onclick="openPartnerDrawer(_customers.find(c => c.id === '${esc(cust.id)}'))"><i data-lucide="external-link" class="icon-sm"></i></button>
       </div>`;
+  }
+  if (window.lucide) lucide.createIcons();
+}
+
+async function sendReply() {
+  const input = document.getElementById('inboxReplyInput');
+  if (!input) return;
+  const text = input.value.trim();
+  if (!text || !_selectedConv) return;
+  input.value = '';
+
+  const btn = document.getElementById('btnSendReply');
+  if (btn) btn.disabled = true;
+
+  // Optimistic local add
+  const tempMsg = {
+    id: 'temp_' + Date.now(),
+    conversation_id: _selectedConv,
+    sender_name: 'Royce Shop',
+    sender_type: 'agent',
+    content: text,
+    created_time: new Date().toISOString()
+  };
+  _messages.unshift(tempMsg);
+  const conv = _conversations.find(c => c.id === _selectedConv);
+  if (conv) {
+    conv.snippet = 'Bạn: ' + text;
+    conv.is_replied = true;
+    conv.stage = 'replied';
+  }
+  renderInboxDetail();
+  renderInbox();
+
+  try {
+    const res = await fetch(`${API_BASE}/conversations/${encodeURIComponent(_selectedConv)}/messages`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ content: text })
+    });
+    if (res.ok) {
+      toast('Đã gửi tin nhắn đến khách hàng!', 'success');
+    } else {
+      toast('Gửi tin nhắn thất bại', 'error');
+    }
+  } catch (e) {
+    console.error(e);
+  } finally {
+    if (btn) btn.disabled = false;
+    await loadAll();
+  }
+}
+
+async function changeConvStatus(convId, status) {
+  const conv = _conversations.find(c => c.id === convId);
+  if (conv) {
+    conv.stage = status;
+    conv.status = status.toUpperCase();
+  }
+  renderInbox();
+  renderInboxDetail();
+  try {
+    const res = await fetch(`${API_BASE}/conversations/${encodeURIComponent(convId)}/status`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: status })
+    });
+    if (res.ok) {
+      toast(`Đã cập nhật trạng thái: ${status.toUpperCase()}`, 'success');
+    }
+  } catch (e) {
+    console.error(e);
   }
 }
 

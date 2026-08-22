@@ -313,44 +313,65 @@ internal static class MarketingEndpoints
                                     var timestampMs = msgEvent.TryGetProperty("timestamp", out var tsProp) ? tsProp.GetInt64() : DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
                                     var messageTime = DateTimeOffset.FromUnixTimeMilliseconds(timestampMs);
 
-                                    string senderName = $"Khách Facebook {senderId.Substring(0, Math.Min(4, senderId.Length))}";
-                                    if (!string.IsNullOrWhiteSpace(pageToken) && !string.Equals(fbMode, "mock", StringComparison.OrdinalIgnoreCase))
+                                    var isEcho = (msgObj.TryGetProperty("is_echo", out var echoProp) && echoProp.GetBoolean()) || string.Equals(senderId, entryPageId, StringComparison.OrdinalIgnoreCase);
+
+                                    string pageId = entryPageId ?? "988656934325292";
+                                    string customerPsid;
+                                    string senderType;
+                                    string senderName;
+
+                                    if (isEcho)
                                     {
-                                        var fetchedName = await facebookClient.FetchUserProfileNameAsync(senderId, pageToken, cancellationToken: cancellationToken);
-                                        if (!string.IsNullOrWhiteSpace(fetchedName))
+                                        customerPsid = recipientId ?? "";
+                                        senderType = "agent";
+                                        senderName = "Royce Shop";
+                                    }
+                                    else
+                                    {
+                                        customerPsid = senderId;
+                                        senderType = "customer";
+                                        senderName = $"Khách Facebook {senderId.Substring(0, Math.Min(4, senderId.Length))}";
+                                        if (!string.IsNullOrWhiteSpace(pageToken) && !string.Equals(fbMode, "mock", StringComparison.OrdinalIgnoreCase))
                                         {
-                                            senderName = fetchedName;
+                                            var fetchedName = await facebookClient.FetchUserProfileNameAsync(senderId, pageToken, cancellationToken: cancellationToken);
+                                            if (!string.IsNullOrWhiteSpace(fetchedName))
+                                            {
+                                                senderName = fetchedName;
+                                            }
                                         }
                                     }
 
-                                    var convId = $"fb_{recipientId}_{senderId}";
-                                    var custId = $"fb_user_{senderId}";
+                                    var convId = $"fb_{pageId}_{customerPsid}";
+                                    var custId = $"fb_user_{customerPsid}";
 
                                     await IngestSocialMessageAsync(
                                         db,
-                                        recipientId ?? "988656934325292",
+                                        pageId,
                                         custId,
-                                        senderName,
+                                        isEcho ? "Khách hàng" : senderName,
                                         convId,
                                         mid ?? Guid.NewGuid().ToString("N"),
                                         senderId,
                                         senderName,
-                                        "customer",
+                                        senderType,
                                         text ?? "",
                                         messageTime,
                                         cancellationToken);
 
-                                    await leads.IntakePlatformWebhookAsync(
-                                        "facebook",
-                                        mid ?? Guid.NewGuid().ToString("N"),
-                                        senderName,
-                                        null,
-                                        null,
-                                        null,
-                                        rawBody,
-                                        cancellationToken);
+                                    if (!isEcho)
+                                    {
+                                        await leads.IntakePlatformWebhookAsync(
+                                            "facebook",
+                                            mid ?? Guid.NewGuid().ToString("N"),
+                                            senderName,
+                                            null,
+                                            null,
+                                            null,
+                                            rawBody,
+                                            cancellationToken);
+                                    }
 
-                                    logger.LogInformation("Processed Messenger message from {Sender} ({SenderId}): {Text}", senderName, senderId, text);
+                                    logger.LogInformation("Processed Messenger message ({Type}) from {Sender}: {Text}", senderType, senderName, text);
                                 }
                             }
                         }
@@ -471,18 +492,163 @@ internal static class MarketingEndpoints
         app.MapGet("/conversations", async (BootstrapDbContext db, CancellationToken ct) =>
         {
             var list = await db.SocialConversations.AsNoTracking().OrderByDescending(c => c.UpdatedAt).ToListAsync(ct);
-            return Results.Ok(list.Select(c => new
+            return Results.Ok(list.Select(c =>
             {
-                id = c.Id,
-                page_id = c.PageId,
-                customer_id = c.CustomerId,
-                customer_name = c.CustomerName,
-                snippet = c.Snippet,
-                message_count = c.MessageCount,
-                has_phone = c.HasPhone,
-                is_replied = c.IsReplied,
-                updated_at = c.UpdatedAt
+                var platform = c.Id.StartsWith("fb_") ? (c.Id.Contains("lead") ? "lead" : "facebook") : (c.Id.StartsWith("zalo_") ? "zalo" : "facebook");
+                string stage = "active";
+                if (c.Id.Contains("lead") || c.HasPhone) stage = "lead";
+                else if (c.IsReplied) stage = "replied";
+
+                if (!string.IsNullOrWhiteSpace(c.TagsJson) && c.TagsJson.Contains("status:"))
+                {
+                    try
+                    {
+                        var tags = JsonSerializer.Deserialize<string[]>(c.TagsJson);
+                        var tag = tags?.FirstOrDefault(t => t.StartsWith("status:"));
+                        if (tag is not null) stage = tag.Substring("status:".Length);
+                    }
+                    catch { }
+                }
+
+                return new
+                {
+                    id = c.Id,
+                    page_id = c.PageId,
+                    customer_id = c.CustomerId,
+                    customer_name = c.CustomerName,
+                    snippet = c.Snippet,
+                    message_count = c.MessageCount,
+                    has_phone = c.HasPhone,
+                    is_replied = c.IsReplied,
+                    stage = stage,
+                    status = stage.ToUpperInvariant(),
+                    platform = platform,
+                    tags = c.TagsJson,
+                    updated_at = c.UpdatedAt
+                };
             }));
+        });
+
+        app.MapPost("/conversations/{id}/messages", async (
+            string id,
+            SendSocialMessageRequest request,
+            BootstrapDbContext db,
+            IHttpClientFactory httpFactory,
+            IConfiguration config,
+            ILoggerFactory loggerFactory,
+            CancellationToken cancellationToken) =>
+        {
+            if (string.IsNullOrWhiteSpace(request.Content))
+            {
+                return Results.BadRequest(new { error = "Content is required" });
+            }
+
+            var conv = await db.SocialConversations.FirstOrDefaultAsync(c => c.Id == id, cancellationToken);
+            if (conv is null)
+            {
+                return Results.NotFound(new { error = "Conversation not found" });
+            }
+
+            var pageToken = config["FACEBOOK_PAGE_ACCESS_TOKEN"] ?? config["Facebook:PageAccessToken"];
+            var fbMode = config["FACEBOOK_MODE"] ?? config["Facebook:Mode"] ?? "mock";
+            var pageId = conv.PageId ?? "988656934325292";
+
+            // Extract customer PSID
+            string? customerPsid = null;
+            if (conv.Id.StartsWith("fb_") && !conv.Id.Contains("lead"))
+            {
+                var parts = conv.Id.Split('_');
+                if (parts.Length >= 3)
+                {
+                    customerPsid = parts[2];
+                }
+            }
+            if (string.IsNullOrWhiteSpace(customerPsid) && !string.IsNullOrWhiteSpace(conv.CustomerId))
+            {
+                customerPsid = conv.CustomerId.Replace("fb_user_", "");
+            }
+
+            // Call Facebook Send API if live
+            if (!string.IsNullOrWhiteSpace(pageToken) && !string.IsNullOrWhiteSpace(customerPsid) && !string.Equals(fbMode, "mock", StringComparison.OrdinalIgnoreCase))
+            {
+                try
+                {
+                    var httpClient = httpFactory.CreateClient();
+                    var sendUrl = $"https://graph.facebook.com/v21.0/me/messages?access_token={Uri.EscapeDataString(pageToken)}";
+                    var payload = new
+                    {
+                        recipient = new { id = customerPsid },
+                        messaging_type = "RESPONSE",
+                        message = new { text = request.Content }
+                    };
+                    var bodyContent = new StringContent(JsonSerializer.Serialize(payload), System.Text.Encoding.UTF8, "application/json");
+                    using var response = await httpClient.PostAsync(sendUrl, bodyContent, cancellationToken);
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        var errStr = await response.Content.ReadAsStringAsync(cancellationToken);
+                        var logger = loggerFactory.CreateLogger("DXOS.FacebookSend");
+                        logger.LogWarning("Facebook Send API warning: {Error}", errStr);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    var logger = loggerFactory.CreateLogger("DXOS.FacebookSend");
+                    logger.LogError(ex, "Failed to send Facebook Messenger message via Graph API");
+                }
+            }
+
+            var msgId = $"agent_msg_{Guid.NewGuid():N}";
+            var now = DateTimeOffset.UtcNow;
+
+            await IngestSocialMessageAsync(
+                db,
+                pageId,
+                conv.CustomerId ?? $"fb_user_{customerPsid ?? "unknown"}",
+                conv.CustomerName ?? "Khách hàng",
+                conv.Id,
+                msgId,
+                pageId,
+                "Royce Shop",
+                "agent",
+                request.Content,
+                now,
+                cancellationToken);
+
+            return Results.Ok(new
+            {
+                success = true,
+                id = msgId,
+                conversation_id = conv.Id,
+                sender_type = "agent",
+                sender_name = "Royce Shop",
+                content = request.Content,
+                created_time = now
+            });
+        });
+
+        app.MapPost("/conversations/{id}/status", async (
+            string id,
+            UpdateConversationStatusRequest request,
+            BootstrapDbContext db,
+            CancellationToken cancellationToken) =>
+        {
+            var conv = await db.SocialConversations.FirstOrDefaultAsync(c => c.Id == id, cancellationToken);
+            if (conv is null)
+            {
+                return Results.NotFound(new { error = "Conversation not found" });
+            }
+
+            var status = request.Status?.Trim().ToLowerInvariant() ?? "active";
+            conv.TagsJson = JsonSerializer.Serialize(new[] { $"status:{status}" });
+            conv.UpdatedAt = DateTimeOffset.UtcNow;
+            await db.SaveChangesAsync(cancellationToken);
+
+            return Results.Ok(new
+            {
+                success = true,
+                id = conv.Id,
+                status = status.ToUpperInvariant()
+            });
         });
 
         app.MapGet("/messages", async (BootstrapDbContext db, CancellationToken ct) =>
@@ -1018,13 +1184,19 @@ internal static class MarketingEndpoints
             }
             else
             {
-                customer.Name = customerName;
+                if (!string.Equals(senderType, "agent", StringComparison.OrdinalIgnoreCase) && !string.IsNullOrWhiteSpace(customerName) && customerName != "Khách hàng")
+                {
+                    customer.Name = customerName;
+                }
                 customer.LastSeenAt = createdTime;
                 customer.UpdatedAt = DateTimeOffset.UtcNow;
             }
             await db.SaveChangesAsync(cancellationToken);
 
             // 3. Conversation
+            var snippet = string.Equals(senderType, "agent", StringComparison.OrdinalIgnoreCase) ? $"Bạn: {content}" : content;
+            var isReplied = string.Equals(senderType, "agent", StringComparison.OrdinalIgnoreCase);
+
             var conv = await db.SocialConversations.FirstOrDefaultAsync(c => c.Id == conversationId, cancellationToken);
             if (conv is null)
             {
@@ -1034,7 +1206,8 @@ internal static class MarketingEndpoints
                     PageId = pageId,
                     CustomerId = customerId,
                     CustomerName = customerName,
-                    Snippet = content,
+                    Snippet = snippet,
+                    IsReplied = isReplied,
                     MessageCount = 1,
                     InsertedAt = createdTime,
                     UpdatedAt = createdTime,
@@ -1044,8 +1217,12 @@ internal static class MarketingEndpoints
             }
             else
             {
-                conv.CustomerName = customerName;
-                conv.Snippet = content;
+                if (!string.Equals(senderType, "agent", StringComparison.OrdinalIgnoreCase) && !string.IsNullOrWhiteSpace(customerName) && customerName != "Khách hàng")
+                {
+                    conv.CustomerName = customerName;
+                }
+                conv.Snippet = snippet;
+                conv.IsReplied = isReplied;
                 conv.MessageCount += 1;
                 conv.UpdatedAt = createdTime;
                 conv.SyncedAt = DateTimeOffset.UtcNow;
@@ -1079,6 +1256,10 @@ internal static class MarketingEndpoints
         }
     }
 }
+
+internal sealed record SendSocialMessageRequest(string? Content);
+
+internal sealed record UpdateConversationStatusRequest(string? Status);
 
 internal sealed record CreateCampaignRequest(string? Topic);
 
