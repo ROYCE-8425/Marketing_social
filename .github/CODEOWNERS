@@ -1,0 +1,20 @@
+# DX-OS Global Code Owners
+# Each line is a file pattern followed by one or more owners.
+
+# Global fallback: Maintainers review all changes
+*       @ROYCE-8425
+
+# CI and Security Workflows
+/.github/workflows/     @ROYCE-8425
+/scripts/               @ROYCE-8425
+
+# Architecture & ADRs
+/docs/adr/              @ROYCE-8425
+/openspec/              @ROYCE-8425
+
+# Governance and Legal
+/LICENSE                @ROYCE-8425
+/NOTICE                 @ROYCE-8425
+/THIRD_PARTY_NOTICES.md @ROYCE-8425
+/SECURITY.md            @ROYCE-8425
+/GOVERNANCE.md          @ROYCE-8425

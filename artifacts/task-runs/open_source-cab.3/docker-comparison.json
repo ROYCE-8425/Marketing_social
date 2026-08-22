@@ -1,0 +1,17 @@
+{
+    "IsExactMatch":  true,
+    "PreContainersCount":  4,
+    "PreContainersMatched":  4,
+    "PreNetworksCount":  8,
+    "PreNetworksMatched":  8,
+    "PreVolumesCount":  25,
+    "PreVolumesMatched":  25,
+    "MutationsCount":  0,
+    "Mutations":  [
+
+                  ],
+    "TaskResidueCount":  0,
+    "TaskResidue":  [
+
+                    ]
+}

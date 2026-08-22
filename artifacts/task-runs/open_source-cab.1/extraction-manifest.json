@@ -1,0 +1,864 @@
+﻿{
+    "source":  "C:\\Users\\199X\\OneDrive\\Máy tính\\olympic\\open_source",
+    "target":  "C:\\Users\\199X\\OneDrive\\Máy tính\\olympic\\dx-os",
+    "timestamp":  "2026-08-11T15:50:48Z",
+    "entries":  [
+                    {
+                        "RelativePath":  "DXOS_CODEX_MASTER_HANDOFF.md",
+                        "Classification":  "Documentation",
+                        "Action":  "copy",
+                        "Owner":  "DX-OS",
+                        "Reason":  "Master Handoff",
+                        "Size":  42875,
+                        "SHA256":  "1447AE1CE2B0E4302489FEB8ECD5252BD0B251C2FE734F9F37356D066781F0BA"
+                    },
+                    {
+                        "RelativePath":  "docs/audits/BOOTSTRAP-AUDIT-001.md",
+                        "Classification":  "Documentation",
+                        "Action":  "copy",
+                        "Owner":  "DX-OS",
+                        "Reason":  "Audit evidence",
+                        "Size":  21759,
+                        "SHA256":  "6A276D655379ADEE2376B63556CD9265E753A9A628A615D73B74B1164D43A585"
+                    },
+                    {
+                        "RelativePath":  "openspec/config.yaml",
+                        "Classification":  "Specification",
+                        "Action":  "copy",
+                        "Owner":  "DX-OS",
+                        "Reason":  "OpenSpec state",
+                        "Size":  922,
+                        "SHA256":  "2A791B0CCC50E2C2EBBB3BA28692A4AD0E4B6AB94ED2151375AC404D7056E89A"
+                    },
+                    {
+                        "RelativePath":  "openspec/changes/bootstrap-remediation-001/.openspec.yaml",
+                        "Classification":  "Specification",
+                        "Action":  "copy",
+                        "Owner":  "DX-OS",
+                        "Reason":  "OpenSpec state",
+                        "Size":  40,
+                        "SHA256":  "1E29E84341DE33C4849E79CAC1189EDB575E45FB593636616D4FFB1103293BC8"
+                    },
+                    {
+                        "RelativePath":  "openspec/changes/bootstrap-remediation-001/design.md",
+                        "Classification":  "Specification",
+                        "Action":  "copy",
+                        "Owner":  "DX-OS",
+                        "Reason":  "OpenSpec state",
+                        "Size":  19543,
+                        "SHA256":  "5EE80C58A7F827AA0B6FAF0BA43D654AD90ED8ED258BAFFA318268E400959DE0"
+                    },
+                    {
+                        "RelativePath":  "openspec/changes/bootstrap-remediation-001/plan.md",
+                        "Classification":  "Specification",
+                        "Action":  "copy",
+                        "Owner":  "DX-OS",
+                        "Reason":  "OpenSpec state",
+                        "Size":  28674,
+                        "SHA256":  "7A93D15104D6D6CA739F5FEF099337865C85CBAB4442F9969277CECDD5D4F153"
+                    },
+                    {
+                        "RelativePath":  "openspec/changes/bootstrap-remediation-001/proposal.md",
+                        "Classification":  "Specification",
+                        "Action":  "copy",
+                        "Owner":  "DX-OS",
+                        "Reason":  "OpenSpec state",
+                        "Size":  6936,
+                        "SHA256":  "698EDFA06ACB6827AB39B4E4BADDE1F4764422342ED865C9589A46688602D961"
+                    },
+                    {
+                        "RelativePath":  "openspec/changes/bootstrap-remediation-001/research.md",
+                        "Classification":  "Specification",
+                        "Action":  "copy",
+                        "Owner":  "DX-OS",
+                        "Reason":  "OpenSpec state",
+                        "Size":  16559,
+                        "SHA256":  "41AC3AD67FF649023405591E15156451D221F99FE42E72D1E39E8816E815A2EE"
+                    },
+                    {
+                        "RelativePath":  "openspec/changes/bootstrap-remediation-001/tasks.md",
+                        "Classification":  "Specification",
+                        "Action":  "copy",
+                        "Owner":  "DX-OS",
+                        "Reason":  "OpenSpec state",
+                        "Size":  34181,
+                        "SHA256":  "31187CA0D102CAB1754DDF475F55B6F17ECB848E8693FD0954B3B8B27DC66AB8"
+                    },
+                    {
+                        "RelativePath":  "openspec/changes/bootstrap-remediation-001/specs/agent-governance/spec.md",
+                        "Classification":  "Specification",
+                        "Action":  "copy",
+                        "Owner":  "DX-OS",
+                        "Reason":  "OpenSpec state",
+                        "Size":  4789,
+                        "SHA256":  "F61D5FD959996DC22E0EA49B7297118B97A32250C90265F843F35524A39B62DD"
+                    },
+                    {
+                        "RelativePath":  "openspec/changes/bootstrap-remediation-001/specs/engineering-runtime/spec.md",
+                        "Classification":  "Specification",
+                        "Action":  "copy",
+                        "Owner":  "DX-OS",
+                        "Reason":  "OpenSpec state",
+                        "Size":  4858,
+                        "SHA256":  "47F8599B0F8711462C8924D2F786DBF69A6A8DEECCE7679FA38D46C80B2DDB18"
+                    },
+                    {
+                        "RelativePath":  "openspec/changes/bootstrap-remediation-001/specs/quality-evidence/spec.md",
+                        "Classification":  "Specification",
+                        "Action":  "copy",
+                        "Owner":  "DX-OS",
+                        "Reason":  "OpenSpec state",
+                        "Size":  5573,
+                        "SHA256":  "E7FD5FB58196599A3E053B15950F846427E54EAABC7CD76D93C17BA84EC78879"
+                    },
+                    {
+                        "RelativePath":  "openspec/changes/bootstrap-remediation-001/specs/repository-foundation/spec.md",
+                        "Classification":  "Specification",
+                        "Action":  "copy",
+                        "Owner":  "DX-OS",
+                        "Reason":  "OpenSpec state",
+                        "Size":  5365,
+                        "SHA256":  "AFD6A7FBC41D306F29E4C41127B12BADD51E9055D3B8C6A06E90BD300059F2D6"
+                    },
+                    {
+                        "RelativePath":  ".agents/rules/00-authority.md",
+                        "Classification":  "Governance",
+                        "Action":  "copy",
+                        "Owner":  "DX-OS",
+                        "Reason":  "DX-OS Agent Rules",
+                        "Size":  959,
+                        "SHA256":  "079B92B8ED08B69CFF4D8FADD2CB8697CE18B20C9137D05DB10B3CCA88CCD724"
+                    },
+                    {
+                        "RelativePath":  ".agents/rules/10-dotnet-architecture.md",
+                        "Classification":  "Governance",
+                        "Action":  "copy",
+                        "Owner":  "DX-OS",
+                        "Reason":  "DX-OS Agent Rules",
+                        "Size":  184,
+                        "SHA256":  "48503AB42057B93B031BD5BE3A62542658B25162C742C003272801925C149931"
+                    },
+                    {
+                        "RelativePath":  ".agents/rules/20-testing.md",
+                        "Classification":  "Governance",
+                        "Action":  "copy",
+                        "Owner":  "DX-OS",
+                        "Reason":  "DX-OS Agent Rules",
+                        "Size":  269,
+                        "SHA256":  "CBD1ACE71A3883405156DD5FCF1DD39216188683BDC81E09C5817C523666E00D"
+                    },
+                    {
+                        "RelativePath":  ".agents/rules/30-security.md",
+                        "Classification":  "Governance",
+                        "Action":  "copy",
+                        "Owner":  "DX-OS",
+                        "Reason":  "DX-OS Agent Rules",
+                        "Size":  201,
+                        "SHA256":  "AF14774663FD55B092F77DD8E5654E06496CE06FEB66143890FF34DB5E589816"
+                    },
+                    {
+                        "RelativePath":  ".agents/rules/40-database.md",
+                        "Classification":  "Governance",
+                        "Action":  "copy",
+                        "Owner":  "DX-OS",
+                        "Reason":  "DX-OS Agent Rules",
+                        "Size":  101,
+                        "SHA256":  "CE132388557AE6CCB0F93DAC51182F262685F7D17C01703945183653298074DF"
+                    },
+                    {
+                        "RelativePath":  ".agents/rules/50-ai-governance.md",
+                        "Classification":  "Governance",
+                        "Action":  "copy",
+                        "Owner":  "DX-OS",
+                        "Reason":  "DX-OS Agent Rules",
+                        "Size":  302,
+                        "SHA256":  "567D3C99B9F835B5616428D653B600E0333D68AC2ACE4491DE31CDF2E932437B"
+                    },
+                    {
+                        "RelativePath":  ".agents/rules/60-git.md",
+                        "Classification":  "Governance",
+                        "Action":  "copy",
+                        "Owner":  "DX-OS",
+                        "Reason":  "DX-OS Agent Rules",
+                        "Size":  93,
+                        "SHA256":  "E990B18E8FB20A3DBE120BC4F6826158741225D68BC3EF315AF2D019315903E3"
+                    },
+                    {
+                        "RelativePath":  ".agents/skills/beads/SKILL.md",
+                        "Classification":  "Governance",
+                        "Action":  "copy",
+                        "Owner":  "DX-OS",
+                        "Reason":  "DX-OS Agent Skills",
+                        "Size":  2146,
+                        "SHA256":  "1A621606CFA9A14CBACFF84BF5C496B4C2C175C2DF329E8D19D4E01FC989DEDD"
+                    },
+                    {
+                        "RelativePath":  ".agents/skills/beads/agents/openai.yaml",
+                        "Classification":  "Governance",
+                        "Action":  "copy",
+                        "Owner":  "DX-OS",
+                        "Reason":  "DX-OS Agent Skills",
+                        "Size":  175,
+                        "SHA256":  "C7FF618A9A6BCCE71B25F722F67861B7685651D08FB72D8FFF7D947AAC403718"
+                    },
+                    {
+                        "RelativePath":  ".agents/skills/openspec-apply-change/SKILL.md",
+                        "Classification":  "Governance",
+                        "Action":  "copy",
+                        "Owner":  "DX-OS",
+                        "Reason":  "DX-OS Agent Skills",
+                        "Size":  7704,
+                        "SHA256":  "F1F1A448D646A092B1257B2455D0495C8D49C0CCF4567B3311BBC924059DDCF3"
+                    },
+                    {
+                        "RelativePath":  ".agents/skills/openspec-archive-change/SKILL.md",
+                        "Classification":  "Governance",
+                        "Action":  "copy",
+                        "Owner":  "DX-OS",
+                        "Reason":  "DX-OS Agent Skills",
+                        "Size":  10668,
+                        "SHA256":  "96482CB943FDF9ECB51052CA07BCDC3A11E08DEBFFF5E5539460C7E0F57B6DC4"
+                    },
+                    {
+                        "RelativePath":  ".agents/skills/openspec-explore/SKILL.md",
+                        "Classification":  "Governance",
+                        "Action":  "copy",
+                        "Owner":  "DX-OS",
+                        "Reason":  "DX-OS Agent Skills",
+                        "Size":  16225,
+                        "SHA256":  "B5EAF86DE710307E547DAA47B9ECCFD052A89706BDE5D2F0FE0720D50B293257"
+                    },
+                    {
+                        "RelativePath":  ".agents/skills/openspec-propose/SKILL.md",
+                        "Classification":  "Governance",
+                        "Action":  "copy",
+                        "Owner":  "DX-OS",
+                        "Reason":  "DX-OS Agent Skills",
+                        "Size":  11204,
+                        "SHA256":  "A556A8E5EFF6EE29687F61050AE7BA16E0007B81EA493D092675CEFBAE02A7B4"
+                    },
+                    {
+                        "RelativePath":  ".agents/skills/openspec-sync-specs/SKILL.md",
+                        "Classification":  "Governance",
+                        "Action":  "copy",
+                        "Owner":  "DX-OS",
+                        "Reason":  "DX-OS Agent Skills",
+                        "Size":  12495,
+                        "SHA256":  "45605058321C45423D954EC2D627D32FB059472BEE7A8EA3E8625BFE21425B17"
+                    },
+                    {
+                        "RelativePath":  ".agents/skills/openspec-update-change/SKILL.md",
+                        "Classification":  "Governance",
+                        "Action":  "copy",
+                        "Owner":  "DX-OS",
+                        "Reason":  "DX-OS Agent Skills",
+                        "Size":  6953,
+                        "SHA256":  "58820C69AB5B1A6E49ADAAF1A5E56540526FA48AF5F61019F71DD7DD82794215"
+                    },
+                    {
+                        "RelativePath":  "DXOS.slnx",
+                        "Classification":  "Build",
+                        "Action":  "copy",
+                        "Owner":  "DX-OS",
+                        "Reason":  "Solution file",
+                        "Size":  789,
+                        "SHA256":  "5EBBB37F12B39BBF698E7662EE98169D28352DD831E7C6D0C302819C27FEA428"
+                    },
+                    {
+                        "RelativePath":  "src/DXOS.Api/appsettings.Development.json",
+                        "Classification":  "Source",
+                        "Action":  "copy",
+                        "Owner":  "DX-OS",
+                        "Reason":  "DX-OS Application Code",
+                        "Size":  127,
+                        "SHA256":  "73F95F9E0CEB205FC1C4DC50C07697FCFA29D7087868C2AEF1D504CB38C771EC"
+                    },
+                    {
+                        "RelativePath":  "src/DXOS.Api/appsettings.json",
+                        "Classification":  "Source",
+                        "Action":  "copy",
+                        "Owner":  "DX-OS",
+                        "Reason":  "DX-OS Application Code",
+                        "Size":  151,
+                        "SHA256":  "200332B434757A0054A3D356C91CDE01F2C48712BE8AA2BCB0F3E973619F06E3"
+                    },
+                    {
+                        "RelativePath":  "src/DXOS.Api/DXOS.Api.csproj",
+                        "Classification":  "Source",
+                        "Action":  "copy",
+                        "Owner":  "DX-OS",
+                        "Reason":  "DX-OS Application Code",
+                        "Size":  295,
+                        "SHA256":  "A1633603003FCD8C2E4A0BFEDFCA59D62832138EC847E159D8850E1017BA206F"
+                    },
+                    {
+                        "RelativePath":  "src/DXOS.Api/DXOS.Api.http",
+                        "Classification":  "Source",
+                        "Action":  "copy",
+                        "Owner":  "DX-OS",
+                        "Reason":  "DX-OS Application Code",
+                        "Size":  129,
+                        "SHA256":  "5EEF485A776136382D7FB48B58B20FD12EEA818684B7A256196CF2D564FE177B"
+                    },
+                    {
+                        "RelativePath":  "src/DXOS.Api/FodyWeavers.xml",
+                        "Classification":  "Source",
+                        "Action":  "copy",
+                        "Owner":  "DX-OS",
+                        "Reason":  "DX-OS Application Code",
+                        "Size":  21,
+                        "SHA256":  "5FD72CE30CBB035E8D3A2D68559B6ADB5B0FEEB8BDDEDDB700A2848A315F1369"
+                    },
+                    {
+                        "RelativePath":  "src/DXOS.Api/Program.cs",
+                        "Classification":  "Source",
+                        "Action":  "copy",
+                        "Owner":  "DX-OS",
+                        "Reason":  "DX-OS Application Code",
+                        "Size":  1071,
+                        "SHA256":  "5675C7B08D0FED7D48052C764E516FD3EFD1047937CC9FC9A01FB77CAAA668AA"
+                    },
+                    {
+                        "RelativePath":  "src/DXOS.Api/Properties/launchSettings.json",
+                        "Classification":  "Source",
+                        "Action":  "copy",
+                        "Owner":  "DX-OS",
+                        "Reason":  "DX-OS Application Code",
+                        "Size":  644,
+                        "SHA256":  "2D10AA14161A22F2707543F526C11923CA6431F464481FE9B3B6B8122BF5EF1B"
+                    },
+                    {
+                        "RelativePath":  "src/DXOS.AppHost/DXOS.AppHost.csproj",
+                        "Classification":  "Source",
+                        "Action":  "copy",
+                        "Owner":  "DX-OS",
+                        "Reason":  "DX-OS Application Code",
+                        "Size":  284,
+                        "SHA256":  "D2D1C30E1F9FA72873A5788986B758098AE2B7F6C88FB91EB2B1D7E360ADD19A"
+                    },
+                    {
+                        "RelativePath":  "src/DXOS.AppHost/FodyWeavers.xml",
+                        "Classification":  "Source",
+                        "Action":  "copy",
+                        "Owner":  "DX-OS",
+                        "Reason":  "DX-OS Application Code",
+                        "Size":  21,
+                        "SHA256":  "5FD72CE30CBB035E8D3A2D68559B6ADB5B0FEEB8BDDEDDB700A2848A315F1369"
+                    },
+                    {
+                        "RelativePath":  "src/DXOS.AppHost/FodyWeavers.xsd",
+                        "Classification":  "Source",
+                        "Action":  "copy",
+                        "Owner":  "DX-OS",
+                        "Reason":  "DX-OS Application Code",
+                        "Size":  1161,
+                        "SHA256":  "5D4A945AAB41A2D651E44F87461F8D3228FAE26D9333701187662420FF0AC46B"
+                    },
+                    {
+                        "RelativePath":  "src/DXOS.AppHost/Program.cs",
+                        "Classification":  "Source",
+                        "Action":  "copy",
+                        "Owner":  "DX-OS",
+                        "Reason":  "DX-OS Application Code",
+                        "Size":  105,
+                        "SHA256":  "C0A7DF6C37363632A5E04E8425650EAC924903399ACB7E28560A96CA3F07A4F9"
+                    },
+                    {
+                        "RelativePath":  "src/DXOS.Application/Class1.cs",
+                        "Classification":  "Source",
+                        "Action":  "copy",
+                        "Owner":  "DX-OS",
+                        "Reason":  "DX-OS Application Code",
+                        "Size":  63,
+                        "SHA256":  "F3F741CB0FC66A99F741B72CB2CBC7FA4808CE22E20A36C02CF69393E8BF1642"
+                    },
+                    {
+                        "RelativePath":  "src/DXOS.Application/DXOS.Application.csproj",
+                        "Classification":  "Source",
+                        "Action":  "copy",
+                        "Owner":  "DX-OS",
+                        "Reason":  "DX-OS Application Code",
+                        "Size":  250,
+                        "SHA256":  "754927C4E0B80E6AB2666AAAAA961569C198AEE07075BDBBB253E73B89969974"
+                    },
+                    {
+                        "RelativePath":  "src/DXOS.Application/FodyWeavers.xml",
+                        "Classification":  "Source",
+                        "Action":  "copy",
+                        "Owner":  "DX-OS",
+                        "Reason":  "DX-OS Application Code",
+                        "Size":  21,
+                        "SHA256":  "5FD72CE30CBB035E8D3A2D68559B6ADB5B0FEEB8BDDEDDB700A2848A315F1369"
+                    },
+                    {
+                        "RelativePath":  "src/DXOS.Application/FodyWeavers.xsd",
+                        "Classification":  "Source",
+                        "Action":  "copy",
+                        "Owner":  "DX-OS",
+                        "Reason":  "DX-OS Application Code",
+                        "Size":  1161,
+                        "SHA256":  "5D4A945AAB41A2D651E44F87461F8D3228FAE26D9333701187662420FF0AC46B"
+                    },
+                    {
+                        "RelativePath":  "src/DXOS.Domain/Class1.cs",
+                        "Classification":  "Source",
+                        "Action":  "copy",
+                        "Owner":  "DX-OS",
+                        "Reason":  "DX-OS Application Code",
+                        "Size":  58,
+                        "SHA256":  "E9C8D625C9BB59267E4A29C5679BAD9D22A15CA123DE287FC0C1BA2F177E23A4"
+                    },
+                    {
+                        "RelativePath":  "src/DXOS.Domain/DXOS.Domain.csproj",
+                        "Classification":  "Source",
+                        "Action":  "copy",
+                        "Owner":  "DX-OS",
+                        "Reason":  "DX-OS Application Code",
+                        "Size":  250,
+                        "SHA256":  "754927C4E0B80E6AB2666AAAAA961569C198AEE07075BDBBB253E73B89969974"
+                    },
+                    {
+                        "RelativePath":  "src/DXOS.Domain/FodyWeavers.xml",
+                        "Classification":  "Source",
+                        "Action":  "copy",
+                        "Owner":  "DX-OS",
+                        "Reason":  "DX-OS Application Code",
+                        "Size":  21,
+                        "SHA256":  "5FD72CE30CBB035E8D3A2D68559B6ADB5B0FEEB8BDDEDDB700A2848A315F1369"
+                    },
+                    {
+                        "RelativePath":  "src/DXOS.Domain/FodyWeavers.xsd",
+                        "Classification":  "Source",
+                        "Action":  "copy",
+                        "Owner":  "DX-OS",
+                        "Reason":  "DX-OS Application Code",
+                        "Size":  1161,
+                        "SHA256":  "5D4A945AAB41A2D651E44F87461F8D3228FAE26D9333701187662420FF0AC46B"
+                    },
+                    {
+                        "RelativePath":  "src/DXOS.Infrastructure/Class1.cs",
+                        "Classification":  "Source",
+                        "Action":  "copy",
+                        "Owner":  "DX-OS",
+                        "Reason":  "DX-OS Application Code",
+                        "Size":  66,
+                        "SHA256":  "173E10341E2F2ED20A99C232DB9FE5BF4063D33093538479DD2F88C1CF83AB76"
+                    },
+                    {
+                        "RelativePath":  "src/DXOS.Infrastructure/DXOS.Infrastructure.csproj",
+                        "Classification":  "Source",
+                        "Action":  "copy",
+                        "Owner":  "DX-OS",
+                        "Reason":  "DX-OS Application Code",
+                        "Size":  250,
+                        "SHA256":  "754927C4E0B80E6AB2666AAAAA961569C198AEE07075BDBBB253E73B89969974"
+                    },
+                    {
+                        "RelativePath":  "src/DXOS.Infrastructure/FodyWeavers.xml",
+                        "Classification":  "Source",
+                        "Action":  "copy",
+                        "Owner":  "DX-OS",
+                        "Reason":  "DX-OS Application Code",
+                        "Size":  21,
+                        "SHA256":  "5FD72CE30CBB035E8D3A2D68559B6ADB5B0FEEB8BDDEDDB700A2848A315F1369"
+                    },
+                    {
+                        "RelativePath":  "src/DXOS.Infrastructure/FodyWeavers.xsd",
+                        "Classification":  "Source",
+                        "Action":  "copy",
+                        "Owner":  "DX-OS",
+                        "Reason":  "DX-OS Application Code",
+                        "Size":  1161,
+                        "SHA256":  "5D4A945AAB41A2D651E44F87461F8D3228FAE26D9333701187662420FF0AC46B"
+                    },
+                    {
+                        "RelativePath":  "src/DXOS.Workflows/Class1.cs",
+                        "Classification":  "Source",
+                        "Action":  "copy",
+                        "Owner":  "DX-OS",
+                        "Reason":  "DX-OS Application Code",
+                        "Size":  61,
+                        "SHA256":  "DC8007E63110CB9A1D4BC0D2B1CDFC88392E141F2527E84189E11193E31835B6"
+                    },
+                    {
+                        "RelativePath":  "src/DXOS.Workflows/DXOS.Workflows.csproj",
+                        "Classification":  "Source",
+                        "Action":  "copy",
+                        "Owner":  "DX-OS",
+                        "Reason":  "DX-OS Application Code",
+                        "Size":  250,
+                        "SHA256":  "754927C4E0B80E6AB2666AAAAA961569C198AEE07075BDBBB253E73B89969974"
+                    },
+                    {
+                        "RelativePath":  "src/DXOS.Workflows/FodyWeavers.xml",
+                        "Classification":  "Source",
+                        "Action":  "copy",
+                        "Owner":  "DX-OS",
+                        "Reason":  "DX-OS Application Code",
+                        "Size":  21,
+                        "SHA256":  "5FD72CE30CBB035E8D3A2D68559B6ADB5B0FEEB8BDDEDDB700A2848A315F1369"
+                    },
+                    {
+                        "RelativePath":  "src/DXOS.Workflows/FodyWeavers.xsd",
+                        "Classification":  "Source",
+                        "Action":  "copy",
+                        "Owner":  "DX-OS",
+                        "Reason":  "DX-OS Application Code",
+                        "Size":  1161,
+                        "SHA256":  "5D4A945AAB41A2D651E44F87461F8D3228FAE26D9333701187662420FF0AC46B"
+                    },
+                    {
+                        "RelativePath":  "tests/DXOS.Architecture.Tests/DXOS.Architecture.Tests.csproj",
+                        "Classification":  "Test",
+                        "Action":  "copy",
+                        "Owner":  "DX-OS",
+                        "Reason":  "DX-OS Test Code",
+                        "Size":  571,
+                        "SHA256":  "B3BE21C39515FE103D6D9BC83FB1A05354406FFB22D674B777B102C1414C4257"
+                    },
+                    {
+                        "RelativePath":  "tests/DXOS.Architecture.Tests/FodyWeavers.xml",
+                        "Classification":  "Test",
+                        "Action":  "copy",
+                        "Owner":  "DX-OS",
+                        "Reason":  "DX-OS Test Code",
+                        "Size":  21,
+                        "SHA256":  "5FD72CE30CBB035E8D3A2D68559B6ADB5B0FEEB8BDDEDDB700A2848A315F1369"
+                    },
+                    {
+                        "RelativePath":  "tests/DXOS.Architecture.Tests/UnitTest1.cs",
+                        "Classification":  "Test",
+                        "Action":  "copy",
+                        "Owner":  "DX-OS",
+                        "Reason":  "DX-OS Test Code",
+                        "Size":  124,
+                        "SHA256":  "9815D227B9839C22B5FE30007AA162E9CB5A044E82E69BB2913FC19F645EAFCD"
+                    },
+                    {
+                        "RelativePath":  "tests/DXOS.E2E.Tests/DXOS.E2E.Tests.csproj",
+                        "Classification":  "Test",
+                        "Action":  "copy",
+                        "Owner":  "DX-OS",
+                        "Reason":  "DX-OS Test Code",
+                        "Size":  571,
+                        "SHA256":  "B3BE21C39515FE103D6D9BC83FB1A05354406FFB22D674B777B102C1414C4257"
+                    },
+                    {
+                        "RelativePath":  "tests/DXOS.E2E.Tests/FodyWeavers.xml",
+                        "Classification":  "Test",
+                        "Action":  "copy",
+                        "Owner":  "DX-OS",
+                        "Reason":  "DX-OS Test Code",
+                        "Size":  21,
+                        "SHA256":  "5FD72CE30CBB035E8D3A2D68559B6ADB5B0FEEB8BDDEDDB700A2848A315F1369"
+                    },
+                    {
+                        "RelativePath":  "tests/DXOS.E2E.Tests/UnitTest1.cs",
+                        "Classification":  "Test",
+                        "Action":  "copy",
+                        "Owner":  "DX-OS",
+                        "Reason":  "DX-OS Test Code",
+                        "Size":  115,
+                        "SHA256":  "60C51AFF081B0BFEC04F51B5BCF5664171BE98925D4479804C6E34367D879E59"
+                    },
+                    {
+                        "RelativePath":  "tests/DXOS.Integration.Tests/DXOS.Integration.Tests.csproj",
+                        "Classification":  "Test",
+                        "Action":  "copy",
+                        "Owner":  "DX-OS",
+                        "Reason":  "DX-OS Test Code",
+                        "Size":  571,
+                        "SHA256":  "B3BE21C39515FE103D6D9BC83FB1A05354406FFB22D674B777B102C1414C4257"
+                    },
+                    {
+                        "RelativePath":  "tests/DXOS.Integration.Tests/FodyWeavers.xml",
+                        "Classification":  "Test",
+                        "Action":  "copy",
+                        "Owner":  "DX-OS",
+                        "Reason":  "DX-OS Test Code",
+                        "Size":  21,
+                        "SHA256":  "5FD72CE30CBB035E8D3A2D68559B6ADB5B0FEEB8BDDEDDB700A2848A315F1369"
+                    },
+                    {
+                        "RelativePath":  "tests/DXOS.Integration.Tests/UnitTest1.cs",
+                        "Classification":  "Test",
+                        "Action":  "copy",
+                        "Owner":  "DX-OS",
+                        "Reason":  "DX-OS Test Code",
+                        "Size":  123,
+                        "SHA256":  "C5748D4BA7C68FAF09A52D8A50D63FC4F01A9A9805C04C01A45FEFEFDF59442C"
+                    },
+                    {
+                        "RelativePath":  "tests/DXOS.Unit.Tests/DXOS.Unit.Tests.csproj",
+                        "Classification":  "Test",
+                        "Action":  "copy",
+                        "Owner":  "DX-OS",
+                        "Reason":  "DX-OS Test Code",
+                        "Size":  571,
+                        "SHA256":  "B3BE21C39515FE103D6D9BC83FB1A05354406FFB22D674B777B102C1414C4257"
+                    },
+                    {
+                        "RelativePath":  "tests/DXOS.Unit.Tests/FodyWeavers.xml",
+                        "Classification":  "Test",
+                        "Action":  "copy",
+                        "Owner":  "DX-OS",
+                        "Reason":  "DX-OS Test Code",
+                        "Size":  21,
+                        "SHA256":  "5FD72CE30CBB035E8D3A2D68559B6ADB5B0FEEB8BDDEDDB700A2848A315F1369"
+                    },
+                    {
+                        "RelativePath":  "tests/DXOS.Unit.Tests/UnitTest1.cs",
+                        "Classification":  "Test",
+                        "Action":  "copy",
+                        "Owner":  "DX-OS",
+                        "Reason":  "DX-OS Test Code",
+                        "Size":  116,
+                        "SHA256":  "0587A5E9E617CDB62C0737C45CD3CB5B040D79605ED007B12111C9E613CF7400"
+                    },
+                    {
+                        "RelativePath":  "scripts/check-e2e.ps1",
+                        "Classification":  "Script",
+                        "Action":  "copy",
+                        "Owner":  "DX-OS",
+                        "Reason":  "DX-OS Scripts",
+                        "Size":  34,
+                        "SHA256":  "FB9692D23795F0F2BB6341070B2399FD468DD5C9D22C9BAED61666C3560B95BF"
+                    },
+                    {
+                        "RelativePath":  "scripts/check.ps1",
+                        "Classification":  "Script",
+                        "Action":  "copy",
+                        "Owner":  "DX-OS",
+                        "Reason":  "DX-OS Scripts",
+                        "Size":  313,
+                        "SHA256":  "696F3B0F2EDE2316E0D9C6AF945A5FB329C89DA59D7C792CD046058B7B0D01A9"
+                    },
+                    {
+                        "RelativePath":  "scripts/reset-demo.ps1",
+                        "Classification":  "Script",
+                        "Action":  "copy",
+                        "Owner":  "DX-OS",
+                        "Reason":  "DX-OS Scripts",
+                        "Size":  69,
+                        "SHA256":  "ECD98A296DBD0C66933712343F434AEE386AB5AE1A61806A146B57F3C9E44226"
+                    },
+                    {
+                        "RelativePath":  "scripts/seed-demo.ps1",
+                        "Classification":  "Script",
+                        "Action":  "copy",
+                        "Owner":  "DX-OS",
+                        "Reason":  "DX-OS Scripts",
+                        "Size":  59,
+                        "SHA256":  "5C207D18C32F97B1FAA5E258F2C2F5E5D4BCA77767E360F3383016398C5ACE08"
+                    },
+                    {
+                        "RelativePath":  "OPEN_SOURCE.md",
+                        "Classification":  "Compliance",
+                        "Action":  "recreate",
+                        "Owner":  "DX-OS",
+                        "Reason":  "Recreated NOT_READY placeholder",
+                        "Size":  108,
+                        "SHA256":  "7089E63B695A7854A6507DE062F57AA084595E03CF92A91FB139CD5E58BC4BF5"
+                    },
+                    {
+                        "RelativePath":  "SECURITY.md",
+                        "Classification":  "Compliance",
+                        "Action":  "recreate",
+                        "Owner":  "DX-OS",
+                        "Reason":  "Recreated NOT_READY placeholder",
+                        "Size":  101,
+                        "SHA256":  "01ACF354EC82CE6A9FF9C42CAE3BD21303004FDDA9BF091ED2A9103BA2A9E0A6"
+                    },
+                    {
+                        "RelativePath":  "THIRD_PARTY_NOTICES.md",
+                        "Classification":  "Compliance",
+                        "Action":  "recreate",
+                        "Owner":  "DX-OS",
+                        "Reason":  "Recreated NOT_READY placeholder",
+                        "Size":  104,
+                        "SHA256":  "3FF78507D4CC3AF38A440CBB822282E3307034125E6EB51CEDB13F8AC8A39DC2"
+                    },
+                    {
+                        "RelativePath":  "artifacts/task-runs/open_source-cab.1/beads-issues.jsonl",
+                        "Classification":  "Evidence",
+                        "Action":  "copy",
+                        "Owner":  "DX-OS",
+                        "Reason":  "Task Evidence",
+                        "Size":  11002,
+                        "SHA256":  "83B376C4E2FD3A50ABCFC8C557B23AC147FE68EE0CFD6489DA88E42093728356"
+                    },
+                    {
+                        "RelativePath":  "artifacts/task-runs/open_source-cab.1/prompt.md",
+                        "Classification":  "Evidence",
+                        "Action":  "copy",
+                        "Owner":  "DX-OS",
+                        "Reason":  "Task Evidence",
+                        "Size":  16534,
+                        "SHA256":  "3B061B0B79FDB3C0545E1EC05C6EF6CC6C598EB66AE8874E3A49DE2029E07097"
+                    },
+                    {
+                        "RelativePath":  ".gitignore",
+                        "Classification":  "Config",
+                        "Action":  "recreate",
+                        "Owner":  "DX-OS",
+                        "Reason":  "Minimal gitignore",
+                        "Size":  143,
+                        "SHA256":  "509F6E9CC84351C0EB244DF2172BD41FD43142A88DC1CCB0ED117E45F5A0723B"
+                    },
+                    {
+                        "RelativePath":  "AGENTS.md",
+                        "Classification":  "Governance",
+                        "Action":  "recreate",
+                        "Owner":  "DX-OS",
+                        "Reason":  "Minimal root agents",
+                        "Size":  165,
+                        "SHA256":  "0F289C1D51EA519C52C8ED580D87CBF1AAD68E5167F8FA09C5045C1B7C9EDD45"
+                    },
+                    {
+                        "RelativePath":  "README.md",
+                        "Classification":  "Documentation",
+                        "Action":  "recreate",
+                        "Owner":  "DX-OS",
+                        "Reason":  "Migration note",
+                        "Size":  113,
+                        "SHA256":  "CC4704CAAF7E46F9D4C2D1D4B0688275388657FDDC51DB6523F8BDDA83534885"
+                    },
+                    {
+                        "RelativePath":  "LICENSE-PENDING.md",
+                        "Classification":  "Compliance",
+                        "Action":  "recreate",
+                        "Owner":  "DX-OS",
+                        "Reason":  "Pending license",
+                        "Size":  41,
+                        "SHA256":  "A4936F6DFDE2843F4CB9B30D03349FA41A37DFBB60525ACE88A467442D29173D"
+                    },
+                    {
+                        "RelativePath":  ".beads/.gitignore",
+                        "Classification":  "Metadata",
+                        "Action":  "recreate",
+                        "Owner":  "DX-OS",
+                        "Reason":  "Intentional Beads generated file",
+                        "Size":  1758,
+                        "SHA256":  "F7602E4A43FB73574ACC38AA0475D03D7383956983183B87F431865663676DC1"
+                    },
+                    {
+                        "RelativePath":  ".beads/README.md",
+                        "Classification":  "Metadata",
+                        "Action":  "recreate",
+                        "Owner":  "DX-OS",
+                        "Reason":  "Intentional Beads generated file",
+                        "Size":  2283,
+                        "SHA256":  "CAE1648DB67C27F1D86F92ED110119445356E23BB18A5DF57E73A7F476619267"
+                    },
+                    {
+                        "RelativePath":  ".beads/config.yaml",
+                        "Classification":  "Metadata",
+                        "Action":  "recreate",
+                        "Owner":  "DX-OS",
+                        "Reason":  "Intentional Beads generated file",
+                        "Size":  2622,
+                        "SHA256":  "129012112E8FE2489A4E904B8617C20482FA1736135D5266A86D81C121A9A80C"
+                    },
+                    {
+                        "RelativePath":  ".beads/hooks/post-checkout",
+                        "Classification":  "Metadata",
+                        "Action":  "recreate",
+                        "Owner":  "DX-OS",
+                        "Reason":  "Intentional Beads generated file",
+                        "Size":  1283,
+                        "SHA256":  "BCA38EAC5516A692B77175DEA010257D16B2EDEC6D4A062784A7EE5F26F04A86"
+                    },
+                    {
+                        "RelativePath":  ".beads/hooks/post-merge",
+                        "Classification":  "Metadata",
+                        "Action":  "recreate",
+                        "Owner":  "DX-OS",
+                        "Reason":  "Intentional Beads generated file",
+                        "Size":  1262,
+                        "SHA256":  "544904779E190283F66902151CBEA8613D6B3AAE3CED156BF84B6497C4D0E733"
+                    },
+                    {
+                        "RelativePath":  ".beads/hooks/pre-commit",
+                        "Classification":  "Metadata",
+                        "Action":  "recreate",
+                        "Owner":  "DX-OS",
+                        "Reason":  "Intentional Beads generated file",
+                        "Size":  1262,
+                        "SHA256":  "10B8698F123A1AA0E3F457E34E8C87B44619CA5A8B0B031D3AC623D612198973"
+                    },
+                    {
+                        "RelativePath":  ".beads/hooks/pre-push",
+                        "Classification":  "Metadata",
+                        "Action":  "recreate",
+                        "Owner":  "DX-OS",
+                        "Reason":  "Intentional Beads generated file",
+                        "Size":  1248,
+                        "SHA256":  "4CB0EFB741A5AB409F94F70A21779BAA1BD267D915BF34B5ACD3F821176BF651"
+                    },
+                    {
+                        "RelativePath":  ".beads/hooks/prepare-commit-msg",
+                        "Classification":  "Metadata",
+                        "Action":  "recreate",
+                        "Owner":  "DX-OS",
+                        "Reason":  "Intentional Beads generated file",
+                        "Size":  1318,
+                        "SHA256":  "FD0D7442C16C592247D6AD60FC18F2E9FFBA3E1170E43FC6F2D19E864227F4C0"
+                    },
+                    {
+                        "RelativePath":  ".beads/interactions.jsonl",
+                        "Classification":  "Metadata",
+                        "Action":  "recreate",
+                        "Owner":  "DX-OS",
+                        "Reason":  "Intentional Beads generated file",
+                        "Size":  0,
+                        "SHA256":  "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855"
+                    },
+                    {
+                        "RelativePath":  ".beads/metadata.json",
+                        "Classification":  "Metadata",
+                        "Action":  "recreate",
+                        "Owner":  "DX-OS",
+                        "Reason":  "Intentional Beads generated file",
+                        "Size":  156,
+                        "SHA256":  "4B4F09E2CB4B1A8BA3E4A8F358055D8AB9B8BD0DFD148CA109D54941E2F73F84"
+                    },
+                    {
+                        "RelativePath":  "artifacts/task-runs/open_source-cab.1/extraction-manifest.json",
+                        "Classification":  "Evidence",
+                        "Action":  "recreate",
+                        "Owner":  "DX-OS",
+                        "Reason":  "Self-referential evidence output",
+                        "Size":  "EXTERNAL_VERIFICATION_REQUIRED",
+                        "SHA256":  "EXTERNAL_VERIFICATION_REQUIRED"
+                    },
+                    {
+                        "RelativePath":  "artifacts/task-runs/open_source-cab.1/inventory.csv",
+                        "Classification":  "Evidence",
+                        "Action":  "recreate",
+                        "Owner":  "DX-OS",
+                        "Reason":  "Self-referential evidence output",
+                        "Size":  "EXTERNAL_VERIFICATION_REQUIRED",
+                        "SHA256":  "EXTERNAL_VERIFICATION_REQUIRED"
+                    },
+                    {
+                        "RelativePath":  "artifacts/task-runs/open_source-cab.1/implementation-report.md",
+                        "Classification":  "Evidence",
+                        "Action":  "recreate",
+                        "Owner":  "DX-OS",
+                        "Reason":  "Self-referential evidence output",
+                        "Size":  "EXTERNAL_VERIFICATION_REQUIRED",
+                        "SHA256":  "EXTERNAL_VERIFICATION_REQUIRED"
+                    },
+                    {
+                        "RelativePath":  "artifacts/task-runs/open_source-cab.1/verification.md",
+                        "Classification":  "Evidence",
+                        "Action":  "recreate",
+                        "Owner":  "DX-OS",
+                        "Reason":  "Self-referential evidence output",
+                        "Size":  "EXTERNAL_VERIFICATION_REQUIRED",
+                        "SHA256":  "EXTERNAL_VERIFICATION_REQUIRED"
+                    }
+                ],
+    "version":  "1.0"
+}
+

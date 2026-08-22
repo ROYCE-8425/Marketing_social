@@ -1,0 +1,49 @@
+--- STDOUT ---
+name: dx-os
+services:
+  dxos-api:
+    build:
+      context: C:\Users\199X\OneDrive\Máy tính\olympic\dx-os
+      dockerfile: Dockerfile
+    depends_on:
+      postgres:
+        condition: service_healthy
+        required: true
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=dxos;Username=dxos;Password=***REDACTED***
+      Database__AutoMigrate: "true"
+      EngineeringSmoke__Enabled: "true"
+    image: dxos-api:0.1.0-spike
+    networks:
+      default: null
+    ports:
+      - mode: ingress
+        target: 8080
+        published: "8080"
+        protocol: tcp
+  postgres:
+    environment:
+      POSTGRES_DB: dxos
+      POSTGRES_PASSWORD: ***REDACTED***
+      POSTGRES_USER: dxos
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - pg_isready -U dxos -d dxos
+      timeout: 3s
+      interval: 2s
+      retries: 10
+    image: postgres:18.4-alpine@sha256:9a8afca54e7861fd90fab5fdf4c42477a6b1cb7d293595148e674e0a3181de15
+    networks:
+      default: null
+    ports:
+      - mode: ingress
+        target: 5432
+        published: "5432"
+        protocol: tcp
+networks:
+  default:
+    name: dx-os_default
+
+--- STDERR ---

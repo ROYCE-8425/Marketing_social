@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: GitHub Discussions (Q&A & Ideas)
+    url: https://github.com/ROYCE-8425/open_source/discussions
+    about: Ask questions, discuss ideas, or share your marketing workflows.
+  - name: Security Vulnerability Disclosure
+    url: https://github.com/ROYCE-8425/open_source/blob/main/SECURITY.md
+    about: Report security issues privately following our Coordinated Vulnerability Disclosure policy.

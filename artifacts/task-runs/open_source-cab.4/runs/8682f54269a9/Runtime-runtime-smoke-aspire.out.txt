@@ -1,0 +1,37 @@
+--- STDOUT ---
+============================================================
+DX-OS Runtime Smoke Runner
+Mode: Aspire | Run ID: 82bdd0ace554 | Project: dxos-smoke-82bdd0ace554
+Ports: API=18874, Postgres=16234
+============================================================
+==> Starting Aspire AppHost (dxos-smoke-82bdd0ace554)...
+==> Probing API Liveness: http://localhost:18874/health/live...
+[OK] Liveness OK: {"status":"Healthy","mode":"Liveness","timestamp":"2026-08-15T20:21:34.5455016+00:00"}
+==> Probing API Readiness: http://localhost:18874/health/ready...
+[OK] Readiness OK: {"status":"Healthy","mode":"Readiness","database":"Connected","probeCount":0,"timestamp":"2026-08-15T20:21:34.9640554+00:00"}
+  [Aspire Container 2a5d1d1b237f30411d4d42dbfc6cd08f85c85bddc5f2fe72ccefdd76cb81071c] Image: docker.io/postgres:18.4-alpine@sha256:9a8afca54e7861fd90fab5fdf4c42477a6b1cb7d293595148e674e0a3181de15 | RunLabel: 82bdd0ace554 | CreatorPID: 3572
+[OK] Aspire PostgreSQL image digest mechanically verified.
+==> Invoking Elsa Workflow Smoke: http://localhost:18874/smoke/workflow...
+[OK] Elsa Smoke Workflow Succeeded!
+  - Workflow Instance ID: 533d51a2255a83ab
+  - Terminal Status:      Finished (Finished)
+  - Output:               DXOS_SMOKE_OK
+  - Echoed Correlation:   smoke-corr-82bdd0ace554
+==> Cleaning up task-owned resources for run 82bdd0ace554...
+  -> Removing owned Aspire container 2a5d1d1b237f30411d4d42dbfc6cd08f85c85bddc5f2fe72ccefdd76cb81071c...
+
+Name                           Value
+----                           -----
+Stdout                         2a5d1d1b237f30411d4d42dbfc6cd08f85c85bddc5f2fe72ccefdd76cb81071c...
+ExitCode                       0
+Stderr
+Stdout                         2a5d1d1b237f30411d4d42dbfc6cd08f85c85bddc5f2fe72ccefdd76cb81071c...
+ExitCode                       0
+Stderr
+  -> Removing owned Aspire network b24dda88876dec0755882cd4e9ba7d56b1c85059c93653a98a4312832832c5c7 (aspire-session-network-msdhmdqk-DXOS)...
+Stdout                         b24dda88876dec0755882cd4e9ba7d56b1c85059c93653a98a4312832832c5c7...
+ExitCode                       0
+Stderr
+[OK] Runtime smoke completed successfully and all task-owned resources were cleaned up.
+
+--- STDERR ---

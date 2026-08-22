@@ -1,0 +1,36 @@
+COMMAND: git.exe status --short --untracked-files=all
+EXIT_CODE: 0
+DURATION_MS: 40
+STDOUT:
+ M .gitignore
+ M scripts/check.ps1
+ M src/DXOS.Api/Program.cs
+ M src/DXOS.AppHost/Program.cs
+ M src/DXOS.Application/Class1.cs
+ M src/DXOS.Domain/Class1.cs
+ M src/DXOS.Infrastructure/Class1.cs
+ M src/DXOS.Workflows/Class1.cs
+?? artifacts/task-runs/open_source-cab.7/bd-cycles.txt
+?? artifacts/task-runs/open_source-cab.7/bd-show.txt
+?? artifacts/task-runs/open_source-cab.7/build.txt
+?? artifacts/task-runs/open_source-cab.7/format.txt
+?? artifacts/task-runs/open_source-cab.7/foundation.txt
+?? artifacts/task-runs/open_source-cab.7/full.txt
+?? artifacts/task-runs/open_source-cab.7/git-diff.txt
+?? artifacts/task-runs/open_source-cab.7/git-status.txt
+?? artifacts/task-runs/open_source-cab.7/implementation-report.md
+?? artifacts/task-runs/open_source-cab.7/openspec.txt
+?? artifacts/task-runs/open_source-cab.7/parser.txt
+?? artifacts/task-runs/open_source-cab.7/prompt.md
+?? artifacts/task-runs/open_source-cab.7/reports.sha256
+?? artifacts/task-runs/open_source-cab.7/restore.txt
+?? artifacts/task-runs/open_source-cab.7/review.md
+?? artifacts/task-runs/open_source-cab.7/run-r3-verification.ps1
+?? artifacts/task-runs/open_source-cab.7/runtime.txt
+?? artifacts/task-runs/open_source-cab.7/verification-output.sha256
+?? artifacts/task-runs/open_source-cab.7/verification.md
+?? artifacts/task-runs/open_source-cab.7/verifier.txt
+?? scripts/check-contract.json
+?? scripts/verify-check-contract.ps1
+
+STDERR:

@@ -1,0 +1,729 @@
+{
+    "TimestampUtc":  "2026-08-15T06:33:44.4571022+00:00",
+    "Containers":  [
+                       {
+                           "Id":  "51575dbf0ed53600db50096a976e4f80111d1445de3e7f649a320739c7357407",
+                           "State":  {
+                                         "Status":  "exited",
+                                         "Running":  false,
+                                         "Paused":  false,
+                                         "Restarting":  false,
+                                         "OOMKilled":  false,
+                                         "Dead":  false,
+                                         "ExitCode":  137
+                                     },
+                           "HostConfig":  {
+                                              "RestartPolicy":  {
+                                                                    "Name":  "unless-stopped",
+                                                                    "MaximumRetryCount":  0
+                                                                },
+                                              "NetworkMode":  "english-level-up-tips_default",
+                                              "AutoRemove":  false
+                                          },
+                           "Image":  "clickhouse/clickhouse-server:latest",
+                           "Mounts":  [
+                                          {
+                                              "Destination":  "/var/lib/clickhouse",
+                                              "Type":  "volume",
+                                              "Source":  "/var/lib/docker/volumes/english-level-up-tips_clickhouse_data/_data",
+                                              "Mode":  "rw",
+                                              "RW":  true
+                                          }
+                                      ],
+                           "NetworkAttachments":  {
+                                                      "english-level-up-tips_default":  {
+                                                                                            "NetworkID":  "07d74dc3c4fd7a1294692ccdb6feaa07f99ca6e38b7cc474103b66fcdafed073",
+                                                                                            "IPAddress":  "",
+                                                                                            "Gateway":  "",
+                                                                                            "MacAddress":  ""
+                                                                                        }
+                                                  },
+                           "ImageID":  "sha256:1d1f6508eba2dccce2cee9913907c5f7766327debc57a6b1991f2c9e3176c163",
+                           "Labels":  {
+                                          "com.clickhouse.build.version":  "26.6.1.1193",
+                                          "com.docker.compose.config-hash":  "8dee7b404e682a0e42f661687f7625993c454295ea9e842767e8cfed2c9a929b",
+                                          "com.docker.compose.container-number":  "1",
+                                          "com.docker.compose.depends_on":  "",
+                                          "com.docker.compose.image":  "sha256:1d1f6508eba2dccce2cee9913907c5f7766327debc57a6b1991f2c9e3176c163",
+                                          "com.docker.compose.oneoff":  "False",
+                                          "com.docker.compose.project":  "english-level-up-tips",
+                                          "com.docker.compose.project.config_files":  "C:\\Users\\199X\\OneDrive\\Máy tính\\VOCA\\English-level-up-tips\\docker-compose.yml",
+                                          "com.docker.compose.project.environment_file":  "C:\\Users\\199X\\OneDrive\\Máy tính\\VOCA\\English-level-up-tips\\.env.docker",
+                                          "com.docker.compose.project.working_dir":  "C:\\Users\\199X\\OneDrive\\Máy tính\\VOCA\\English-level-up-tips",
+                                          "com.docker.compose.service":  "clickhouse",
+                                          "com.docker.compose.version":  "5.1.3",
+                                          "org.opencontainers.image.version":  "22.04"
+                                      },
+                           "Name":  "/royce-clickhouse"
+                       },
+                       {
+                           "Id":  "74346c97a33f02f6bc747c2f9c911e2dd26506d9dc2ad1758e9b8614a78ba118",
+                           "State":  {
+                                         "Status":  "exited",
+                                         "Running":  false,
+                                         "Paused":  false,
+                                         "Restarting":  false,
+                                         "OOMKilled":  false,
+                                         "Dead":  false,
+                                         "ExitCode":  143
+                                     },
+                           "HostConfig":  {
+                                              "RestartPolicy":  {
+                                                                    "Name":  "unless-stopped",
+                                                                    "MaximumRetryCount":  0
+                                                                },
+                                              "NetworkMode":  "english-level-up-tips_default",
+                                              "AutoRemove":  false
+                                          },
+                           "Image":  "qdrant/qdrant:latest",
+                           "Mounts":  [
+                                          {
+                                              "Destination":  "/qdrant/storage",
+                                              "Type":  "volume",
+                                              "Source":  "/var/lib/docker/volumes/english-level-up-tips_qdrant_data/_data",
+                                              "Mode":  "rw",
+                                              "RW":  true
+                                          }
+                                      ],
+                           "NetworkAttachments":  {
+                                                      "english-level-up-tips_default":  {
+                                                                                            "NetworkID":  "07d74dc3c4fd7a1294692ccdb6feaa07f99ca6e38b7cc474103b66fcdafed073",
+                                                                                            "IPAddress":  "",
+                                                                                            "Gateway":  "",
+                                                                                            "MacAddress":  ""
+                                                                                        }
+                                                  },
+                           "ImageID":  "sha256:75eab8c4ba42096724fdcfde8b4de0b5713d529dde32f285a1f86fdcb2c9e50c",
+                           "Labels":  {
+                                          "com.docker.compose.config-hash":  "3157f3b397ef39488be3f59c078e9ec871f8c201f5c385003e64c15509224196",
+                                          "com.docker.compose.container-number":  "1",
+                                          "com.docker.compose.depends_on":  "",
+                                          "com.docker.compose.image":  "sha256:75eab8c4ba42096724fdcfde8b4de0b5713d529dde32f285a1f86fdcb2c9e50c",
+                                          "com.docker.compose.oneoff":  "False",
+                                          "com.docker.compose.project":  "english-level-up-tips",
+                                          "com.docker.compose.project.config_files":  "C:\\Users\\199X\\OneDrive\\Máy tính\\VOCA\\English-level-up-tips\\docker-compose.yml",
+                                          "com.docker.compose.project.environment_file":  "C:\\Users\\199X\\OneDrive\\Máy tính\\VOCA\\English-level-up-tips\\.env.docker",
+                                          "com.docker.compose.project.working_dir":  "C:\\Users\\199X\\OneDrive\\Máy tính\\VOCA\\English-level-up-tips",
+                                          "com.docker.compose.service":  "qdrant",
+                                          "com.docker.compose.version":  "5.1.3",
+                                          "org.opencontainers.image.description":  "Official Qdrant image",
+                                          "org.opencontainers.image.documentation":  "https://qdrant.com/docs",
+                                          "org.opencontainers.image.source":  "https://github.com/qdrant/qdrant",
+                                          "org.opencontainers.image.title":  "Qdrant",
+                                          "org.opencontainers.image.url":  "https://qdrant.com/",
+                                          "org.opencontainers.image.vendor":  "Qdrant",
+                                          "org.opencontainers.image.version":  "v1.18.2"
+                                      },
+                           "Name":  "/royce-qdrant"
+                       },
+                       {
+                           "Id":  "9be6068d2418b17a1b758be958886af9676aed951832671a226add5dd798432c",
+                           "State":  {
+                                         "Status":  "exited",
+                                         "Running":  false,
+                                         "Paused":  false,
+                                         "Restarting":  false,
+                                         "OOMKilled":  false,
+                                         "Dead":  false,
+                                         "ExitCode":  0
+                                     },
+                           "HostConfig":  {
+                                              "RestartPolicy":  {
+                                                                    "Name":  "unless-stopped",
+                                                                    "MaximumRetryCount":  0
+                                                                },
+                                              "NetworkMode":  "english-level-up-tips_default",
+                                              "AutoRemove":  false
+                                          },
+                           "Image":  "redis:7-alpine",
+                           "Mounts":  [
+                                          {
+                                              "Destination":  "/data",
+                                              "Type":  "volume",
+                                              "Source":  "/var/lib/docker/volumes/english-level-up-tips_redis_data/_data",
+                                              "Mode":  "rw",
+                                              "RW":  true
+                                          }
+                                      ],
+                           "NetworkAttachments":  {
+                                                      "english-level-up-tips_default":  {
+                                                                                            "NetworkID":  "07d74dc3c4fd7a1294692ccdb6feaa07f99ca6e38b7cc474103b66fcdafed073",
+                                                                                            "IPAddress":  "",
+                                                                                            "Gateway":  "",
+                                                                                            "MacAddress":  ""
+                                                                                        }
+                                                  },
+                           "ImageID":  "sha256:6ab0b6e7381779332f97b8ca76193e45b0756f38d4c0dcda72dbb3c32061ab99",
+                           "Labels":  {
+                                          "com.docker.compose.config-hash":  "0ea33a351bdbddeed196b0e106eaae81433c291b939d7278c8f09d1ca36a269d",
+                                          "com.docker.compose.container-number":  "1",
+                                          "com.docker.compose.depends_on":  "",
+                                          "com.docker.compose.image":  "sha256:6ab0b6e7381779332f97b8ca76193e45b0756f38d4c0dcda72dbb3c32061ab99",
+                                          "com.docker.compose.oneoff":  "False",
+                                          "com.docker.compose.project":  "english-level-up-tips",
+                                          "com.docker.compose.project.config_files":  "C:\\Users\\199X\\OneDrive\\Máy tính\\VOCA\\English-level-up-tips\\docker-compose.yml",
+                                          "com.docker.compose.project.environment_file":  "C:\\Users\\199X\\OneDrive\\Máy tính\\VOCA\\English-level-up-tips\\.env.docker",
+                                          "com.docker.compose.project.working_dir":  "C:\\Users\\199X\\OneDrive\\Máy tính\\VOCA\\English-level-up-tips",
+                                          "com.docker.compose.service":  "redis",
+                                          "com.docker.compose.version":  "5.1.3"
+                                      },
+                           "Name":  "/royce-redis"
+                       },
+                       {
+                           "Id":  "d2207333c10ca408eac3d0798c2dbfd8d49ea62156bc72c2dde72b97c545a23e",
+                           "State":  {
+                                         "Status":  "exited",
+                                         "Running":  false,
+                                         "Paused":  false,
+                                         "Restarting":  false,
+                                         "OOMKilled":  false,
+                                         "Dead":  false,
+                                         "ExitCode":  0
+                                     },
+                           "HostConfig":  {
+                                              "RestartPolicy":  {
+                                                                    "Name":  "unless-stopped",
+                                                                    "MaximumRetryCount":  0
+                                                                },
+                                              "NetworkMode":  "english-level-up-tips_default",
+                                              "AutoRemove":  false
+                                          },
+                           "Image":  "postgres:15-alpine",
+                           "Mounts":  [
+                                          {
+                                              "Destination":  "/var/lib/postgresql/data",
+                                              "Type":  "volume",
+                                              "Source":  "/var/lib/docker/volumes/english-level-up-tips_postgres_data/_data",
+                                              "Mode":  "rw",
+                                              "RW":  true
+                                          }
+                                      ],
+                           "NetworkAttachments":  {
+                                                      "english-level-up-tips_default":  {
+                                                                                            "NetworkID":  "07d74dc3c4fd7a1294692ccdb6feaa07f99ca6e38b7cc474103b66fcdafed073",
+                                                                                            "IPAddress":  "",
+                                                                                            "Gateway":  "",
+                                                                                            "MacAddress":  ""
+                                                                                        }
+                                                  },
+                           "ImageID":  "sha256:cd17e2ac98240fce1541ad2a803b34009b4eea5aec8a832363cdc7eca62e722e",
+                           "Labels":  {
+                                          "com.docker.compose.config-hash":  "f85097a76f61e49988c91a4ad9f6cab8ecedab9f9339e1cfea104d9d736cbf06",
+                                          "com.docker.compose.container-number":  "1",
+                                          "com.docker.compose.depends_on":  "",
+                                          "com.docker.compose.image":  "sha256:cd17e2ac98240fce1541ad2a803b34009b4eea5aec8a832363cdc7eca62e722e",
+                                          "com.docker.compose.oneoff":  "False",
+                                          "com.docker.compose.project":  "english-level-up-tips",
+                                          "com.docker.compose.project.config_files":  "C:\\Users\\199X\\OneDrive\\Máy tính\\VOCA\\English-level-up-tips\\docker-compose.yml",
+                                          "com.docker.compose.project.environment_file":  "C:\\Users\\199X\\OneDrive\\Máy tính\\VOCA\\English-level-up-tips\\.env.docker",
+                                          "com.docker.compose.project.working_dir":  "C:\\Users\\199X\\OneDrive\\Máy tính\\VOCA\\English-level-up-tips",
+                                          "com.docker.compose.service":  "postgres",
+                                          "com.docker.compose.version":  "5.1.3"
+                                      },
+                           "Name":  "/royce-postgres"
+                       }
+                   ],
+    "Networks":  [
+                     {
+                         "Internal":  false,
+                         "Id":  "07d74dc3c4fd7a1294692ccdb6feaa07f99ca6e38b7cc474103b66fcdafed073",
+                         "Ingress":  false,
+                         "Attachable":  false,
+                         "IPAM":  {
+                                      "Driver":  "default",
+                                      "Config":  [
+                                                     {
+                                                         "Gateway":  "172.22.0.1",
+                                                         "Subnet":  "172.22.0.0/16"
+                                                     }
+                                                 ]
+                                  },
+                         "Scope":  "local",
+                         "Driver":  "bridge",
+                         "EnableIPv6":  false,
+                         "Labels":  {
+                                        "com.docker.compose.config-hash":  "eb329003906d926eb9e050d8279647ce3cd052a5ba467d1b1a5eb27eaa18be40",
+                                        "com.docker.compose.network":  "default",
+                                        "com.docker.compose.project":  "english-level-up-tips",
+                                        "com.docker.compose.version":  "5.1.3"
+                                    },
+                         "Name":  "english-level-up-tips_default"
+                     },
+                     {
+                         "Internal":  false,
+                         "Id":  "228d0ae1e3e22d968680631ed03055d58680e0991e6794e019bb635ac95a4c17",
+                         "Ingress":  false,
+                         "Attachable":  false,
+                         "IPAM":  {
+                                      "Driver":  "default",
+                                      "Config":  [
+                                                     {
+                                                         "Gateway":  "172.20.0.1",
+                                                         "Subnet":  "172.20.0.0/16"
+                                                     }
+                                                 ]
+                                  },
+                         "Scope":  "local",
+                         "Driver":  "bridge",
+                         "EnableIPv6":  false,
+                         "Labels":  {
+                                        "com.docker.compose.config-hash":  "9f931358c41c0978bda15323ea969f925e03ed7afe1b5421fc48fa0b125637f9",
+                                        "com.docker.compose.network":  "default",
+                                        "com.docker.compose.project":  "cho_nha",
+                                        "com.docker.compose.version":  "5.1.3"
+                                    },
+                         "Name":  "cho_nha_default"
+                     },
+                     {
+                         "Internal":  false,
+                         "Id":  "2ad1cd6e4c6fa855e434a2c0b1bcf405e3148e2032e04a732947850421d1e626",
+                         "Ingress":  false,
+                         "Attachable":  false,
+                         "IPAM":  {
+                                      "Driver":  "default",
+                                      "Config":  [
+                                                     {
+                                                         "Gateway":  "172.21.0.1",
+                                                         "Subnet":  "172.21.0.0/16"
+                                                     }
+                                                 ]
+                                  },
+                         "Scope":  "local",
+                         "Driver":  "bridge",
+                         "EnableIPv6":  false,
+                         "Labels":  {
+                                        "com.docker.compose.config-hash":  "0f5d04f940ae97f8f7a64c7ddecebbbc8f3d4612f0d3f8c47a5458674bf4eba9",
+                                        "com.docker.compose.network":  "default",
+                                        "com.docker.compose.project":  "ck_cnpm",
+                                        "com.docker.compose.version":  "5.1.3"
+                                    },
+                         "Name":  "ck_cnpm_default"
+                     },
+                     {
+                         "Internal":  false,
+                         "Id":  "4b4a0ac0bd2b1993d5c94929f0a8bb6ddf9c89735565b6c27ce8885d70c60892",
+                         "Ingress":  false,
+                         "Attachable":  false,
+                         "IPAM":  {
+                                      "Driver":  "default",
+                                      "Config":  [
+
+                                                 ]
+                                  },
+                         "Scope":  "local",
+                         "Driver":  "host",
+                         "EnableIPv6":  false,
+                         "Labels":  {
+
+                                    },
+                         "Name":  "host"
+                     },
+                     {
+                         "Internal":  false,
+                         "Id":  "77b8b787f230b2f90a80550fc7b54d114793b010ef83bb2529a80fd1413a6656",
+                         "Ingress":  false,
+                         "Attachable":  false,
+                         "IPAM":  {
+                                      "Driver":  "default",
+                                      "Config":  [
+                                                     {
+                                                         "Gateway":  "172.19.0.1",
+                                                         "Subnet":  "172.19.0.0/16"
+                                                     }
+                                                 ]
+                                  },
+                         "Scope":  "local",
+                         "Driver":  "bridge",
+                         "EnableIPv6":  false,
+                         "Labels":  {
+                                        "com.docker.compose.config-hash":  "cca363649c0e88b65363fa11935b295546db43aa005d9c6cc5faf6de9290686b",
+                                        "com.docker.compose.network":  "sail",
+                                        "com.docker.compose.project":  "bagisto",
+                                        "com.docker.compose.version":  "5.1.3"
+                                    },
+                         "Name":  "bagisto_sail"
+                     },
+                     {
+                         "Internal":  false,
+                         "Id":  "825cf2b3a85bcab8219a211563eef2a87abe8419e99ba23ead42c07bdcea26b4",
+                         "Ingress":  false,
+                         "Attachable":  false,
+                         "IPAM":  {
+                                      "Driver":  "default",
+                                      "Config":  [
+                                                     {
+                                                         "Gateway":  "172.18.0.1",
+                                                         "Subnet":  "172.18.0.0/16"
+                                                     }
+                                                 ]
+                                  },
+                         "Scope":  "local",
+                         "Driver":  "bridge",
+                         "EnableIPv6":  false,
+                         "Labels":  {
+                                        "com.docker.compose.config-hash":  "14c60e209321c2a6217978160fb529102c68d5e799ea9d995cc36526b5e93628",
+                                        "com.docker.compose.network":  "default",
+                                        "com.docker.compose.project":  "cpanel_public_html",
+                                        "com.docker.compose.version":  "5.1.3"
+                                    },
+                         "Name":  "cpanel_public_html_default"
+                     },
+                     {
+                         "Internal":  false,
+                         "Id":  "940af557bbd114e4960f7f25d51f794f5b5d6f9d9eebc177a336c6754d26310e",
+                         "Ingress":  false,
+                         "Attachable":  false,
+                         "IPAM":  {
+                                      "Driver":  "default",
+                                      "Config":  [
+
+                                                 ]
+                                  },
+                         "Scope":  "local",
+                         "Driver":  "null",
+                         "EnableIPv6":  false,
+                         "Labels":  {
+
+                                    },
+                         "Name":  "none"
+                     },
+                     {
+                         "Internal":  false,
+                         "Id":  "e54b95860c6608167f27ec37956c971fa776feb286927a7728898818b516e84f",
+                         "Ingress":  false,
+                         "Attachable":  false,
+                         "IPAM":  {
+                                      "Driver":  "default",
+                                      "Config":  [
+                                                     {
+                                                         "Gateway":  "172.17.0.1",
+                                                         "Subnet":  "172.17.0.0/16"
+                                                     }
+                                                 ]
+                                  },
+                         "Scope":  "local",
+                         "Driver":  "bridge",
+                         "EnableIPv6":  false,
+                         "Labels":  {
+
+                                    },
+                         "Name":  "bridge"
+                     }
+                 ],
+    "Volumes":  [
+                    {
+                        "Labels":  {
+                                       "com.docker.volume.anonymous":  ""
+                                   },
+                        "Driver":  "local",
+                        "Scope":  "local",
+                        "Name":  "094ef86d2b6d739052cb9031f7a34c5778ead1cc760ec1745d33af89550fdf94",
+                        "Options":  {
+
+                                    }
+                    },
+                    {
+                        "Labels":  {
+                                       "com.docker.volume.anonymous":  ""
+                                   },
+                        "Driver":  "local",
+                        "Scope":  "local",
+                        "Name":  "54e56343266568b260b18cc8a703f1cf1660ece97937e9c2bb4887dae19b3cf7",
+                        "Options":  {
+
+                                    }
+                    },
+                    {
+                        "Labels":  {
+                                       "com.docker.volume.anonymous":  ""
+                                   },
+                        "Driver":  "local",
+                        "Scope":  "local",
+                        "Name":  "6b1f448b4478c4a130723f33dcaa697f5cf17c285582af73e5b645bcf239e23c",
+                        "Options":  {
+
+                                    }
+                    },
+                    {
+                        "Labels":  {
+                                       "com.docker.volume.anonymous":  ""
+                                   },
+                        "Driver":  "local",
+                        "Scope":  "local",
+                        "Name":  "6fa32cbbafd1c5bdb32de9ec55466e7c50051e7f7fd265b30081c376d112ae61",
+                        "Options":  {
+
+                                    }
+                    },
+                    {
+                        "Labels":  {
+                                       "com.docker.volume.anonymous":  ""
+                                   },
+                        "Driver":  "local",
+                        "Scope":  "local",
+                        "Name":  "7fdb2613b8b5228e4abbc07741a6e2e3979f4631c946da81736931c5e9eab623",
+                        "Options":  {
+
+                                    }
+                    },
+                    {
+                        "Labels":  {
+                                       "com.docker.volume.anonymous":  ""
+                                   },
+                        "Driver":  "local",
+                        "Scope":  "local",
+                        "Name":  "8a881639a75768ad203d06733e534954fede56be8b6163ba3fa2bf372e62b521",
+                        "Options":  {
+
+                                    }
+                    },
+                    {
+                        "Labels":  {
+                                       "com.docker.volume.anonymous":  ""
+                                   },
+                        "Driver":  "local",
+                        "Scope":  "local",
+                        "Name":  "95a1eefa3926a9feef749da82e174d3555012d372076fc075593c65843244974",
+                        "Options":  {
+
+                                    }
+                    },
+                    {
+                        "Labels":  {
+                                       "com.docker.volume.anonymous":  ""
+                                   },
+                        "Driver":  "local",
+                        "Scope":  "local",
+                        "Name":  "a813fbde8c23d83aeb2d242fdd4c0d79234b7971acd3e1998530d0e8a879e32e",
+                        "Options":  {
+
+                                    }
+                    },
+                    {
+                        "Labels":  {
+                                       "com.docker.volume.anonymous":  ""
+                                   },
+                        "Driver":  "local",
+                        "Scope":  "local",
+                        "Name":  "ae3a1c50b8c2475ca4c295ceb17f4434e759e45c83833877447dcea760939ea6",
+                        "Options":  {
+
+                                    }
+                    },
+                    {
+                        "Labels":  {
+                                       "com.docker.compose.config-hash":  "07f18ce2c0b141bafd869c0eb1843dc4c15850ab2a6e3e31326100a71b62ebcd",
+                                       "com.docker.compose.project":  "bagisto",
+                                       "com.docker.compose.version":  "5.1.3",
+                                       "com.docker.compose.volume":  "sail-elasticsearch"
+                                   },
+                        "Driver":  "local",
+                        "Scope":  "local",
+                        "Name":  "bagisto_sail-elasticsearch",
+                        "Options":  {
+
+                                    }
+                    },
+                    {
+                        "Labels":  {
+                                       "com.docker.compose.config-hash":  "08163e6183a7971ae6b8b53136fdef5849ed3070db9eb728d52639d32f65269a",
+                                       "com.docker.compose.project":  "bagisto",
+                                       "com.docker.compose.version":  "5.1.3",
+                                       "com.docker.compose.volume":  "sail-mysql"
+                                   },
+                        "Driver":  "local",
+                        "Scope":  "local",
+                        "Name":  "bagisto_sail-mysql",
+                        "Options":  {
+
+                                    }
+                    },
+                    {
+                        "Labels":  {
+                                       "com.docker.compose.config-hash":  "6f5cf888e8fd12bcb34c1e5f6be73e8be314758f438cd2f8b94176566b43b67a",
+                                       "com.docker.compose.project":  "bagisto",
+                                       "com.docker.compose.version":  "5.1.3",
+                                       "com.docker.compose.volume":  "sail-redis"
+                                   },
+                        "Driver":  "local",
+                        "Scope":  "local",
+                        "Name":  "bagisto_sail-redis",
+                        "Options":  {
+
+                                    }
+                    },
+                    {
+                        "Labels":  {
+                                       "com.docker.compose.config-hash":  "818949963935b47d3f7924d937356258a50ff3dea3008dede108f32248502efb",
+                                       "com.docker.compose.project":  "cho_nha",
+                                       "com.docker.compose.version":  "5.1.3",
+                                       "com.docker.compose.volume":  "composer-cache"
+                                   },
+                        "Driver":  "local",
+                        "Scope":  "local",
+                        "Name":  "cho_nha_composer-cache",
+                        "Options":  {
+
+                                    }
+                    },
+                    {
+                        "Labels":  {
+                                       "com.docker.compose.config-hash":  "5404595cd6bd66ce8a3449352c23e4e73bcbc8bf1b13db07b2ed723abe2868ab",
+                                       "com.docker.compose.project":  "cho_nha",
+                                       "com.docker.compose.version":  "5.1.3",
+                                       "com.docker.compose.volume":  "node-modules"
+                                   },
+                        "Driver":  "local",
+                        "Scope":  "local",
+                        "Name":  "cho_nha_node-modules",
+                        "Options":  {
+
+                                    }
+                    },
+                    {
+                        "Labels":  {
+                                       "com.docker.compose.config-hash":  "1cb78aa220c68d7e584cc06f03b77aa0d35e3858dcec0df9b416f10c0622e874",
+                                       "com.docker.compose.project":  "ck_cnpm",
+                                       "com.docker.compose.version":  "5.1.3",
+                                       "com.docker.compose.volume":  "mongodb_data"
+                                   },
+                        "Driver":  "local",
+                        "Scope":  "local",
+                        "Name":  "ck_cnpm_mongodb_data",
+                        "Options":  {
+
+                                    }
+                    },
+                    {
+                        "Labels":  {
+                                       "com.docker.compose.config-hash":  "7f4ba4ff72192a85c318f02ace524158de3865618081985c6e1500f4db47567b",
+                                       "com.docker.compose.project":  "ck_cnpm",
+                                       "com.docker.compose.version":  "5.1.3",
+                                       "com.docker.compose.volume":  "redis_data"
+                                   },
+                        "Driver":  "local",
+                        "Scope":  "local",
+                        "Name":  "ck_cnpm_redis_data",
+                        "Options":  {
+
+                                    }
+                    },
+                    {
+                        "Labels":  {
+                                       "com.docker.compose.config-hash":  "d06b9ab568f9e53dd3b8d4232e27d8d743f8b0596a7fca13cc70a598c62b6357",
+                                       "com.docker.compose.project":  "cpanel_public_html",
+                                       "com.docker.compose.version":  "5.1.3",
+                                       "com.docker.compose.volume":  "mysql_data"
+                                   },
+                        "Driver":  "local",
+                        "Scope":  "local",
+                        "Name":  "cpanel_public_html_mysql_data",
+                        "Options":  {
+
+                                    }
+                    },
+                    {
+                        "Labels":  {
+                                       "com.docker.compose.config-hash":  "51bcf774068ca39aaa762be0444c41694198dbb16bb2d866e30a93f7248b6fbd",
+                                       "com.docker.compose.project":  "cpanel_public_html",
+                                       "com.docker.compose.version":  "5.1.3",
+                                       "com.docker.compose.volume":  "postgres_data"
+                                   },
+                        "Driver":  "local",
+                        "Scope":  "local",
+                        "Name":  "cpanel_public_html_postgres_data",
+                        "Options":  {
+
+                                    }
+                    },
+                    {
+                        "Labels":  {
+                                       "com.docker.volume.anonymous":  ""
+                                   },
+                        "Driver":  "local",
+                        "Scope":  "local",
+                        "Name":  "dbb44d888f08ba02b9017e11b680e418fc2b5a919f8a6a2f8580526c52745d1f",
+                        "Options":  {
+
+                                    }
+                    },
+                    {
+                        "Labels":  {
+                                       "com.docker.compose.config-hash":  "e30e4aa3788b3dbbd4633680d936881fead17e313a08ce48d94a76df87a83bbd",
+                                       "com.docker.compose.project":  "english-level-up-tips",
+                                       "com.docker.compose.version":  "5.1.3",
+                                       "com.docker.compose.volume":  "clickhouse_data"
+                                   },
+                        "Driver":  "local",
+                        "Scope":  "local",
+                        "Name":  "english-level-up-tips_clickhouse_data",
+                        "Options":  {
+
+                                    }
+                    },
+                    {
+                        "Labels":  {
+                                       "com.docker.compose.config-hash":  "dfde8d534ccbdc0e525c2a3c1e9f304d1b59ba0e30f8c9ffda391b107a8da708",
+                                       "com.docker.compose.project":  "english-level-up-tips",
+                                       "com.docker.compose.version":  "5.1.3",
+                                       "com.docker.compose.volume":  "postgres_data"
+                                   },
+                        "Driver":  "local",
+                        "Scope":  "local",
+                        "Name":  "english-level-up-tips_postgres_data",
+                        "Options":  {
+
+                                    }
+                    },
+                    {
+                        "Labels":  {
+                                       "com.docker.compose.config-hash":  "8999ce18d671f01a2158b8b5c3dc81164823a3cb02a413c6f3329fcc10005b0d",
+                                       "com.docker.compose.project":  "english-level-up-tips",
+                                       "com.docker.compose.version":  "5.1.3",
+                                       "com.docker.compose.volume":  "qdrant_data"
+                                   },
+                        "Driver":  "local",
+                        "Scope":  "local",
+                        "Name":  "english-level-up-tips_qdrant_data",
+                        "Options":  {
+
+                                    }
+                    },
+                    {
+                        "Labels":  {
+                                       "com.docker.compose.config-hash":  "3e7606436c84778309dcdefa8e6cf0a03b92615191fe4610c0f432af70baef7b",
+                                       "com.docker.compose.project":  "english-level-up-tips",
+                                       "com.docker.compose.version":  "5.1.3",
+                                       "com.docker.compose.volume":  "redis_data"
+                                   },
+                        "Driver":  "local",
+                        "Scope":  "local",
+                        "Name":  "english-level-up-tips_redis_data",
+                        "Options":  {
+
+                                    }
+                    },
+                    {
+                        "Labels":  {
+                                       "com.docker.volume.anonymous":  ""
+                                   },
+                        "Driver":  "local",
+                        "Scope":  "local",
+                        "Name":  "f6a598b094bad3ac8fdd76e36053e8f1fc6a8c2146d63fe009f394caba7b1140",
+                        "Options":  {
+
+                                    }
+                    },
+                    {
+                        "Labels":  {
+                                       "com.docker.volume.anonymous":  ""
+                                   },
+                        "Driver":  "local",
+                        "Scope":  "local",
+                        "Name":  "fe31b2388ad35056114749fd766d2a97e5f88fdaa0e7f71637c965a903890d5a",
+                        "Options":  {
+
+                                    }
+                    }
+                ]
+}

@@ -1,0 +1,30 @@
+--- STDOUT ---
+============================================================
+DX-OS Runtime Smoke Runner
+Mode: Compose | Run ID: 4e1a0250b723 | Project: dxos-smoke-4e1a0250b723
+Ports: API=18372, Postgres=15664
+============================================================
+==> Starting Docker Compose environment (dxos-smoke-4e1a0250b723)...
+
+Name                           Value
+----                           -----
+Stdout                         #1 [internal] load local bake definitions...
+ExitCode                       0
+Stderr                          Image dxos-api:0.1.0-spike Building ...
+==> Probing API Liveness: http://localhost:18372/health/live...
+[OK] Liveness OK: {"status":"Healthy","mode":"Liveness","timestamp":"2026-08-15T20:21:23.5479342+00:00"}
+==> Probing API Readiness: http://localhost:18372/health/ready...
+[OK] Readiness OK: {"status":"Healthy","mode":"Readiness","database":"Connected","probeCount":0,"timestamp":"2026-08-15T20:21:23.7434118+00:00"}
+==> Invoking Elsa Workflow Smoke: http://localhost:18372/smoke/workflow...
+[OK] Elsa Smoke Workflow Succeeded!
+  - Workflow Instance ID: 9686d852abe70d61
+  - Terminal Status:      Finished (Finished)
+  - Output:               DXOS_SMOKE_OK
+  - Echoed Correlation:   smoke-corr-4e1a0250b723
+==> Cleaning up task-owned resources for run 4e1a0250b723...
+Stdout
+ExitCode                       0
+Stderr                          Container dxos-smoke-4e1a0250b723-dxos-api-1 Stopping ...
+[OK] Runtime smoke completed successfully and all task-owned resources were cleaned up.
+
+--- STDERR ---

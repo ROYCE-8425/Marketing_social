@@ -1,0 +1,9 @@
+**/.git
+**/.beads
+**/bin
+**/obj
+**/artifacts
+**/.gemini
+**/.vs
+**/.idea
+.openspec

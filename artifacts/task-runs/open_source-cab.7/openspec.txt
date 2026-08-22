@@ -1,0 +1,7 @@
+COMMAND: openspec.cmd validate bootstrap-remediation-001 --type change --strict --no-interactive
+EXIT_CODE: 0
+DURATION_MS: 2517
+STDOUT:
+Change 'bootstrap-remediation-001' is valid
+
+STDERR:

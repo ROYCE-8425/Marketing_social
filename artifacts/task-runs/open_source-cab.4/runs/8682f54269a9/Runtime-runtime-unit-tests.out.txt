@@ -1,0 +1,6 @@
+--- STDOUT ---
+Executing test runner: dotnet test "C:\Users\199X\OneDrive\Máy tính\olympic\dx-os\tests\DXOS.Unit.Tests\DXOS.Unit.Tests.csproj" -c Release --no-build --no-restore -- --report-ctrf --report-ctrf-filename "ctrf-report-87d22ed12eba4890be776901e352fe35.json"
+Test Results Summary: Total=9, Passed=9, Failed=0, Skipped=0
+Test project passed successfully.
+
+--- STDERR ---

@@ -1,0 +1,20 @@
+COMMAND: powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts\verify-check-contract.ps1
+EXIT_CODE: 0
+DURATION_MS: 44820
+STDOUT:
+Initializing Verifier Lifecycle...
+Running Verifier Assertions...
+[PASS] Missing tool preflight generates machine-readable evidence (exitCode=-1, processState=preflight-failure) and blocks dependent gates
+[PASS] Native exit 42 captured, firstFailure=native-42, exitCode=42 in evidence, and downstream gate omitted
+[PASS] Timeout execution bounded (2.38s), process-tree terminated, no orphans, unrelated process survived, blocked later gates
+[PASS] Argument boundaries survive with exact count, order, and values
+[PASS] Unrelated solution and non-root directory shielding (real runner root guard verified)
+[PASS] Output untruncated (complete 10,000 sequential lines verified), boundary sentinels confirmed, secrets redacted, stderr captured
+[PASS] Real Foundation exit 0, overallResult PASS, exact 5 gates passed in order
+[PASS] Real Runtime failure boundary: exact 6 gates in order, firstFailure at runtime-unit-tests (exit 1, overallResult FAIL)
+[PASS] Real Full default profile failure boundary: exact 6 gates in order, firstFailure at runtime-unit-tests (exit 1, overallResult FAIL)
+[PASS] Immutability of exactly 9 locks, production contract, and 6 source files proven
+
+All verifier assertions passed safely!
+
+STDERR:

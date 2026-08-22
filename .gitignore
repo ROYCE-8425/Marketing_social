@@ -1,0 +1,30 @@
+bin/
+obj/
+TestResults/
+/artifacts/quality-gate/
+.tools/
+*.tmp
+.*.tmp
+
+# Node / AIECOS foundation
+node_modules/
+*.log
+.env
+.env.local
+.DS_Store
+*.bak
+*.bak.*
+dist/
+build/
+
+# Demo media — uploaded to GitHub Release assets instead
+assets/*.mp4
+assets/*.mov
+assets/*.jpg
+assets/*.jpeg
+assets/*.png
+
+# Local merge / vendor clones
+vendor/_tmp/
+_merge_backup/
+Marketing_social/

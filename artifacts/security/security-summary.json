@@ -1,0 +1,100 @@
+{
+    "schemaVersion":  "1.0",
+    "runId":  "ab4ac058-718f-4e78-add8-b3d3eb97f772",
+    "revisionSha":  "c2b3390d18068c805a8ad31bf0173afc2ba63b5b",
+    "generatedAt":  "2026-08-21T11:16:23.6272155+07:00",
+    "deliverable":  {
+                        "name":  "dxos-api",
+                        "version":  "0.1.0-spike",
+                        "imageName":  "dxos-api:0.1.0-spike",
+                        "imageDigest":  "sha256:acb330778467aafa528f86e2ad7e12bf5638bd82159b98d0385b4d98ac477812"
+                    },
+    "sbom":  {
+                 "path":  "artifacts/sbom.cdx.json",
+                 "sha256":  "5A3A5F388CDF6031D55DF110FF77D721C2E61614B56F380539ACF40FEA840DF1",
+                 "format":  "CycloneDX",
+                 "specVersion":  "1.7",
+                 "componentCount":  122,
+                 "duplicateCount":  0,
+                 "canonicalKeyRule":  "purl (case-normalized) if present, else type:name@version (case-normalized)"
+             },
+    "tools":  {
+                  "gitleaks":  {
+                                   "version":  "8.30.0",
+                                   "sha256":  "9d08e3f5cfb35a98f230b97bcda24f8d3fc66363c91868ffc98dac0afebdcb72",
+                                   "license":  "MIT"
+                               },
+                  "trivy":  {
+                                "version":  "0.72.0",
+                                "sha256":  "5c233d1514d6fd91f7a4f834beb92070f8a9793c71801f7f2149a7b30f90b821",
+                                "license":  "Apache-2.0"
+                            },
+                  "syft":  {
+                               "version":  "1.50.0",
+                               "sha256":  "98a3779f229905fec96e16018adf27ed7a93adc2869d17e6fb21961eb501d398",
+                               "license":  "Apache-2.0"
+                           },
+                  "grype":  {
+                                "version":  "0.116.1",
+                                "sha256":  "0ab5d366118e20784222ce13c0f696e5997ae42bbcea80420d264a9c42098b57",
+                                "license":  "Apache-2.0"
+                            }
+              },
+    "scannerDatabases":  {
+                             "trivy":  {
+                                           "vulnerabilityDbVersion":  "2",
+                                           "updatedAt":  "2026-08-21 01:31:14.037676497 +0000 UTC",
+                                           "downloadedAt":  "2026-08-21 04:16:03.7583539 +0000 UTC",
+                                           "checkBundleDigest":  "sha256:1583562f8b90ed2a071b99f0e5ffff6b57e4ceb6ca3e4796577b4e6a339eb74c",
+                                           "rawOutput":  "Version: 0.72.0\r\nVulnerability DB:\r\n  Version: 2\r\n  UpdatedAt: 2026-08-21 01:31:14.037676497 +0000 UTC\r\n  NextUpdate: 2026-08-22 01:31:14.037675793 +0000 UTC\r\n  DownloadedAt: 2026-08-21 04:16:03.7583539 +0000 UTC\r\nCheck Bundle:\r\n  Digest: sha256:1583562f8b90ed2a071b99f0e5ffff6b57e4ceb6ca3e4796577b4e6a339eb74c\r\n  DownloadedAt: 2026-08-21 00:49:54.2373996 +0000 UTC"
+                                       },
+                             "grype":  {
+                                           "schema":  "v6.1.9",
+                                           "built":  "2026-08-20T06:17:08Z",
+                                           "checksum":  "sha256:39324b8b1e4ec165a873541afb91a9c1f06b090354d5461f2e7da15569dbd0fd",
+                                           "status":  "valid",
+                                           "rawOutput":  "Path:      \u003cUSER_PROFILE\u003e\r\nSchema:    v6.1.9\r\nBuilt:     2026-08-20T06:17:08Z\r\nFrom:      https://grype.anchore.io/databases/v6/vulnerability-db_v6.1.9_2026-08-20T00:15:42Z_1787206628.tar.zst?checksum=sha256:39324b8b1e4ec165a873541afb91a9c1f06b090354d5461f2e7da15569dbd0fd\r\nStatus:    valid"
+                                       }
+                         },
+    "reports":  {
+                    "gitleaks":  {
+                                     "path":  "gitleaks-report.json",
+                                     "sha256":  "37517E5F3DC66819F61F5A7BB8ACE1921282415F10551D2DEFA5C3EB0985B570",
+                                     "findings":  0
+                                 },
+                    "trivyConfig":  {
+                                        "path":  "trivy-config-report.json",
+                                        "sha256":  "322386194DFFFE5EAC33347BA2D48420AAED52CCDEB0496287F153C1009632E7",
+                                        "misconfigurations":  0
+                                    },
+                    "trivyImage":  {
+                                       "path":  "trivy-image-report.json",
+                                       "sha256":  "FFE1869184A6377E2AAF5BE6D56F43F5D5FC3AC21FE0E99FE409B8D5EC8EA9A6",
+                                       "vulnerabilities":  0
+                                   },
+                    "syftSbom":  {
+                                     "path":  "artifacts/sbom.cdx.json",
+                                     "sha256":  "5A3A5F388CDF6031D55DF110FF77D721C2E61614B56F380539ACF40FEA840DF1",
+                                     "components":  122
+                                 },
+                    "grype":  {
+                                  "path":  "grype-report.json",
+                                  "sha256":  "42DDEC71CF023BA2BEB58078DA1CACFFAC739932A3016D612C7B1152BA00B121",
+                                  "vulnerabilities":  0
+                              }
+                },
+    "evidenceDir":  "artifacts/quality-gate/run-ab4ac058-718f-4e78-add8-b3d3eb97f772",
+    "policies":  {
+                     "gitleaks":  "zero-leaks",
+                     "trivy":  "zero-high-critical",
+                     "grype":  "fail-on-high"
+                 },
+    "dispositions":  {
+                         "gitleaks":  "PASS",
+                         "trivyConfig":  "PASS",
+                         "trivyImage":  "PASS",
+                         "syftSbom":  "PASS",
+                         "grype":  "PASS"
+                     },
+    "overallVerdict":  "PASS"
+}

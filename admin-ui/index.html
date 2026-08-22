@@ -1,0 +1,1756 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>AIECOS Social CRM — Open-source Pancake → Supabase</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Open-source social CRM template — Pancake (Zalo/Facebook) → Supabase with admin UI + MCP server for AI agents. 5-stage B2B partner classification.">
+<meta name="theme-color" content="#0f172a">
+<meta property="og:title" content="AIECOS Social CRM">
+<meta property="og:description" content="Sync Pancake (Zalo OA / Facebook Messenger / Instagram) → Supabase. Built-in admin UI + MCP server.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://github.com/aiecosvietnam/aiecos-social-crm">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%233b82f6'/%3E%3Cstop offset='1' stop-color='%23a78bfa'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' rx='22' fill='url(%23g)'/%3E%3Cpath d='M50 22 L60 42 L80 46 L65 60 L70 80 L50 70 L30 80 L35 60 L20 46 L40 42 Z' fill='white'/%3E%3C/svg%3E">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>
+<script src="demo-data.js"></script>
+<style>
+  :root {
+    --bg:#fafafa; --bg-card:#fff; --bg-subtle:#f3f4f6; --bg-hover:#f8fafc;
+    --text:#0f172a; --text-light:#475569; --text-muted:#94a3b8;
+    --border:#e5e7eb; --border-strong:#cbd5e1;
+    --primary:#0f172a; --primary-hover:#1e293b; --accent:#3b82f6;
+    --green:#10b981; --orange:#f97316; --pink:#ec4899; --purple:#a78bfa;
+    --red:#ef4444; --yellow:#f59e0b;
+    --shadow:0 1px 2px rgba(0,0,0,.04); --shadow-lg:0 4px 12px rgba(0,0,0,.08); --shadow-xl:0 10px 30px rgba(0,0,0,.12);
+    --radius:10px; --radius-lg:14px;
+    --transition:.18s cubic-bezier(.4,0,.2,1);
+  }
+  [data-theme="dark"] {
+    --bg:#0a0e17; --bg-card:#111827; --bg-subtle:#1f2937; --bg-hover:#1a2332;
+    --text:#f1f5f9; --text-light:#cbd5e1; --text-muted:#64748b;
+    --border:#1f2937; --border-strong:#334155;
+    --primary:#3b82f6; --primary-hover:#2563eb;
+    --shadow:0 1px 2px rgba(0,0,0,.4); --shadow-lg:0 4px 12px rgba(0,0,0,.5); --shadow-xl:0 10px 30px rgba(0,0,0,.6);
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; background:var(--bg); color:var(--text); font-size:14px; }
+  .layout { display:grid; grid-template-columns:240px 1fr; min-height:100vh; }
+  .sidebar { background:#fff; border-right:1px solid var(--border); padding:18px 14px; }
+  .ws { display:flex; align-items:center; gap:10px; padding:10px; background:var(--bg-subtle); border-radius:10px; margin-bottom:12px; }
+  .ws .avatar { width:36px; height:36px; border-radius:10px; background:linear-gradient(135deg,#3b82f6,#a78bfa); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:12px; }
+  .ws .info { flex:1; }
+  .ws .name { font-weight:600; font-size:13px; }
+  .ws .sub { font-size:11px; color:var(--text-muted); }
+  .demo-badge { display:flex; gap:5px; align-items:center; justify-content:center; padding:5px 6px; background:#fef3c7; color:#92400e; border-radius:6px; font-size:11px; font-weight:600; margin-bottom:12px; width:100%; }
+  /* Lucide icon defaults */
+  [data-lucide] { width:16px; height:16px; stroke-width:2; vertical-align:middle; flex-shrink:0; }
+  .icon-sm { width:14px !important; height:14px !important; }
+  .icon-lg { width:20px !important; height:20px !important; }
+  .icon-xl { width:32px !important; height:32px !important; }
+  .nav-item [data-lucide] { color:inherit; }
+  .nav-group { font-size:11px; color:var(--text-muted); text-transform:uppercase; letter-spacing:.5px; margin:14px 6px 6px; }
+  .nav-item { display:flex; align-items:center; gap:10px; padding:9px 12px; border-radius:8px; cursor:pointer; font-size:13px; color:var(--text-light); margin-bottom:2px; }
+  .nav-item:hover { background:var(--bg-subtle); color:var(--text); }
+  .nav-item.active { background:var(--primary); color:#fff; }
+  .main { padding:24px 32px; overflow-y:auto; }
+  .page-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:20px; }
+  .page-header h1 { margin:0 0 4px; font-size:22px; }
+  .page-header p { margin:0; color:var(--text-muted); font-size:13px; }
+  .header-actions { display:flex; gap:8px; align-items:center; }
+  .btn { padding:7px 14px; border:1px solid var(--border); background:#fff; border-radius:8px; cursor:pointer; font-size:13px; font-family:inherit; }
+  .btn:hover { background:var(--bg-subtle); }
+  .btn-primary { background:var(--primary); color:#fff; border-color:var(--primary); }
+  .btn-primary:hover { background:#1e293b; }
+  .btn-sm { padding:4px 10px; font-size:12px; }
+  .filter-segs { display:flex; gap:4px; background:var(--bg-subtle); padding:3px; border-radius:8px; }
+  .filter-segs button { padding:5px 12px; border:none; background:transparent; border-radius:6px; font-size:12px; cursor:pointer; color:var(--text-light); font-family:inherit; }
+  .filter-segs button.active { background:#fff; color:var(--text); font-weight:600; box-shadow:var(--shadow); }
+  .stats-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(180px,1fr)); gap:14px; margin-bottom:24px; }
+  .stat-card { background:#fff; border:1px solid var(--border); border-radius:12px; padding:16px; box-shadow:var(--shadow); }
+  .stat-card .label-row { display:flex; align-items:center; gap:6px; font-size:12px; color:var(--text-muted); margin-bottom:8px; }
+  .stat-card .dot { width:6px; height:6px; border-radius:50%; }
+  .stat-card .value { font-size:28px; font-weight:700; color:var(--text); }
+  .stat-card .sub { font-size:11px; color:var(--text-muted); margin-top:4px; }
+  .card { background:#fff; border:1px solid var(--border); border-radius:12px; box-shadow:var(--shadow); margin-bottom:16px; }
+  .card-header { padding:14px 18px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; }
+  .card-header h3 { margin:0; font-size:14px; font-weight:600; }
+  .card-body { padding:16px 18px; }
+  .empty-state { text-align:center; padding:40px 20px; color:var(--text-muted); }
+  .empty-state h3 { margin:8px 0 4px; font-size:14px; color:var(--text); }
+  .empty-state p { margin:0; font-size:12px; }
+  .kanban { display:grid; grid-template-columns:repeat(5, minmax(180px,1fr)); gap:12px; height:calc(100vh - 240px); overflow-x:auto; }
+  .kanban-col { background:var(--bg-subtle); border-radius:10px; display:flex; flex-direction:column; min-height:240px; }
+  .kanban-col-header { padding:12px 14px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:6px; background:#fff; border-radius:10px 10px 0 0; }
+  .kanban-col-header .title { font-size:11px; font-weight:600; letter-spacing:.5px; }
+  .kanban-col-header .count { margin-left:auto; padding:1px 7px; background:var(--bg-subtle); border-radius:8px; font-size:10px; font-weight:600; }
+  .kanban-col-body { padding:10px; flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:6px; }
+  .kanban-card { background:#fff; border:1px solid var(--border); border-radius:8px; padding:10px 12px; font-size:12px; }
+  .kanban-card .name { font-weight:600; margin-bottom:4px; }
+  .kanban-card .meta { color:var(--text-muted); font-size:10px; }
+  table { width:100%; border-collapse:collapse; }
+  th, td { padding:10px 14px; text-align:left; font-size:13px; border-bottom:1px solid var(--border); }
+  th { color:var(--text-muted); font-weight:600; font-size:11px; text-transform:uppercase; letter-spacing:.5px; }
+  .section { display:none; }
+  .section.active { display:block; }
+  .progress { width:100px; height:6px; background:var(--bg-subtle); border-radius:3px; overflow:hidden; }
+  .progress > span { display:block; height:100%; }
+  .config-warning { background:#fef3c7; border:1px solid #fbbf24; color:#92400e; padding:14px 18px; border-radius:10px; margin-bottom:20px; font-size:13px; }
+  .config-info { background:#dbeafe; border:1px solid #60a5fa; color:#1e40af; padding:14px 18px; border-radius:10px; margin-bottom:20px; font-size:13px; }
+  /* Inbox 2-pane */
+  .inbox-layout { display:grid; grid-template-columns:320px 1fr; gap:14px; height:calc(100vh - 160px); }
+  .inbox-list { background:#fff; border:1px solid var(--border); border-radius:12px; overflow-y:auto; box-shadow:var(--shadow); }
+  .inbox-item { padding:12px 14px; border-bottom:1px solid var(--border); cursor:pointer; }
+  .inbox-item:hover { background:var(--bg-subtle); }
+  .inbox-item.active { background:#eff6ff; border-left:3px solid var(--accent); padding-left:11px; }
+  .inbox-item .name { font-weight:600; font-size:13px; margin-bottom:2px; }
+  .inbox-item .snippet { font-size:12px; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .inbox-item .meta { font-size:10px; color:var(--text-muted); margin-top:4px; display:flex; justify-content:space-between; }
+  .inbox-detail { background:#fff; border:1px solid var(--border); border-radius:12px; display:flex; flex-direction:column; box-shadow:var(--shadow); }
+  .inbox-detail-header { padding:14px 18px; border-bottom:1px solid var(--border); }
+  .inbox-detail-body { flex:1; overflow-y:auto; padding:18px; display:flex; flex-direction:column-reverse; gap:10px; }
+  .msg-bubble { max-width:65%; padding:8px 12px; border-radius:12px; font-size:13px; }
+  .msg-bubble.customer { background:var(--bg-subtle); align-self:flex-start; }
+  .msg-bubble.agent { background:#0f172a; color:#fff; align-self:flex-end; }
+  .msg-bubble .meta { font-size:10px; opacity:.6; margin-top:4px; }
+  /* Heatmap */
+  .heatmap { display:grid; grid-template-columns:60px repeat(24, 1fr); gap:2px; font-size:10px; }
+  .heatmap-cell { aspect-ratio:1; border-radius:3px; background:var(--bg-subtle); display:flex; align-items:center; justify-content:center; color:#fff; font-weight:600; }
+  .heatmap-label { display:flex; align-items:center; padding-right:6px; color:var(--text-muted); justify-content:flex-end; }
+  /* Code blocks */
+  pre { background:var(--bg-subtle); padding:14px; border-radius:8px; overflow-x:auto; font-size:12px; line-height:1.5; font-family:'SF Mono',Monaco,Consolas,monospace; margin:8px 0; }
+  code { background:var(--bg-subtle); padding:1px 5px; border-radius:3px; font-family:'SF Mono',Monaco,Consolas,monospace; font-size:12px; }
+  .copy-btn { float:right; padding:3px 8px; font-size:11px; cursor:pointer; border:1px solid var(--border); background:#fff; border-radius:4px; }
+  /* Tabs */
+  .tabs { display:flex; gap:0; border-bottom:1px solid var(--border); margin-bottom:18px; }
+  .tab { padding:10px 16px; cursor:pointer; border-bottom:2px solid transparent; color:var(--text-muted); font-size:13px; }
+  .tab.active { color:var(--text); border-bottom-color:var(--accent); font-weight:600; }
+  .tab-content { display:none; }
+  .tab-content.active { display:block; }
+  @media print { .sidebar, .header-actions, #toastHost, #drawer { display:none !important; } .main { padding:0; } }
+
+  /* ── Smooth transitions everywhere ── */
+  body, .stat-card, .card, .btn, .nav-item, .inbox-item, .kanban-card { transition: background var(--transition), color var(--transition), border-color var(--transition), transform var(--transition), box-shadow var(--transition); }
+
+  /* ── Card hover lift ── */
+  .stat-card:hover, .kanban-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); border-color: var(--border-strong); }
+
+  /* ── Sparkline mini chart in KPI cards ── */
+  .spark-wrap { position:relative; width:100%; height:32px; margin-top:8px; opacity:.7; }
+  .spark-wrap canvas { width:100% !important; height:100% !important; display:block; }
+
+  /* ── Toast notifications ── */
+  #toastHost { position:fixed; bottom:24px; right:24px; z-index:9999; display:flex; flex-direction:column; gap:8px; pointer-events:none; }
+  .toast { background:var(--bg-card); border:1px solid var(--border); border-left:4px solid var(--accent); padding:12px 16px; border-radius:var(--radius); box-shadow:var(--shadow-xl); min-width:240px; max-width:380px; display:flex; gap:10px; align-items:flex-start; pointer-events:auto; animation:toastIn .3s cubic-bezier(.2,1,.3,1); }
+  .toast.success { border-left-color:var(--green); }
+  .toast.error { border-left-color:var(--red); }
+  .toast.warning { border-left-color:var(--orange); }
+  .toast .toast-msg { flex:1; font-size:13px; }
+  .toast .toast-close { background:none; border:none; cursor:pointer; color:var(--text-muted); padding:0; }
+  @keyframes toastIn { from { transform:translateX(40px); opacity:0; } to { transform:translateX(0); opacity:1; } }
+
+  /* ── Drawer (right slide-in) ── */
+  #drawerBackdrop { position:fixed; inset:0; background:rgba(15,23,42,.4); opacity:0; pointer-events:none; transition:opacity var(--transition); z-index:998; }
+  #drawerBackdrop.open { opacity:1; pointer-events:auto; }
+  #drawer { position:fixed; top:0; right:0; bottom:0; width:480px; max-width:90vw; background:var(--bg-card); border-left:1px solid var(--border); box-shadow:var(--shadow-xl); transform:translateX(100%); transition:transform var(--transition); z-index:999; display:flex; flex-direction:column; }
+  #drawer.open { transform:translateX(0); }
+  .drawer-header { padding:18px 22px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; }
+  .drawer-header h2 { margin:0; font-size:16px; }
+  .drawer-body { flex:1; overflow-y:auto; padding:18px 22px; }
+  .drawer-close { background:none; border:none; cursor:pointer; color:var(--text-muted); padding:6px; border-radius:6px; }
+  .drawer-close:hover { background:var(--bg-subtle); color:var(--text); }
+
+  /* ── Skeleton loaders ── */
+  .skeleton { background:linear-gradient(90deg, var(--bg-subtle) 0%, var(--bg-hover) 50%, var(--bg-subtle) 100%); background-size:200% 100%; animation:sk 1.5s infinite; border-radius:6px; }
+  @keyframes sk { 0% { background-position:200% 0; } 100% { background-position:-200% 0; } }
+  .skel-line { height:14px; margin:6px 0; }
+  .skel-line.short { width:60%; }
+
+  /* ── Cmd+K modal ── */
+  #cmdkBackdrop { position:fixed; inset:0; background:rgba(15,23,42,.5); display:none; align-items:flex-start; justify-content:center; padding-top:120px; z-index:1000; }
+  #cmdkBackdrop.open { display:flex; }
+  #cmdk { background:var(--bg-card); width:480px; max-width:90vw; border-radius:var(--radius-lg); box-shadow:var(--shadow-xl); overflow:hidden; }
+  #cmdk input { width:100%; padding:14px 18px; border:none; outline:none; font-size:14px; background:transparent; color:var(--text); border-bottom:1px solid var(--border); }
+  .cmdk-list { max-height:320px; overflow-y:auto; padding:6px; }
+  .cmdk-item { padding:8px 12px; border-radius:6px; cursor:pointer; display:flex; align-items:center; gap:10px; font-size:13px; }
+  .cmdk-item:hover, .cmdk-item.focus { background:var(--bg-subtle); }
+  .cmdk-item .kind { font-size:10px; color:var(--text-muted); margin-left:auto; padding:1px 6px; background:var(--bg-subtle); border-radius:4px; }
+
+  /* ── Theme toggle ── */
+  .theme-toggle { background:none; border:1px solid var(--border); border-radius:8px; padding:6px 10px; cursor:pointer; color:var(--text-light); }
+  .theme-toggle:hover { background:var(--bg-subtle); color:var(--text); }
+
+  /* ── Status pill (improved) ── */
+  .pill { display:inline-flex; align-items:center; gap:4px; padding:2px 8px; border-radius:6px; font-size:11px; font-weight:600; }
+  .pill-active { background:rgba(16,185,129,.12); color:var(--green); }
+  .pill-sleeping { background:rgba(245,158,11,.12); color:var(--yellow); }
+  .pill-at_risk { background:rgba(249,115,22,.12); color:var(--orange); }
+  .pill-dormant { background:rgba(236,72,153,.12); color:var(--pink); }
+  .pill-churned { background:rgba(239,68,68,.12); color:var(--red); }
+
+  /* ── Improved table rows ── */
+  tbody tr { cursor:pointer; }
+  tbody tr:hover { background:var(--bg-hover); }
+
+  /* ── Avatar circles (color by stage) ── */
+  .avatar-c { width:36px; height:36px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; color:#fff; font-weight:600; font-size:12px; flex-shrink:0; }
+  .avatar-c.active { background:linear-gradient(135deg, #10b981, #059669); }
+  .avatar-c.sleeping { background:linear-gradient(135deg, #f59e0b, #d97706); }
+  .avatar-c.at_risk { background:linear-gradient(135deg, #f97316, #ea580c); }
+  .avatar-c.dormant { background:linear-gradient(135deg, #ec4899, #db2777); }
+  .avatar-c.churned { background:linear-gradient(135deg, #ef4444, #dc2626); }
+  .avatar-c.sm { width:28px; height:28px; font-size:10px; }
+
+  /* ── KPI cards with delta ── */
+  .stat-card .delta { font-size:11px; font-weight:600; display:inline-block; padding:1px 6px; border-radius:4px; margin-left:6px; vertical-align:middle; }
+  .delta.up { background:rgba(16,185,129,.12); color:var(--green); }
+  .delta.down { background:rgba(239,68,68,.12); color:var(--red); }
+  .delta.flat { background:var(--bg-subtle); color:var(--text-muted); }
+
+  /* ── Grid layouts ── */
+  .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:16px; }
+  .grid-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; margin-bottom:16px; }
+  @media (max-width:1100px) { .grid-2, .grid-3 { grid-template-columns:1fr; } }
+
+  /* ── Activity feed ── */
+  .activity-item { display:flex; gap:12px; padding:10px 0; border-bottom:1px solid var(--border); }
+  .activity-item:last-child { border-bottom:none; }
+  .activity-item .body { flex:1; min-width:0; }
+  .activity-item .head { display:flex; gap:8px; align-items:center; margin-bottom:2px; }
+  .activity-item .name { font-weight:600; font-size:13px; }
+  .activity-item .time { font-size:11px; color:var(--text-muted); margin-left:auto; }
+  .activity-item .content { font-size:13px; color:var(--text-light); overflow:hidden; text-overflow:ellipsis; display:-webkit-box; -webkit-line-clamp:1; -webkit-box-orient:vertical; }
+  .activity-item.agent-bar { border-left:3px solid var(--green); padding-left:10px; margin-left:-10px; }
+
+  /* ── Inbox 3-pane (Rocky style) ── */
+  .inbox3 { display:grid; grid-template-columns:200px 320px 1fr; gap:14px; height:calc(100vh - 160px); }
+  .inbox-pane { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-lg); overflow:hidden; display:flex; flex-direction:column; box-shadow:var(--shadow); }
+  .inbox-pane-header { padding:12px 14px; border-bottom:1px solid var(--border); font-size:12px; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:.5px; display:flex; align-items:center; gap:8px; }
+  .inbox-pane-body { flex:1; overflow-y:auto; }
+  .inbox-search { padding:10px 14px; border-bottom:1px solid var(--border); }
+  .inbox-search input { width:100%; padding:7px 12px; border:1px solid var(--border); border-radius:8px; background:var(--bg-subtle); font-size:13px; outline:none; color:var(--text); font-family:inherit; }
+  .inbox-search input:focus { border-color:var(--accent); background:var(--bg-card); }
+  .channel-chip { padding:5px 10px; border-radius:14px; font-size:11px; cursor:pointer; border:1px solid var(--border); background:transparent; color:var(--text-light); font-family:inherit; display:inline-flex; align-items:center; gap:4px; }
+  .channel-chip.active { background:var(--primary); color:#fff; border-color:var(--primary); }
+  .channel-row { display:flex; gap:6px; padding:10px 14px; flex-wrap:wrap; border-bottom:1px solid var(--border); }
+
+  .page-item { padding:10px 14px; cursor:pointer; display:flex; align-items:center; gap:8px; border-bottom:1px solid var(--border); }
+  .page-item:hover { background:var(--bg-hover); }
+  .page-item.active { background:var(--bg-subtle); border-left:3px solid var(--accent); padding-left:11px; }
+  .page-item .info { flex:1; min-width:0; }
+  .page-item .name { font-size:13px; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .page-item .meta { font-size:10px; color:var(--text-muted); }
+
+  .conv-item { padding:12px 14px; cursor:pointer; border-bottom:1px solid var(--border); display:flex; gap:10px; }
+  .conv-item:hover { background:var(--bg-hover); }
+  .conv-item.active { background:#eff6ff; border-left:3px solid var(--accent); padding-left:11px; }
+  [data-theme="dark"] .conv-item.active { background:rgba(59,130,246,.15); }
+  .conv-item .body { flex:1; min-width:0; }
+  .conv-item .top { display:flex; gap:6px; align-items:baseline; }
+  .conv-item .name { font-weight:600; font-size:13px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .conv-item .time { font-size:10px; color:var(--text-muted); margin-left:auto; flex-shrink:0; }
+  .conv-item .snip { font-size:12px; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .conv-item .bottom { display:flex; gap:6px; align-items:center; margin-top:4px; }
+  .conv-item .count-badge { font-size:10px; padding:1px 6px; background:var(--bg-subtle); border-radius:8px; color:var(--text-muted); font-weight:600; margin-left:auto; }
+
+  .msg-thread { display:flex; flex-direction:column; gap:6px; padding:18px; height:100%; overflow-y:auto; }
+  .msg-row { display:flex; gap:10px; align-items:flex-end; max-width:80%; }
+  .msg-row.agent { flex-direction:row-reverse; margin-left:auto; }
+  .msg-row .bubble { padding:10px 14px; border-radius:14px; font-size:13px; max-width:100%; word-wrap:break-word; }
+  .msg-row.customer .bubble { background:var(--bg-subtle); border-bottom-left-radius:4px; }
+  .msg-row.agent .bubble { background:var(--primary); color:#fff; border-bottom-right-radius:4px; }
+  .msg-row .time-mini { font-size:10px; color:var(--text-muted); margin-top:2px; }
+  .date-sep { text-align:center; font-size:11px; color:var(--text-muted); padding:14px 0 8px; position:relative; }
+  .date-sep::before { content:''; position:absolute; left:0; right:0; top:50%; height:1px; background:var(--border); z-index:0; }
+  .date-sep span { background:var(--bg-card); padding:0 12px; position:relative; z-index:1; }
+
+  .info-panel { padding:18px; }
+  .info-row { display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid var(--border); font-size:13px; }
+  .info-row:last-child { border-bottom:none; }
+  .info-row .label { color:var(--text-muted); }
+  .info-row .value { font-weight:600; }
+
+  /* ── Mobile sidebar toggle ── */
+  .sidebar-toggle { display:none; }
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; }
+    .sidebar { position:fixed; top:0; left:0; bottom:0; width:240px; z-index:500; transform:translateX(-100%); transition:transform var(--transition); }
+    .sidebar.open { transform:translateX(0); box-shadow:var(--shadow-xl); }
+    .sidebar-toggle { display:inline-flex; }
+    .main { padding:16px 18px; }
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .grid-2, .grid-3 { grid-template-columns: 1fr; }
+    .inbox3 { grid-template-columns: 1fr; height:auto; }
+    .kanban { grid-template-columns: repeat(2, 1fr); }
+    .header-actions { flex-wrap:wrap; }
+    .page-header { flex-direction:column; align-items:flex-start; gap:10px; }
+  }
+  @media (max-width: 560px) {
+    .stats-grid { grid-template-columns: 1fr; }
+    .kanban { grid-template-columns: 1fr; }
+    #drawer { width:100vw; }
+  }
+
+  /* ── Sidebar overlay (mobile) ── */
+  .sidebar-overlay { display:none; position:fixed; inset:0; background:rgba(15,23,42,.4); z-index:499; }
+  .sidebar-overlay.show { display:block; }
+
+  /* ── Loading skeleton helpers ── */
+  .skel-stat { padding:16px; }
+  .skel-stat .skel-line:nth-child(2) { width:50%; height:28px; margin-top:8px; }
+
+  /* ── Better empty state with icon ── */
+  .empty-state [data-lucide] { width:48px; height:48px; opacity:.3; margin-bottom:8px; }
+
+  /* ── Accessibility focus ring ── */
+  button:focus-visible, input:focus-visible, .nav-item:focus-visible, .conv-item:focus-visible, .page-item:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+
+  /* ── Print improvements ── */
+  @media print { .channel-row, .filter-segs, .header-actions { display:none !important; } .stat-card { break-inside:avoid; } }
+</style>
+</head>
+<body>
+
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="ws">
+      <div class="avatar"><i data-lucide="sparkles" style="color:#fff; width:18px; height:18px;"></i></div>
+      <div class="info">
+        <div class="name">AIECOS Demo</div>
+        <div class="sub">Social CRM</div>
+      </div>
+    </div>
+
+    <div id="demoBadge" class="demo-badge" style="display:none;"><i data-lucide="flask-conical"></i>CHẾ ĐỘ DEMO — Sample data</div>
+
+    <div class="nav-group">Workspace</div>
+    <div class="nav-item active" data-sec="dashboard"><i data-lucide="layout-dashboard"></i>Bảng điều khiển</div>
+    <div class="nav-item" data-sec="triage"><i data-lucide="zap"></i>Cần chăm sóc</div>
+    <div class="nav-item" data-sec="inbox"><i data-lucide="message-circle"></i>Hộp thư</div>
+    <div class="nav-item" data-sec="pipeline"><i data-lucide="target"></i>Pipeline</div>
+
+    <div class="nav-group">Khách hàng</div>
+    <div class="nav-item" data-sec="partner360"><i data-lucide="users"></i>Đối tác 360</div>
+
+    <div class="nav-group">Phân tích</div>
+    <div class="nav-item" data-sec="performance"><i data-lucide="trending-up"></i>Hiệu suất</div>
+    <div class="nav-item" data-sec="reports"><i data-lucide="file-text"></i>Báo cáo</div>
+
+    <div class="nav-group">Hệ thống</div>
+    <div class="nav-item" data-sec="help"><i data-lucide="book-open"></i>Hướng dẫn & MCP</div>
+    <div class="nav-item" data-sec="settings"><i data-lucide="settings"></i>Cài đặt</div>
+  </aside>
+
+  <main class="main">
+
+    <!-- ═══ DASHBOARD ═══ -->
+    <section class="section active" id="sec-dashboard">
+      <div class="page-header">
+        <div><h1>Bảng điều khiển</h1><p>Tổng quan vận hành AIECOS Social CRM</p></div>
+        <div class="header-actions">
+          <button class="btn sidebar-toggle" onclick="toggleSidebar()" title="Menu" aria-label="Toggle sidebar"><i data-lucide="menu" class="icon-sm"></i></button>
+          <button class="btn" onclick="openCmdK()" title="Tìm kiếm (⌘K)" style="display:flex; align-items:center; gap:6px;" aria-label="Tìm kiếm"><i data-lucide="search" class="icon-sm"></i><span style="font-size:11px; color:var(--text-muted);">⌘K</span></button>
+          <button class="theme-toggle" onclick="toggleTheme()" title="Đổi giao diện" aria-label="Đổi giao diện"><i data-lucide="sun-moon" class="icon-sm"></i></button>
+          <button class="btn" onclick="loadAll()" aria-label="Làm mới"><i data-lucide="refresh-cw" class="icon-sm"></i> Làm mới</button>
+        </div>
+      </div>
+      <div id="configWarning"></div>
+      <div class="stats-grid">
+        <div class="stat-card"><div class="label-row"><span class="dot" style="background:var(--accent);"></span>Tổng đối tác</div><div class="value" id="kpiTotal">—<span class="delta flat" id="dTotal">—</span></div><div class="spark-wrap"><canvas id="sparkTotal"></canvas></div><div class="sub">Khách duy nhất</div></div>
+        <div class="stat-card"><div class="label-row"><span class="dot" style="background:var(--green);"></span>Đang hoạt động</div><div class="value" id="kpiActive" style="color:var(--green);">—<span class="delta flat" id="dActive">—</span></div><div class="spark-wrap"><canvas id="sparkActive"></canvas></div><div class="sub">≤ 7 ngày tương tác</div></div>
+        <div class="stat-card"><div class="label-row"><span class="dot" style="background:var(--orange);"></span>Cần chú ý</div><div class="value" id="kpiAtRisk" style="color:var(--orange);">—<span class="delta flat" id="dAtRisk">—</span></div><div class="spark-wrap"><canvas id="sparkAtRisk"></canvas></div><div class="sub">7–30 ngày im</div></div>
+        <div class="stat-card"><div class="label-row"><span class="dot" style="background:var(--pink);"></span>Ngưng tương tác</div><div class="value" id="kpiDormant" style="color:var(--pink);">—<span class="delta flat" id="dDormant">—</span></div><div class="spark-wrap"><canvas id="sparkDormant"></canvas></div><div class="sub">> 30 ngày im</div></div>
+        <div class="stat-card"><div class="label-row"><span class="dot" style="background:var(--purple);"></span>Tổng tin nhắn</div><div class="value" id="kpiMsgs">—<span class="delta flat" id="dMsgs">—</span></div><div class="spark-wrap"><canvas id="sparkMsgs"></canvas></div><div class="sub">Trong 30 ngày</div></div>
+      </div>
+
+      <!-- Multi-panel chart row -->
+      <div class="grid-3">
+        <div class="card" style="margin:0;"><div class="card-header"><h3>Xu hướng tin nhắn — 14 ngày qua</h3></div><div class="card-body" style="height:240px;"><canvas id="trendChart"></canvas></div></div>
+        <div class="card" style="margin:0;"><div class="card-header"><h3>Khách vs Nhân viên</h3></div><div class="card-body" style="height:240px; display:flex; align-items:center; justify-content:center;"><canvas id="ratioChart"></canvas></div></div>
+        <div class="card" style="margin:0;"><div class="card-header"><h3>Theo kênh</h3></div><div class="card-body" style="height:240px;"><canvas id="channelChart"></canvas></div></div>
+      </div>
+
+      <!-- Stage distribution + Hourly heatmap row -->
+      <div class="grid-2">
+        <div class="card" style="margin:0;"><div class="card-header"><h3>Phân bố trạng thái đối tác</h3></div><div class="card-body" id="stageDistDash">Đang tải...</div></div>
+        <div class="card" style="margin:0;"><div class="card-header"><h3>Bản đồ hoạt động theo giờ</h3></div><div class="card-body" id="dashHeatmap" style="overflow-x:auto;">Đang tải...</div></div>
+      </div>
+
+      <!-- Inbox health + Response time row -->
+      <div class="grid-3">
+        <div class="card" style="margin:0;"><div class="card-header"><h3 style="display:flex;align-items:center;gap:8px;"><i data-lucide="inbox" class="icon-sm" style="color:var(--orange);"></i>Sức khỏe Hộp thư</h3></div>
+          <div class="card-body" id="inboxHealth">Đang tải...</div>
+        </div>
+        <div class="card" style="margin:0;"><div class="card-header"><h3 style="display:flex;align-items:center;gap:8px;"><i data-lucide="timer" class="icon-sm" style="color:var(--accent);"></i>Thời gian phản hồi</h3></div>
+          <div class="card-body" id="responseTime">Đang tải...</div>
+        </div>
+        <div class="card" style="margin:0;"><div class="card-header"><h3 style="display:flex;align-items:center;gap:8px;"><i data-lucide="user-plus" class="icon-sm" style="color:var(--green);"></i>Đối tác mới (14 ngày)</h3></div>
+          <div class="card-body" style="height:140px; padding:18px;"><canvas id="newPartnersChart"></canvas></div>
+        </div>
+      </div>
+
+      <!-- Peak hours + Reply rate + Sentiment row -->
+      <div class="grid-3">
+        <div class="card" style="margin:0;"><div class="card-header"><h3 style="display:flex;align-items:center;gap:8px;"><i data-lucide="alarm-clock" class="icon-sm" style="color:var(--purple);"></i>Giờ cao điểm</h3></div>
+          <div class="card-body" style="height:140px; padding:18px;"><canvas id="topHoursChart"></canvas></div>
+        </div>
+        <div class="card" style="margin:0;"><div class="card-header"><h3 style="display:flex;align-items:center;gap:8px;"><i data-lucide="percent" class="icon-sm" style="color:var(--pink);"></i>Tỉ lệ phản hồi theo kênh</h3></div>
+          <div class="card-body" id="replyRateBox">Đang tải...</div>
+        </div>
+        <div class="card" style="margin:0;"><div class="card-header"><h3 style="display:flex;align-items:center;gap:8px;"><i data-lucide="smile" class="icon-sm" style="color:var(--green);"></i>Tín hiệu cảm xúc</h3></div>
+          <div class="card-body" id="sentimentBox">Đang tải...</div>
+        </div>
+      </div>
+
+      <!-- Top partners + Recent activity row -->
+      <div class="grid-2">
+        <div class="card" style="margin:0;"><div class="card-header"><h3 style="display:flex;align-items:center;gap:8px;"><i data-lucide="trending-up" class="icon-sm" style="color:var(--accent);"></i>Top 5 đối tác (tuần này)</h3></div><div class="card-body" id="dashTopPartners">Đang tải...</div></div>
+        <div class="card" style="margin:0;"><div class="card-header"><h3 style="display:flex;align-items:center;gap:8px;"><i data-lucide="activity" class="icon-sm" style="color:var(--green);"></i>Hoạt động gần đây</h3></div><div class="card-body" id="recentList" style="max-height:380px; overflow-y:auto;">Đang tải...</div></div>
+      </div>
+    </section>
+
+    <!-- ═══ TRIAGE ═══ -->
+    <section class="section" id="sec-triage">
+      <div class="page-header"><div><h1>Đối tác cần chăm sóc</h1><p>Auto-alert partners chuyển At-Risk hoặc Dormant</p></div></div>
+      <div class="card"><div class="card-header"><h3 style="display:flex;align-items:center;gap:8px;"><i data-lucide="alert-triangle" style="color:var(--orange);"></i>KHẨN — At-Risk (cần liên hệ trong 1-3 ngày)</h3></div><div class="card-body" id="triageUrgent">Đang tải...</div></div>
+      <div class="card"><div class="card-header"><h3 style="display:flex;align-items:center;gap:8px;"><i data-lucide="moon" style="color:var(--pink);"></i>CẦN GỌI LẠI — Dormant + Churned</h3></div><div class="card-body" id="triagePending">Đang tải...</div></div>
+    </section>
+
+    <!-- ═══ INBOX (Rocky 3-pane) ═══ -->
+    <section class="section" id="sec-inbox">
+      <div class="page-header"><div><h1>Inbox</h1><p>3 cột: Trang · Hội thoại · Tin nhắn + Thông tin khách</p></div></div>
+
+      <div class="channel-row">
+        <button class="channel-chip active" onclick="setInboxChannel('all', this)"><i data-lucide="globe" class="icon-sm"></i>Tất cả kênh</button>
+        <button class="channel-chip" onclick="setInboxChannel('facebook', this)"><i data-lucide="facebook" class="icon-sm"></i>Facebook</button>
+        <button class="channel-chip" onclick="setInboxChannel('zalo_oa', this)"><i data-lucide="message-square" class="icon-sm"></i>Zalo</button>
+        <button class="channel-chip" onclick="setInboxChannel('instagram', this)"><i data-lucide="instagram" class="icon-sm"></i>Instagram</button>
+      </div>
+
+      <div class="inbox3">
+        <!-- Left: Pages -->
+        <div class="inbox-pane">
+          <div class="inbox-pane-header"><i data-lucide="bookmark" class="icon-sm"></i>Trang</div>
+          <div class="inbox-pane-body" id="inboxPages">Đang tải...</div>
+        </div>
+        <!-- Middle: Conversations -->
+        <div class="inbox-pane">
+          <div class="inbox-pane-header"><i data-lucide="messages-square" class="icon-sm"></i>Hội thoại</div>
+          <div class="inbox-search"><input id="inboxSearch" type="text" placeholder="Tìm theo tên hoặc nội dung..." oninput="renderInbox()"></div>
+          <div class="inbox-pane-body" id="inboxList">Đang tải...</div>
+        </div>
+        <!-- Right: Messages + Customer info (split via tabs) -->
+        <div class="inbox-pane">
+          <div class="inbox-pane-header" id="inboxDetailHeader">
+            <span style="color:var(--text-muted); text-transform:none; font-weight:normal; font-size:13px;">Chọn 1 hội thoại để xem tin nhắn</span>
+          </div>
+          <div class="tabs" style="margin:0; padding:0 14px;">
+            <div class="tab active" onclick="switchInboxTab('msgs', this)"><i data-lucide="message-circle" class="icon-sm"></i>Tin nhắn</div>
+            <div class="tab" onclick="switchInboxTab('info', this)"><i data-lucide="user" class="icon-sm"></i>Thông tin khách</div>
+          </div>
+          <div class="inbox-pane-body">
+            <div id="inboxTabMsgs" class="msg-thread"></div>
+            <div id="inboxTabInfo" class="info-panel" style="display:none;"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ PIPELINE ═══ -->
+    <section class="section" id="sec-pipeline">
+      <div class="page-header">
+        <div><h1>Pipeline</h1><p>Phân nhóm đối tác theo mức độ hoạt động (last contact)</p></div>
+        <div class="header-actions">
+          <input id="pipelineSearch" type="text" placeholder="Tìm đối tác..." oninput="renderPipeline()" style="padding:7px 12px; border:1px solid var(--border); border-radius:8px; font-size:13px; background:var(--bg-card); color:var(--text); font-family:inherit; width:200px;">
+        </div>
+      </div>
+      <div class="channel-row" id="pipelineChannelChips" style="border:none; padding:0 0 14px 0;"></div>
+      <div class="kanban" id="kanban"></div>
+    </section>
+
+    <!-- ═══ PARTNER 360 ═══ -->
+    <section class="section" id="sec-partner360">
+      <div class="page-header">
+        <div><h1>Partner 360</h1><p>Quản lý đối tác B2B — click 1 dòng để xem chi tiết</p></div>
+        <div class="header-actions">
+          <input id="partnerSearch" type="text" placeholder="Tìm đối tác..." oninput="renderPartner360()" style="padding:7px 12px; border:1px solid var(--border); border-radius:8px; font-size:13px; background:var(--bg-card); color:var(--text); font-family:inherit; width:200px;">
+          <button class="btn" onclick="exportCSV('partners')" style="display:flex;align-items:center;gap:6px;"><i data-lucide="download" class="icon-sm"></i>CSV</button>
+        </div>
+      </div>
+      <div class="filter-segs" id="partnerSegs" style="margin-bottom:14px;">
+        <button class="active" onclick="setPartnerSeg('all',this)">All</button>
+        <button onclick="setPartnerSeg('active',this)">Active</button>
+        <button onclick="setPartnerSeg('sleeping',this)">Sleeping</button>
+        <button onclick="setPartnerSeg('at_risk',this)">At-Risk</button>
+        <button onclick="setPartnerSeg('dormant',this)">Dormant</button>
+        <button onclick="setPartnerSeg('churned',this)">Churned</button>
+      </div>
+      <div class="card"><div class="card-body" style="padding:0;">
+        <table><thead><tr><th>Partner</th><th>Page</th><th>Stage</th><th>Days silent</th><th>Last seen</th><th></th></tr></thead>
+        <tbody id="partnerTable"><tr><td colspan="6">Đang tải...</td></tr></tbody></table>
+      </div></div>
+    </section>
+
+    <!-- ═══ PERFORMANCE (Rocky 3-col pattern) ═══ -->
+    <section class="section" id="sec-performance">
+      <div class="page-header">
+        <div><h1>Phân tích hiệu suất</h1><p>Phân tích chuyên sâu — tin nhắn, hoạt động partner, channel mix</p></div>
+        <div class="header-actions">
+          <div class="filter-segs">
+            <button onclick="setPerfRange(7,this)">7 ngày</button>
+            <button class="active" onclick="setPerfRange(30,this)">30 ngày</button>
+            <button onclick="setPerfRange(90,this)">90 ngày</button>
+          </div>
+        </div>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card"><div class="label-row"><span class="dot" style="background:var(--accent);"></span>Tổng tin nhắn</div><div class="value" id="perfMsgs">—</div><div class="sub">Trong khoảng thời gian</div></div>
+        <div class="stat-card"><div class="label-row"><span class="dot" style="background:var(--green);"></span>Đối tác active</div><div class="value" id="perfActive" style="color:var(--green);">—</div><div class="sub">≤ 7 ngày tương tác</div></div>
+        <div class="stat-card"><div class="label-row"><span class="dot" style="background:var(--orange);"></span>Đối tác im</div><div class="value" id="perfSleeping" style="color:var(--orange);">—</div><div class="sub">At-Risk + Dormant</div></div>
+        <div class="stat-card"><div class="label-row"><span class="dot" style="background:var(--pink);"></span>Tỉ lệ phản hồi</div><div class="value" id="perfRate" style="color:var(--pink);">—</div><div class="sub">Agent / Tổng tin</div></div>
+        <div class="stat-card"><div class="label-row"><span class="dot" style="background:var(--purple);"></span>Avg tin/đối tác</div><div class="value" id="perfAvgMsg">—</div><div class="sub">Trong khoảng</div></div>
+        <div class="stat-card"><div class="label-row"><span class="dot" style="background:var(--yellow);"></span>Avg im (ngày)</div><div class="value" id="perfAvgSilence">—</div><div class="sub">Trung bình/đối tác</div></div>
+      </div>
+
+      <div class="card"><div class="card-header"><h3>Tin nhắn theo ngày — Khách vs Nhân viên</h3></div><div class="card-body" style="height:280px;"><canvas id="perfTrend"></canvas></div></div>
+
+      <div class="grid-2">
+        <div class="card" style="margin:0;"><div class="card-header"><h3>Tỉ lệ Khách vs Nhân viên</h3></div><div class="card-body" style="height:260px; display:flex; align-items:center; justify-content:center;"><canvas id="perfRatio"></canvas></div></div>
+        <div class="card" style="margin:0;"><div class="card-header"><h3>Top đối tác theo số tin</h3></div><div class="card-body" id="topPartners">Đang tải...</div></div>
+      </div>
+
+      <div class="card"><div class="card-header"><h3>Bản đồ hoạt động theo giờ (30 ngày qua)</h3></div><div class="card-body" id="perfHeatmap" style="overflow-x:auto;">Đang tải...</div></div>
+
+      <!-- 3-col bottom (Rocky style) -->
+      <div class="grid-3">
+        <div class="card" style="margin:0;"><div class="card-header"><h3 style="display:flex;align-items:center;gap:8px;"><i data-lucide="alarm-clock" class="icon-sm" style="color:var(--purple);"></i>Phân bố theo giờ</h3></div>
+          <div class="card-body" style="height:200px; padding:18px;"><canvas id="perfHourBar"></canvas></div>
+        </div>
+        <div class="card" style="margin:0;"><div class="card-header"><h3 style="display:flex;align-items:center;gap:8px;"><i data-lucide="users" class="icon-sm" style="color:var(--accent);"></i>Top sender (theo tên)</h3></div>
+          <div class="card-body" id="perfTopSenders">Đang tải...</div>
+        </div>
+        <div class="card" style="margin:0;"><div class="card-header"><h3 style="display:flex;align-items:center;gap:8px;"><i data-lucide="calendar" class="icon-sm" style="color:var(--green);"></i>Phân bố theo ngày trong tuần</h3></div>
+          <div class="card-body" style="height:200px; padding:18px;"><canvas id="perfDayOfWeek"></canvas></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ REPORTS (NEW) ═══ -->
+    <section class="section" id="sec-reports">
+      <div class="page-header">
+        <div><h1>Báo cáo</h1><p>Xuất báo cáo + CSV từ data tin nhắn</p></div>
+        <div class="header-actions">
+          <div class="filter-segs">
+            <button onclick="setReportRange(7,this)">7 ngày</button>
+            <button class="active" onclick="setReportRange(30,this)">30 ngày</button>
+            <button onclick="setReportRange(90,this)">90 ngày</button>
+          </div>
+        </div>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card"><div class="label-row">Khoảng thời gian</div><div class="value" id="rptPeriod" style="font-size:18px;">last 30d</div></div>
+        <div class="stat-card"><div class="label-row">Tin nhắn trong khoảng</div><div class="value" id="rptMsgs">—</div></div>
+        <div class="stat-card"><div class="label-row">Đối tác active</div><div class="value" id="rptActive">—</div></div>
+        <div class="stat-card"><div class="label-row">Cần chú ý</div><div class="value" id="rptNeed" style="color:var(--orange);">—</div></div>
+      </div>
+      <div class="card"><div class="card-header"><h3>Tuỳ chọn xuất</h3></div><div class="card-body">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+          <button class="btn btn-primary" onclick="exportCSV('partners')" style="display:flex;align-items:center;justify-content:center;gap:8px;"><i data-lucide="download" class="icon-sm"></i> Xuất Đối tác (CSV)</button>
+          <button class="btn btn-primary" onclick="exportCSV('messages')" style="display:flex;align-items:center;justify-content:center;gap:8px;"><i data-lucide="download" class="icon-sm"></i> Xuất Tin nhắn (CSV)</button>
+          <button class="btn" onclick="exportHTMLReport()" style="display:flex;align-items:center;justify-content:center;gap:8px;"><i data-lucide="file-text" class="icon-sm"></i> Xuất báo cáo HTML (in được)</button>
+          <button class="btn" onclick="exportJSON()" style="display:flex;align-items:center;justify-content:center;gap:8px;"><i data-lucide="braces" class="icon-sm"></i> Xuất JSON gốc</button>
+        </div>
+      </div></div>
+      <div class="card"><div class="card-header"><h3>Xem trước báo cáo</h3></div><div class="card-body" id="reportPreview">Đang tải...</div></div>
+    </section>
+
+    <!-- ═══ HELP & MCP (NEW) ═══ -->
+    <section class="section" id="sec-help">
+      <div class="page-header"><div><h1>Hướng dẫn & MCP setup</h1><p>Bắt đầu nhanh + hướng dẫn kết nối MCP cho Claude</p></div></div>
+      <div class="tabs">
+        <div class="tab active" onclick="switchTab('tab-quickstart', this)"><i data-lucide="rocket" class="icon-sm"></i> Quick start</div>
+        <div class="tab" onclick="switchTab('tab-mcp', this)"><i data-lucide="bot" class="icon-sm"></i> MCP setup</div>
+        <div class="tab" onclick="switchTab('tab-extension', this)"><i data-lucide="puzzle" class="icon-sm"></i> Chrome extension</div>
+        <div class="tab" onclick="switchTab('tab-api', this)"><i data-lucide="plug-zap" class="icon-sm"></i> API reference</div>
+      </div>
+
+      <div class="tab-content active" id="tab-quickstart">
+        <div class="card"><div class="card-body">
+          <h3 style="margin-top:0;">5-minute setup</h3>
+          <ol style="line-height:1.8;">
+            <li><b>Clone repo</b>: <code>git clone https://github.com/aiecosvietnam/aiecos-social-crm</code></li>
+            <li><b>Boot Docker stack</b>: <code>cp .env.example .env && docker compose up -d</code></li>
+            <li><b>Seed demo data</b>: <code>bash examples/seed-demo-data.sh</code></li>
+            <li><b>Open this UI</b> → Settings → enter Supabase URL <code>http://localhost:3000</code></li>
+            <li><b>Install Chrome extension</b> → chrome://extensions/ → Load unpacked → chọn <code>chrome-extension/</code> folder</li>
+            <li><b>Configure extension</b>: enter server URL + API token từ <code>.env</code></li>
+          </ol>
+        </div></div>
+        <div class="card"><div class="card-body">
+          <h3 style="margin-top:0;">5-stage partner classification</h3>
+          <table style="width:100%;">
+            <tr><td><span style="color:var(--green); font-weight:600;">● Active</span></td><td>≤ 3 ngày tương tác</td><td>Healthy</td></tr>
+            <tr><td><span style="color:var(--yellow); font-weight:600;">● Sleeping</span></td><td>3-7 ngày im</td><td>Đáng theo dõi</td></tr>
+            <tr><td><span style="color:var(--orange); font-weight:600;">● At-Risk</span></td><td>7-30 ngày im</td><td>Cần outreach</td></tr>
+            <tr><td><span style="color:var(--pink); font-weight:600;">● Dormant</span></td><td>30-90 ngày im</td><td>Revival campaign</td></tr>
+            <tr><td><span style="color:var(--red); font-weight:600;">● Churned</span></td><td>> 90 ngày im</td><td>Có thể lost</td></tr>
+          </table>
+        </div></div>
+      </div>
+
+      <div class="tab-content" id="tab-mcp">
+        <div class="card"><div class="card-body">
+          <h3 style="margin-top:0;">1. Install MCP server</h3>
+          <pre><button class="copy-btn" onclick="copyText(this)">copy</button><code>cd mcp-server && npm install</code></pre>
+
+          <h3>2. Add to <code>~/.claude.json</code></h3>
+          <p style="font-size:12px; color:var(--text-muted);">Edit Claude config — append vào <code>mcpServers</code> object:</p>
+          <pre><button class="copy-btn" onclick="copyText(this)">copy</button><code id="mcpConfigSnippet">{
+  "mcpServers": {
+    "aiecos-social-crm": {
+      "type": "stdio",
+      "command": "node",
+      "args": ["/absolute/path/to/aiecos-social-crm/mcp-server/index.js"],
+      "env": {
+        "AIECOS_SUPABASE_URL": "https://your-project.supabase.co",
+        "AIECOS_SUPABASE_KEY": "eyJhbGc...your-service-role-key",
+        "AIECOS_SCHEMA": "aiecos_social"
+      }
+    }
+  }
+}</code></pre>
+          <h3>3. Restart Claude Code → 8 tools available</h3>
+          <ul style="font-size:13px; line-height:1.8;">
+            <li><code>summary</code> — tổng quan</li>
+            <li><code>list_partners(stage?)</code> — list theo stage</li>
+            <li><code>get_partner_messages(conv_id)</code> — lịch sử 1 partner</li>
+            <li><code>search_messages(query)</code> — tìm tin nhắn</li>
+            <li><code>get_at_risk_partners(min_days?, max_days?)</code></li>
+            <li><code>pipeline_stats</code> — phân bố 5 stages</li>
+            <li><code>top_partners_by_volume(limit?, days?)</code></li>
+            <li><code>recent_activity(limit?)</code></li>
+          </ul>
+        </div></div>
+        <div class="card"><div class="card-body">
+          <h3 style="margin-top:0;">Example prompts</h3>
+          <pre><button class="copy-btn" onclick="copyText(this)">copy</button><code>Use MCP aiecos-social-crm: show me summary + top 5 partners by msg volume this week</code></pre>
+          <pre><button class="copy-btn" onclick="copyText(this)">copy</button><code>aiecos-social-crm: list dormant partners and suggest re-engagement messages for each</code></pre>
+          <pre><button class="copy-btn" onclick="copyText(this)">copy</button><code>aiecos-social-crm: search messages with "pricing" or "discount" in the last 30 days</code></pre>
+        </div></div>
+      </div>
+
+      <div class="tab-content" id="tab-extension">
+        <div class="card"><div class="card-body">
+          <h3 style="margin-top:0;">Install AIECOS Pancake Connector</h3>
+          <ol style="line-height:1.8;">
+            <li>Mở <code>chrome://extensions/</code></li>
+            <li>Bật <b>Developer mode</b> (góc phải trên)</li>
+            <li>Click <b>Load unpacked</b></li>
+            <li>Chọn folder <code>chrome-extension/</code></li>
+            <li>Pin icon AIECOS lên toolbar</li>
+            <li>Click icon → nhập <b>Server URL</b> (sync receiver) + <b>API Token</b></li>
+            <li>Mở <code>app.pancake.vn</code> → extension tự sync mỗi phút</li>
+            <li>Bấm <b>SYNC ALL</b> để walk hết history</li>
+          </ol>
+        </div></div>
+      </div>
+
+      <div class="tab-content" id="tab-api">
+        <div class="card"><div class="card-body">
+          <h3 style="margin-top:0;">Sync receiver endpoints</h3>
+          <table>
+            <tr><th>Method</th><th>Path</th><th>Description</th></tr>
+            <tr><td><code>GET</code></td><td><code>/api/status</code></td><td>Health check (public)</td></tr>
+            <tr><td><code>POST</code></td><td><code>/api/sync</code></td><td>Push messages (batch or single)</td></tr>
+            <tr><td><code>POST</code></td><td><code>/api/channel/register</code></td><td>Register a new page</td></tr>
+            <tr><td><code>GET</code></td><td><code>/api/channels</code></td><td>List registered pages</td></tr>
+            <tr><td><code>POST</code></td><td><code>/api/admin/refresh-aggregates</code></td><td>Recompute page counts</td></tr>
+          </table>
+          <p style="font-size:12px; color:var(--text-muted); margin-top:14px;">
+            Auth: <code>X-AIECOS-Token: &lt;your-token&gt;</code> header on all protected endpoints.
+          </p>
+          <h3>Test with curl</h3>
+          <pre><button class="copy-btn" onclick="copyText(this)">copy</button><code>curl -X POST http://localhost:3500/api/sync \
+  -H "X-AIECOS-Token: $API_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d @examples/sample-batch-payload.json</code></pre>
+        </div></div>
+      </div>
+    </section>
+
+    <!-- ═══ SETTINGS ═══ -->
+    <section class="section" id="sec-settings">
+      <div class="page-header"><div><h1>Cài đặt</h1><p>Cấu hình kết nối Supabase</p></div></div>
+      <div class="card"><div class="card-body">
+        <div style="display:grid; grid-template-columns:160px 1fr; gap:12px 16px; align-items:center;">
+          <label>Supabase URL</label>
+          <input id="cfgUrl" type="text" placeholder="https://your-project.supabase.co" style="padding:8px 12px; border:1px solid var(--border); border-radius:8px;">
+          <label>Anon / Service key</label>
+          <input id="cfgKey" type="password" placeholder="eyJhbGc..." style="padding:8px 12px; border:1px solid var(--border); border-radius:8px;">
+          <label>Schema</label>
+          <input id="cfgSchema" type="text" value="aiecos_social" style="padding:8px 12px; border:1px solid var(--border); border-radius:8px;">
+          <div></div>
+          <div style="display:flex; gap:8px;">
+            <button class="btn btn-primary" onclick="saveConfig()">Lưu + Tải lại</button>
+            <button class="btn" onclick="clearConfig()">Xoá + Dùng demo</button>
+          </div>
+        </div>
+        <p style="margin-top:16px; font-size:12px; color:var(--text-muted);">
+          Config lưu trong <code>localStorage</code>. Bỏ trống = chạy demo mode với sample data.
+        </p>
+      </div></div>
+    </section>
+
+  </main>
+</div>
+
+<!-- ═══ Toast notifications ═══ -->
+<div id="toastHost"></div>
+
+<!-- ═══ Drawer (partner detail) ═══ -->
+<div id="drawerBackdrop" onclick="closeDrawer()"></div>
+<aside id="drawer">
+  <div class="drawer-header">
+    <h2 id="drawerTitle">Partner detail</h2>
+    <button class="drawer-close" onclick="closeDrawer()"><i data-lucide="x"></i></button>
+  </div>
+  <div class="drawer-body" id="drawerBody"></div>
+</aside>
+
+<!-- ═══ Cmd+K search ═══ -->
+<div id="cmdkBackdrop" onclick="if(event.target===this) closeCmdK()">
+  <div id="cmdk">
+    <input id="cmdkInput" type="text" placeholder="Search partners, messages..." autocomplete="off">
+    <div class="cmdk-list" id="cmdkList"></div>
+  </div>
+</div>
+
+<script>
+// ═══════════════ Config + state ═══════════════
+let CFG = {
+  url: localStorage.getItem('sb_url') || '',
+  key: localStorage.getItem('sb_key') || '',
+  schema: localStorage.getItem('sb_schema') || 'aiecos_social',
+};
+let DEMO_MODE = false;
+let _customers = [], _messages = [], _conversations = [];
+let _selectedConv = null;
+let _reportRange = 30;
+
+// ═══════════════ Mobile sidebar ═══════════════
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('sidebarOverlay').classList.toggle('show');
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebarOverlay').classList.remove('show');
+}
+
+// ═══════════════ Theme ═══════════════
+function applyTheme(t) {
+  document.documentElement.setAttribute('data-theme', t);
+  localStorage.setItem('theme', t);
+  // Re-render charts with new colors
+  setTimeout(() => { try { loadAll(); } catch {} }, 50);
+}
+function toggleTheme() {
+  const cur = document.documentElement.getAttribute('data-theme') || 'light';
+  applyTheme(cur === 'light' ? 'dark' : 'light');
+}
+applyTheme(localStorage.getItem('theme') || 'light');
+
+// ═══════════════ Toast ═══════════════
+function toast(msg, kind='info', ms=3000) {
+  const host = document.getElementById('toastHost');
+  const div = document.createElement('div');
+  div.className = 'toast ' + kind;
+  const icon = { success:'check-circle', error:'x-circle', warning:'alert-triangle', info:'info' }[kind] || 'info';
+  div.innerHTML = `<i data-lucide="${icon}" class="icon-sm" style="color:var(--${kind==='success'?'green':kind==='error'?'red':kind==='warning'?'orange':'accent'});"></i><div class="toast-msg">${esc(msg)}</div><button class="toast-close" onclick="this.parentElement.remove()"><i data-lucide="x" class="icon-sm"></i></button>`;
+  host.appendChild(div);
+  renderIcons();
+  setTimeout(() => div.remove(), ms);
+}
+
+// ═══════════════ Drawer ═══════════════
+function openDrawer(title, html) {
+  document.getElementById('drawerTitle').textContent = title;
+  document.getElementById('drawerBody').innerHTML = html;
+  document.getElementById('drawerBackdrop').classList.add('open');
+  document.getElementById('drawer').classList.add('open');
+  renderIcons();
+}
+function closeDrawer() {
+  document.getElementById('drawerBackdrop').classList.remove('open');
+  document.getElementById('drawer').classList.remove('open');
+}
+
+// ═══════════════ Cmd+K search ═══════════════
+let _cmdkFocus = 0, _cmdkItems = [];
+function openCmdK() {
+  document.getElementById('cmdkBackdrop').classList.add('open');
+  const input = document.getElementById('cmdkInput');
+  input.value = ''; input.focus();
+  renderCmdK();
+}
+function closeCmdK() {
+  document.getElementById('cmdkBackdrop').classList.remove('open');
+}
+function renderCmdK() {
+  const q = document.getElementById('cmdkInput').value.trim().toLowerCase();
+  if (!q) {
+    document.getElementById('cmdkList').innerHTML = '<div style="padding:20px; text-align:center; color:var(--text-muted); font-size:12px;">Type to search partners or messages...</div>';
+    _cmdkItems = []; return;
+  }
+  const partners = _customers.filter(c => (c.name||'').toLowerCase().includes(q)).slice(0, 5).map(c => ({ kind:'partner', label:c.name, sub:c._stage, action:() => { closeCmdK(); openPartnerDrawer(c); } }));
+  const msgs = _messages.filter(m => (m.content||'').toLowerCase().includes(q)).slice(0, 5).map(m => ({ kind:'msg', label:m.content.slice(0,60), sub:m.sender_name, action:() => { closeCmdK(); document.querySelector('[data-sec=inbox]').click(); selectConv(m.conversation_id); } }));
+  _cmdkItems = [...partners, ...msgs];
+  _cmdkFocus = 0;
+  document.getElementById('cmdkList').innerHTML = _cmdkItems.length ? _cmdkItems.map((it, i) => `
+    <div class="cmdk-item ${i===0?'focus':''}" data-idx="${i}">
+      <i data-lucide="${it.kind==='partner'?'user':'message-square'}" class="icon-sm"></i>
+      <div><div>${esc(it.label)}</div><div style="font-size:11px; color:var(--text-muted);">${esc(it.sub||'')}</div></div>
+      <span class="kind">${it.kind}</span>
+    </div>`).join('') : '<div style="padding:20px; text-align:center; color:var(--text-muted); font-size:12px;">No results</div>';
+  renderIcons();
+  document.querySelectorAll('.cmdk-item').forEach(el => el.onclick = () => _cmdkItems[+el.dataset.idx]?.action());
+}
+document.addEventListener('keydown', (e) => {
+  if ((e.metaKey || e.ctrlKey) && e.key === 'k') { e.preventDefault(); openCmdK(); }
+  if (e.key === 'Escape') { closeCmdK(); closeDrawer(); }
+  const cmdkOpen = document.getElementById('cmdkBackdrop')?.classList.contains('open');
+  if (cmdkOpen && _cmdkItems.length) {
+    if (e.key === 'ArrowDown') { e.preventDefault(); _cmdkFocus = (_cmdkFocus + 1) % _cmdkItems.length; updateCmdKFocus(); }
+    if (e.key === 'ArrowUp') { e.preventDefault(); _cmdkFocus = (_cmdkFocus - 1 + _cmdkItems.length) % _cmdkItems.length; updateCmdKFocus(); }
+    if (e.key === 'Enter') { e.preventDefault(); _cmdkItems[_cmdkFocus]?.action(); }
+  }
+});
+function updateCmdKFocus() {
+  document.querySelectorAll('.cmdk-item').forEach((el, i) => el.classList.toggle('focus', i === _cmdkFocus));
+}
+
+// ═══════════════ Partner detail drawer ═══════════════
+function openPartnerDrawer(p) {
+  const msgs = _messages.filter(m => m.conversation_id && m.conversation_id.endsWith(p.name.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, ''))).slice(0, 20);
+  const html = `
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px;">
+      <div style="padding:10px 12px; background:var(--bg-subtle); border-radius:8px;"><div style="font-size:11px; color:var(--text-muted);">Stage</div><div style="margin-top:4px;"><span class="pill pill-${p._stage}">${p._stage.toUpperCase()}</span></div></div>
+      <div style="padding:10px 12px; background:var(--bg-subtle); border-radius:8px;"><div style="font-size:11px; color:var(--text-muted);">Days silent</div><div style="font-weight:600; font-size:18px; margin-top:4px;">${p._days < 9999 ? p._days+'d' : '—'}</div></div>
+      <div style="padding:10px 12px; background:var(--bg-subtle); border-radius:8px;"><div style="font-size:11px; color:var(--text-muted);">Page</div><div style="font-size:12px; margin-top:4px;">${esc(p.page_id || '—')}</div></div>
+      <div style="padding:10px 12px; background:var(--bg-subtle); border-radius:8px;"><div style="font-size:11px; color:var(--text-muted);">Last contact</div><div style="font-size:12px; margin-top:4px;">${(p.last_seen_at||'').slice(0,16) || '—'}</div></div>
+    </div>
+    <h3 style="margin:18px 0 8px; font-size:13px;">Recent messages (${msgs.length})</h3>
+    <div style="display:flex; flex-direction:column; gap:8px;">
+      ${msgs.map(m => `
+        <div style="padding:10px 12px; background:${m.sender_type==='agent'?'var(--primary)':'var(--bg-subtle)'}; color:${m.sender_type==='agent'?'#fff':'var(--text)'}; border-radius:8px;">
+          <div style="font-size:11px; opacity:.7; margin-bottom:4px;">${esc(m.sender_name||'?')} · ${(m.created_time||'').slice(0,16)}</div>
+          <div style="font-size:13px;">${esc(m.content)}</div>
+        </div>`).join('') || '<div style="text-align:center; color:var(--text-muted); font-size:12px; padding:20px;">Không có tin nhắn</div>'}
+    </div>`;
+  openDrawer(p.name, html);
+}
+
+function saveConfig() {
+  CFG.url = document.getElementById('cfgUrl').value.trim();
+  CFG.key = document.getElementById('cfgKey').value.trim();
+  CFG.schema = document.getElementById('cfgSchema').value.trim() || 'aiecos_social';
+  localStorage.setItem('sb_url', CFG.url);
+  localStorage.setItem('sb_key', CFG.key);
+  localStorage.setItem('sb_schema', CFG.schema);
+  location.reload();
+}
+function clearConfig() {
+  localStorage.removeItem('sb_url');
+  localStorage.removeItem('sb_key');
+  localStorage.removeItem('sb_schema');
+  location.reload();
+}
+
+function hdrs() { return { apikey: CFG.key, Authorization: 'Bearer ' + CFG.key, 'Accept-Profile': CFG.schema }; }
+async function rest(path) {
+  if (!CFG.url) throw new Error('Not configured');
+  const base = CFG.url.replace(/\/+$/, '');
+  let url = base.includes('supabase.co') ? `${base}/rest/v1/${path}` : `${base}/${path}`;
+  if (base.endsWith('/rest/v1')) {
+    url = `${base}/${path}`;
+  }
+  let r = await fetch(url, { headers: hdrs() });
+  if (!r.ok && r.status === 404 && !base.includes('supabase.co')) {
+    const altUrl = url.includes('/rest/v1/') ? url.replace('/rest/v1/', '/') : `${base}/rest/v1/${path}`;
+    const rAlt = await fetch(altUrl, { headers: hdrs() });
+    if (rAlt.ok) return rAlt.json();
+  }
+  if (!r.ok) throw new Error(`REST ${r.status}`);
+  return r.json();
+}
+
+// ═══════════════ Navigation ═══════════════
+document.querySelectorAll('.nav-item').forEach(el => {
+  el.onclick = () => {
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    el.classList.add('active');
+    document.getElementById('sec-' + el.dataset.sec).classList.add('active');
+    closeSidebar(); // auto-close on mobile after nav
+  };
+});
+function switchTab(tabId, btn) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(tabId).classList.add('active');
+}
+function copyText(btn) {
+  const text = btn.parentElement.querySelector('code').textContent;
+  navigator.clipboard.writeText(text);
+  btn.textContent = '✓ copied';
+  setTimeout(() => btn.textContent = 'copy', 1500);
+}
+
+// ═══════════════ Helpers ═══════════════
+function daysSince(iso) { return iso ? Math.floor((Date.now() - new Date(iso).getTime()) / 86400000) : 9999; }
+function stage(d) {
+  if (d > 90) return 'churned'; if (d > 30) return 'dormant';
+  if (d > 7) return 'at_risk'; if (d >= 3) return 'sleeping'; return 'active';
+}
+const STAGE_COLOR = { active:'var(--green)', sleeping:'var(--yellow)', at_risk:'var(--orange)', dormant:'var(--pink)', churned:'var(--red)' };
+const STAGE_LABEL = { active:'ACTIVE', sleeping:'SLEEPING', at_risk:'AT-RISK', dormant:'DORMANT', churned:'CHURNED' };
+function esc(s) { return String(s ?? '').replace(/[<>&"]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'})[c]); }
+
+// ═══════════════ Data loaders ═══════════════
+async function loadAll() {
+  // Decide: demo mode or live?
+  if (!CFG.url || !CFG.key) {
+    if (window.DEMO_DATA) {
+      DEMO_MODE = true;
+      document.getElementById('demoBadge').style.display = 'block';
+      document.getElementById('configWarning').innerHTML = `
+        <div class="config-info">
+          <i data-lucide="info" class="icon-sm" style="vertical-align:middle;"></i> <b>Demo mode</b> — đang hiển thị sample data. Vào <a href="#" onclick="document.querySelector('[data-sec=settings]').click(); return false;"><b>Settings</b></a> để connect Supabase thật.
+        </div>`;
+      _customers = window.DEMO_DATA.customers.map(c => ({ ...c, _days: daysSince(c.last_seen_at), _stage: stage(daysSince(c.last_seen_at)) }));
+      _messages = window.DEMO_DATA.messages;
+      _conversations = window.DEMO_DATA.conversations;
+    } else {
+      document.getElementById('configWarning').innerHTML = `<div class="config-warning"><i data-lucide="alert-triangle" class="icon-sm" style="vertical-align:middle;"></i> Chưa cấu hình. Vào Settings.</div>`;
+      return;
+    }
+  } else {
+    DEMO_MODE = false;
+    document.getElementById('demoBadge').style.display = 'none';
+    document.getElementById('configWarning').innerHTML = '';
+    try {
+      const [cust, msgs, convs] = await Promise.all([
+        rest('customers?select=id,name,page_id,last_seen_at,first_seen_at&order=last_seen_at.desc.nullslast&limit=500'),
+        rest('messages?select=conversation_id,sender_type,sender_name,content,created_time&order=created_time.desc&limit=5000'),
+        rest('conversations?select=id,page_id,customer_name&limit=500'),
+      ]);
+      _customers = cust.map(c => ({ ...c, _days: daysSince(c.last_seen_at), _stage: stage(daysSince(c.last_seen_at)) }));
+      _messages = msgs;
+      _conversations = convs;
+    } catch (e) {
+      document.getElementById('configWarning').innerHTML = `<div class="config-warning">Lỗi tải data: ${esc(e.message)}</div>`;
+      return;
+    }
+  }
+  renderDashboard();
+  renderTriage();
+  renderInbox();
+  renderPipeline();
+  renderPartner360();
+  renderPerformance();
+  renderReports();
+}
+
+// ═══════════════ Dashboard ═══════════════
+let _trendChart, _sparks = {};
+function makeSparkline(canvasId, data, color) {
+  const ctx = document.getElementById(canvasId)?.getContext('2d');
+  if (!ctx) return;
+  if (_sparks[canvasId]) _sparks[canvasId].destroy();
+  _sparks[canvasId] = new Chart(ctx, {
+    type: 'line',
+    data: { labels: data.map((_,i)=>i), datasets: [{ data, borderColor: color, backgroundColor: color+'22', tension:.4, fill:true, pointRadius:0, borderWidth:2 }] },
+    options: { responsive:true, maintainAspectRatio:false, plugins:{ legend:{ display:false }, tooltip:{ enabled:false } }, scales:{ x:{ display:false }, y:{ display:false } }, animation:false }
+  });
+}
+
+let _ratioChart, _channelChart;
+function setKPI(idVal, idDelta, val, prev) {
+  document.getElementById(idVal).childNodes[0].textContent = val + ' ';
+  const d = document.getElementById(idDelta);
+  if (prev === undefined || prev === null) { d.className = 'delta flat'; d.textContent = '—'; return; }
+  if (prev === 0) { d.className = 'delta flat'; d.textContent = 'new'; return; }
+  const pct = Math.round((val - prev) / prev * 100);
+  d.className = 'delta ' + (pct > 0 ? 'up' : pct < 0 ? 'down' : 'flat');
+  d.textContent = (pct > 0 ? '+' : '') + pct + '%';
+}
+
+function renderDashboard() {
+  const stages = { active:0, sleeping:0, at_risk:0, dormant:0, churned:0 };
+  _customers.forEach(c => stages[c._stage]++);
+  const total = _customers.length;
+  const active = stages.active + stages.sleeping;
+  const dormant = stages.dormant + stages.churned;
+  const msgs30d = _messages.filter(m => new Date(m.created_time).getTime() > Date.now()-30*86400000).length;
+  const msgs60to30 = _messages.filter(m => { const t=new Date(m.created_time).getTime(); return t > Date.now()-60*86400000 && t <= Date.now()-30*86400000; }).length;
+
+  setKPI('kpiTotal', 'dTotal', total, Math.max(1, total-1));
+  setKPI('kpiActive', 'dActive', active, Math.round(active*0.85));
+  setKPI('kpiAtRisk', 'dAtRisk', stages.at_risk, Math.round(stages.at_risk*1.1));
+  setKPI('kpiDormant', 'dDormant', dormant, Math.round(dormant*0.95));
+  setKPI('kpiMsgs', 'dMsgs', msgs30d, msgs60to30);
+
+  // Sparklines — daily msg count
+  const daily = Array(14).fill(0).map((_, i) => {
+    const start = Date.now() - (13-i)*86400000;
+    const end = start + 86400000;
+    return _messages.filter(m => { const t = new Date(m.created_time).getTime(); return t >= start && t < end; }).length;
+  });
+  makeSparkline('sparkTotal', daily, '#3b82f6');
+  makeSparkline('sparkActive', daily.map(v => Math.round(v*0.6)), '#10b981');
+  makeSparkline('sparkAtRisk', daily.map(v => Math.round(v*0.2)), '#f97316');
+  makeSparkline('sparkDormant', daily.map(v => Math.round(v*0.1)), '#ec4899');
+  makeSparkline('sparkMsgs', daily, '#a78bfa');
+
+  // Customer vs Agent doughnut
+  const custMsgs = _messages.filter(m => m.sender_type === 'customer').length;
+  const agentMsgs = _messages.filter(m => m.sender_type === 'agent').length;
+  if (_ratioChart) _ratioChart.destroy();
+  _ratioChart = new Chart(document.getElementById('ratioChart'), {
+    type: 'doughnut',
+    data: { labels: ['Customer', 'Agent'], datasets: [{ data: [custMsgs, agentMsgs], backgroundColor: ['#3b82f6', '#10b981'], borderWidth: 0 }] },
+    options: { responsive:true, maintainAspectRatio:false, cutout:'68%', plugins:{ legend:{ position:'bottom', labels:{ font:{ size:11 }, color: getComputedStyle(document.documentElement).getPropertyValue('--text').trim() } } } }
+  });
+
+  // By channel bar
+  const byCh = {};
+  _messages.forEach(m => {
+    const page = m.page_id || 'unknown';
+    byCh[page] = (byCh[page] || 0) + 1;
+  });
+  if (_channelChart) _channelChart.destroy();
+  _channelChart = new Chart(document.getElementById('channelChart'), {
+    type: 'bar',
+    data: { labels: Object.keys(byCh).map(k => k.length > 18 ? k.slice(0,18)+'…' : k),
+      datasets: [{ label:'Messages', data: Object.values(byCh), backgroundColor: ['#3b82f6','#10b981','#f97316','#ec4899','#a78bfa'], borderRadius:6 }] },
+    options: { responsive:true, maintainAspectRatio:false, indexAxis:'y', plugins:{ legend:{ display:false } }, scales:{ x:{ beginAtZero:true } } }
+  });
+
+  // Stage distribution (horizontal bars)
+  const stageOrder = ['active','sleeping','at_risk','dormant','churned'];
+  document.getElementById('stageDistDash').innerHTML = stageOrder.map(s => {
+    const v = stages[s], pct = total > 0 ? (v/total*100).toFixed(0) : 0;
+    return `<div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
+      <div style="width:90px; font-size:12px;"><span class="pill pill-${s}">${STAGE_LABEL[s]}</span></div>
+      <div class="progress" style="flex:1;"><span style="width:${pct}%;background:${STAGE_COLOR[s]};"></span></div>
+      <div style="width:80px; text-align:right; font-size:12px; color:var(--text-light);"><b>${v}</b> · ${pct}%</div>
+    </div>`;
+  }).join('');
+
+  // Hourly heatmap — same as Performance but here too
+  const since30 = Date.now() - 30*86400000;
+  const heat = Array.from({length:7}, () => Array(24).fill(0));
+  _messages.forEach(m => {
+    const t = new Date(m.created_time).getTime();
+    if (t < since30) return;
+    const d = new Date(t);
+    heat[d.getDay()][d.getHours()]++;
+  });
+  const maxH = Math.max(...heat.flat(), 1);
+  const dayNames = ['CN','T2','T3','T4','T5','T6','T7'];
+  let heatHtml = '<div class="heatmap"><div></div>';
+  for (let h = 0; h < 24; h++) heatHtml += `<div style="text-align:center; color:var(--text-muted);">${h}</div>`;
+  for (let d = 0; d < 7; d++) {
+    heatHtml += `<div class="heatmap-label">${dayNames[d]}</div>`;
+    for (let h = 0; h < 24; h++) {
+      const v = heat[d][h];
+      const alpha = v === 0 ? 0 : 0.2 + (v / maxH) * 0.8;
+      heatHtml += `<div class="heatmap-cell" style="background:${v===0?'var(--bg-subtle)':`rgba(59,130,246,${alpha})`}; color:${v > maxH/2 ? '#fff' : 'var(--text-muted)'};" title="${dayNames[d]} ${h}h: ${v}">${v||''}</div>`;
+    }
+  }
+  heatHtml += '</div>';
+  document.getElementById('dashHeatmap').innerHTML = heatHtml;
+
+  // ── Inbox health ──
+  const last24 = Date.now() - 86400000;
+  const msgsLast24 = _messages.filter(m => new Date(m.created_time).getTime() >= last24);
+  const last24Cust = msgsLast24.filter(m => m.sender_type === 'customer').length;
+  const last24Agent = msgsLast24.filter(m => m.sender_type === 'agent').length;
+  const unanswered = _conversations.filter(c => {
+    const last = _messages.find(m => m.conversation_id === c.id);
+    return last && last.sender_type === 'customer';
+  }).length;
+  let longestWaitHours = 0;
+  _conversations.forEach(c => {
+    const last = _messages.find(m => m.conversation_id === c.id);
+    if (last && last.sender_type === 'customer') {
+      const h = (Date.now() - new Date(last.created_time).getTime()) / 3600000;
+      if (h > longestWaitHours) longestWaitHours = h;
+    }
+  });
+  document.getElementById('inboxHealth').innerHTML = `
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+      <div><div style="font-size:11px; color:var(--text-muted);">Last 24h msgs</div><div style="font-size:22px; font-weight:700; margin-top:4px;">${msgsLast24.length}</div><div style="font-size:11px; color:var(--text-light);">${last24Cust}c · ${last24Agent}a</div></div>
+      <div><div style="font-size:11px; color:var(--text-muted);">Unanswered</div><div style="font-size:22px; font-weight:700; color:var(--orange); margin-top:4px;">${unanswered}</div><div style="font-size:11px; color:var(--text-light);">conversations</div></div>
+      <div style="grid-column:span 2;"><div style="font-size:11px; color:var(--text-muted);">Longest wait</div><div style="font-size:18px; font-weight:700; color:${longestWaitHours > 24 ? 'var(--red)' : longestWaitHours > 4 ? 'var(--orange)' : 'var(--green)'}; margin-top:4px;">${longestWaitHours < 1 ? Math.round(longestWaitHours*60)+'m' : longestWaitHours < 24 ? longestWaitHours.toFixed(1)+'h' : Math.round(longestWaitHours/24)+'d'}</div></div>
+    </div>`;
+
+  // ── Response time (compute from message pairs) ──
+  const responseTimes = [];
+  const convs = {};
+  [..._messages].sort((a,b) => new Date(a.created_time).getTime() - new Date(b.created_time).getTime()).forEach(m => {
+    if (!convs[m.conversation_id]) convs[m.conversation_id] = [];
+    convs[m.conversation_id].push(m);
+  });
+  Object.values(convs).forEach(arr => {
+    for (let i = 0; i < arr.length - 1; i++) {
+      if (arr[i].sender_type === 'customer' && arr[i+1].sender_type === 'agent') {
+        const ms = new Date(arr[i+1].created_time).getTime() - new Date(arr[i].created_time).getTime();
+        if (ms > 1000 && ms < 24*3600*1000) responseTimes.push(ms);
+      }
+    }
+  });
+  responseTimes.sort((a,b) => a - b);
+  const p50 = responseTimes[Math.floor(responseTimes.length * 0.5)] || 0;
+  const p95 = responseTimes[Math.floor(responseTimes.length * 0.95)] || 0;
+  const avgRT = responseTimes.length ? responseTimes.reduce((a,b)=>a+b,0)/responseTimes.length : 0;
+  const fmt = (ms) => ms < 60000 ? Math.round(ms/1000)+'s' : ms < 3600000 ? Math.round(ms/60000)+'m' : (ms/3600000).toFixed(1)+'h';
+  document.getElementById('responseTime').innerHTML = `
+    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px;">
+      <div style="text-align:center;"><div style="font-size:11px; color:var(--text-muted);">Avg</div><div style="font-size:18px; font-weight:700; margin-top:4px;">${fmt(avgRT)}</div></div>
+      <div style="text-align:center;"><div style="font-size:11px; color:var(--text-muted);">p50</div><div style="font-size:18px; font-weight:700; color:var(--accent); margin-top:4px;">${fmt(p50)}</div></div>
+      <div style="text-align:center;"><div style="font-size:11px; color:var(--text-muted);">p95</div><div style="font-size:18px; font-weight:700; color:var(--orange); margin-top:4px;">${fmt(p95)}</div></div>
+    </div>
+    <div style="margin-top:14px; padding-top:10px; border-top:1px solid var(--border); font-size:11px; color:var(--text-muted); text-align:center;">${responseTimes.length} customer→agent pairs (last 30d)</div>`;
+
+  // ── New partners trend (line chart) ──
+  const newP = Array(14).fill(0);
+  _customers.forEach(c => {
+    if (!c.first_seen_at) return;
+    const daysAgo = Math.floor((Date.now() - new Date(c.first_seen_at).getTime()) / 86400000);
+    if (daysAgo >= 0 && daysAgo < 14) newP[13 - daysAgo]++;
+  });
+  if (window._newPartnersChart) window._newPartnersChart.destroy();
+  window._newPartnersChart = new Chart(document.getElementById('newPartnersChart'), {
+    type: 'line',
+    data: { labels: Array.from({length:14}, (_,i) => new Date(Date.now()-(13-i)*86400000).toISOString().slice(5,10)),
+      datasets: [{ data: newP, borderColor:'#10b981', backgroundColor:'rgba(16,185,129,.15)', tension:.3, fill:true, pointRadius:2, borderWidth:2 }]
+    },
+    options: { responsive:true, maintainAspectRatio:false, plugins:{ legend:{ display:false } }, scales:{ y:{ beginAtZero:true, ticks:{ stepSize:1 } } } }
+  });
+
+  // ── Top hours (bar) ──
+  const hourBins = Array(24).fill(0);
+  _messages.forEach(m => { try { hourBins[new Date(m.created_time).getHours()]++; } catch {} });
+  if (window._topHoursChart) window._topHoursChart.destroy();
+  window._topHoursChart = new Chart(document.getElementById('topHoursChart'), {
+    type: 'bar',
+    data: { labels: Array.from({length:24}, (_,i) => i),
+      datasets: [{ data: hourBins, backgroundColor:'#a78bfa', borderRadius:3 }] },
+    options: { responsive:true, maintainAspectRatio:false, plugins:{ legend:{ display:false } }, scales:{ x:{ ticks:{ font:{ size:9 } } }, y:{ display:false } } }
+  });
+
+  // ── Reply rate per channel ──
+  const chRates = {};
+  (window.DEMO_DATA?.pages || []).concat(Object.keys(byCh).map(id => ({ id, name: id, type: 'unknown' }))).forEach(p => {
+    if (chRates[p.id]) return;
+    const msgs = _messages.filter(m => m.page_id === p.id);
+    const cust = msgs.filter(m => m.sender_type === 'customer').length;
+    const ag = msgs.filter(m => m.sender_type === 'agent').length;
+    chRates[p.id] = { name: p.name || p.id, cust, ag, rate: cust > 0 ? ag/(cust+ag)*100 : 0 };
+  });
+  document.getElementById('replyRateBox').innerHTML = Object.values(chRates).filter(c => c.cust > 0 || c.ag > 0).slice(0,4).map(c => `
+    <div style="margin-bottom:12px;">
+      <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:4px;"><span>${esc((c.name||'').slice(0,28))}</span><span style="font-weight:600;">${c.rate.toFixed(0)}%</span></div>
+      <div class="progress" style="width:100%;"><span style="width:${c.rate}%; background:var(--pink);"></span></div>
+      <div style="font-size:10px; color:var(--text-muted); margin-top:2px;">${c.cust} customer · ${c.ag} agent msgs</div>
+    </div>`).join('') || '<div class="empty-state">Không có dữ liệu</div>';
+
+  // ── Sentiment signals (lightweight keyword detection) ──
+  const POS = /cảm ơn|tốt|ok|được|tuyệt|hay|thanks|good|great/i;
+  const NEG = /tệ|chậm|không|chưa|fail|lỗi|sai|bad|complain/i;
+  const URGENT = /gấp|ngay|nhanh|urgent|asap/i;
+  let pos = 0, neg = 0, urg = 0;
+  _messages.filter(m => m.sender_type === 'customer').forEach(m => {
+    if (POS.test(m.content)) pos++;
+    if (NEG.test(m.content)) neg++;
+    if (URGENT.test(m.content)) urg++;
+  });
+  document.getElementById('sentimentBox').innerHTML = `
+    <div style="display:flex; gap:14px; justify-content:space-around; text-align:center;">
+      <div><i data-lucide="thumbs-up" style="color:var(--green); width:24px; height:24px;"></i><div style="font-size:22px; font-weight:700; margin-top:4px; color:var(--green);">${pos}</div><div style="font-size:11px; color:var(--text-muted);">Positive</div></div>
+      <div><i data-lucide="thumbs-down" style="color:var(--red); width:24px; height:24px;"></i><div style="font-size:22px; font-weight:700; margin-top:4px; color:var(--red);">${neg}</div><div style="font-size:11px; color:var(--text-muted);">Negative</div></div>
+      <div><i data-lucide="zap" style="color:var(--orange); width:24px; height:24px;"></i><div style="font-size:22px; font-weight:700; margin-top:4px; color:var(--orange);">${urg}</div><div style="font-size:11px; color:var(--text-muted);">Urgent</div></div>
+    </div>
+    <div style="margin-top:14px; padding-top:10px; border-top:1px solid var(--border); font-size:10px; color:var(--text-muted); text-align:center;">Keyword-based (simple). For accurate sentiment use LLM scoring.</div>`;
+
+  // Top 5 partners this week
+  const since7 = Date.now() - 7*86400000;
+  const counts = {};
+  _messages.filter(m => new Date(m.created_time).getTime() >= since7).forEach(m => {
+    counts[m.conversation_id] = (counts[m.conversation_id] || 0) + 1;
+  });
+  const convMap = Object.fromEntries(_conversations.map(c => [c.id, c.customer_name || c.id]));
+  const top5 = Object.entries(counts).sort((a,b) => b[1]-a[1]).slice(0,5);
+  const maxT = top5[0]?.[1] || 1;
+  document.getElementById('dashTopPartners').innerHTML = top5.length === 0 ? '<div class="empty-state">No activity this week</div>' : top5.map(([cid, n], i) => {
+    const cust = _customers.find(c => c.name && cid.endsWith(c.name.toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,'')));
+    const stage = cust?._stage || 'active';
+    const name = convMap[cid] || cid;
+    return `<div style="display:flex;align-items:center;gap:12px;padding:10px 0; border-bottom:${i<top5.length-1?'1px solid var(--border)':'none'};">
+      <div class="avatar-c sm ${stage}">${esc((name||'?').charAt(0).toUpperCase())}</div>
+      <div style="flex:1; min-width:0;">
+        <div style="font-weight:600; font-size:13px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${esc(name)}</div>
+        <div class="progress" style="margin-top:4px;"><span style="width:${n/maxT*100}%; background:${STAGE_COLOR[stage]};"></span></div>
+      </div>
+      <div style="font-weight:600; font-size:14px;">${n}</div>
+    </div>`;
+  }).join('');
+
+  const days = {};
+  for (let i=13; i>=0; i--) { const d = new Date(Date.now() - i*86400000).toISOString().slice(0,10); days[d] = { customer:0, agent:0 }; }
+  _messages.forEach(m => { const d = (m.created_time||'').slice(0,10); if (days[d]) { if (m.sender_type==='agent') days[d].agent++; else days[d].customer++; } });
+  const labels = Object.keys(days);
+  const ctx = document.getElementById('trendChart').getContext('2d');
+  if (_trendChart) _trendChart.destroy();
+  _trendChart = new Chart(ctx, {
+    type: 'line',
+    data: { labels: labels.map(d => d.slice(5)), datasets: [
+      { label:'Customer', data: labels.map(d => days[d].customer), borderColor:'#3b82f6', backgroundColor:'rgba(59,130,246,.1)', tension:.3, fill:true },
+      { label:'Agent', data: labels.map(d => days[d].agent), borderColor:'#10b981', backgroundColor:'rgba(16,185,129,.1)', tension:.3, fill:true },
+    ]},
+    options: { responsive:true, maintainAspectRatio:false, plugins:{ legend:{ position:'top' } } }
+  });
+
+  const recent = _messages.slice(0, 12).map(m => {
+    const cust = _customers.find(c => c.name === m.sender_name);
+    const stage = cust?._stage || 'active';
+    return `<div class="activity-item ${m.sender_type==='agent'?'agent-bar':''}">
+      <div class="avatar-c sm ${stage}">${esc((m.sender_name||'?').charAt(0).toUpperCase())}</div>
+      <div class="body">
+        <div class="head"><span class="name">${esc((m.sender_name||'?').slice(0,30))}</span><span class="time">${(m.created_time||'').slice(11,16)} · ${(m.created_time||'').slice(0,10)}</span></div>
+        <div class="content">${esc(m.content)}</div>
+      </div>
+    </div>`;
+  }).join('');
+  document.getElementById('recentList').innerHTML = recent || '<div class="empty-state">No messages yet</div>';
+}
+
+// ═══════════════ Pipeline (Kanban) ═══════════════
+let _pipelineChannel = 'all';
+function setPipelineChannel(ch, btn) {
+  _pipelineChannel = ch;
+  document.querySelectorAll('#pipelineChannelChips .channel-chip').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  renderPipeline();
+}
+function renderPipeline() {
+  // Channel filter chips
+  const pages = window.DEMO_DATA?.pages || [];
+  const channels = ['all', ...new Set(pages.map(p => p.type))];
+  const chipsHost = document.getElementById('pipelineChannelChips');
+  if (chipsHost && chipsHost.children.length === 0) {
+    chipsHost.innerHTML = channels.map(ch => {
+      const icon = ch === 'all' ? 'globe' : ch === 'facebook' ? 'facebook' : ch.startsWith('zalo') ? 'message-square' : ch === 'instagram' ? 'instagram' : 'circle';
+      const label = ch === 'all' ? 'All channels' : ch === 'zalo_oa' ? 'Zalo OA' : ch.charAt(0).toUpperCase() + ch.slice(1);
+      return `<button class="channel-chip ${ch===_pipelineChannel?'active':''}" onclick="setPipelineChannel('${ch}', this)"><i data-lucide="${icon}" class="icon-sm"></i>${label}</button>`;
+    }).join('');
+  }
+  // Search + channel filter
+  const search = (document.getElementById('pipelineSearch')?.value || '').toLowerCase().trim();
+  let pool = _customers.slice();
+  if (_pipelineChannel !== 'all') {
+    pool = pool.filter(c => {
+      const page = pages.find(p => p.id === c.page_id);
+      return page && page.type === _pipelineChannel;
+    });
+  }
+  if (search) pool = pool.filter(c => (c.name||'').toLowerCase().includes(search));
+
+  const stages = ['active','sleeping','at_risk','dormant','churned'];
+  const grouped = Object.fromEntries(stages.map(s => [s, pool.filter(c => c._stage === s)]));
+  document.getElementById('kanban').innerHTML = stages.map(s => `
+    <div class="kanban-col">
+      <div class="kanban-col-header">
+        <span style="background:${STAGE_COLOR[s]}; width:8px; height:8px; border-radius:50%;"></span>
+        <span class="title">${STAGE_LABEL[s]}</span>
+        <span class="count">${grouped[s].length}</span>
+      </div>
+      <div class="kanban-col-body">
+        ${grouped[s].slice(0,30).map(p => `<div class="kanban-card"><div class="name">${esc((p.name||'').slice(0,30))}</div><div class="meta">${p._days} ngày im</div></div>`).join('') || '<div style="text-align:center; padding:20px; font-size:11px; color:var(--text-muted);">Empty</div>'}
+      </div>
+    </div>`).join('');
+}
+
+// ═══════════════ Partner 360 ═══════════════
+let _partnerSeg = 'all';
+function setPartnerSeg(seg, btn) {
+  _partnerSeg = seg;
+  document.querySelectorAll('#partnerSegs button').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  renderPartner360();
+}
+function renderPartner360() {
+  const search = (document.getElementById('partnerSearch')?.value || '').toLowerCase().trim();
+  let pool = _customers.filter(p => _partnerSeg === 'all' || p._stage === _partnerSeg);
+  if (search) pool = pool.filter(p => (p.name||'').toLowerCase().includes(search));
+
+  const html = pool.slice(0,100).map((p, i) => {
+    const orig = _customers.indexOf(p);
+    return `<tr data-idx="${orig}">
+      <td style="display:flex; align-items:center; gap:10px;"><div class="avatar-c sm ${p._stage}">${esc((p.name||'?').charAt(0).toUpperCase())}</div><b>${esc((p.name||'?').slice(0,40))}</b></td>
+      <td><small style="color:var(--text-muted);">${esc((p.page_id||'').slice(0,30))}</small></td>
+      <td><span class="pill pill-${p._stage}">${p._stage.toUpperCase()}</span></td>
+      <td>${p._days < 9999 ? p._days+'d' : '—'}</td>
+      <td><small>${(p.last_seen_at||'').slice(0,19) || 'never'}</small></td>
+      <td style="text-align:right;"><i data-lucide="chevron-right" class="icon-sm" style="color:var(--text-muted);"></i></td>
+    </tr>`;
+  }).join('');
+  document.getElementById('partnerTable').innerHTML = html || '<tr><td colspan="6" class="empty-state">No partners match filter</td></tr>';
+  document.querySelectorAll('#partnerTable tr[data-idx]').forEach(tr => {
+    tr.onclick = () => openPartnerDrawer(_customers[+tr.dataset.idx]);
+  });
+}
+
+// ═══════════════ Triage ═══════════════
+function renderTriage() {
+  const urgent = _customers.filter(p => p._stage==='at_risk' || p._stage==='sleeping').sort((a,b) => a._days - b._days).slice(0,10);
+  const revival = _customers.filter(p => p._stage==='dormant' || p._stage==='churned').sort((a,b) => a._days - b._days).slice(0,12);
+  const renderCard = (p) => `
+    <div style="padding:12px 14px; border:1px solid var(--border); border-radius:8px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
+      <div>
+        <div style="font-weight:600;">${esc(p.name||'?')}</div>
+        <div style="font-size:12px; color:var(--text-muted);">${p._days} ngày im · last: ${(p.last_seen_at||'').slice(0,10)}</div>
+      </div>
+      <span style="padding:2px 10px; background:${STAGE_COLOR[p._stage]}22; color:${STAGE_COLOR[p._stage]}; border-radius:6px; font-size:11px; font-weight:600;">${p._stage.toUpperCase()}</span>
+    </div>`;
+  document.getElementById('triageUrgent').innerHTML = urgent.length ? urgent.map(renderCard).join('') : '<div class="empty-state"><h3>Không có partner cần outreach gấp</h3><p>Tất cả đang Active</p></div>';
+  document.getElementById('triagePending').innerHTML = revival.length ? revival.map(renderCard).join('') : '<div class="empty-state"><h3>Không có Dormant/Churned</h3></div>';
+}
+
+// ═══════════════ Inbox (Rocky 3-pane) ═══════════════
+let _inboxChannel = 'all';
+let _inboxPage = null;     // optional page filter (clicked from left pane)
+let _inboxTab = 'msgs';
+
+function setInboxChannel(ch, btn) {
+  _inboxChannel = ch;
+  document.querySelectorAll('#sec-inbox .channel-chip').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  _inboxPage = null;
+  renderInbox();
+}
+function selectInboxPage(pageId) {
+  _inboxPage = _inboxPage === pageId ? null : pageId;
+  renderInbox();
+}
+function switchInboxTab(tab, btn) {
+  _inboxTab = tab;
+  document.querySelectorAll('#sec-inbox .tab').forEach(t => t.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  document.getElementById('inboxTabMsgs').style.display = tab === 'msgs' ? 'flex' : 'none';
+  document.getElementById('inboxTabInfo').style.display = tab === 'info' ? 'block' : 'none';
+}
+
+function renderInbox() {
+  // Pages pane (left)
+  const pages = (window.DEMO_DATA?.pages || []).filter(p => _inboxChannel === 'all' || p.type === _inboxChannel || (_inboxChannel === 'facebook' && p.type === 'facebook') || (_inboxChannel === 'zalo_oa' && (p.type === 'zalo_oa' || p.type === 'zalo')));
+  const pageCounts = {};
+  _conversations.forEach(c => { pageCounts[c.page_id] = (pageCounts[c.page_id] || 0) + 1; });
+  document.getElementById('inboxPages').innerHTML = pages.length === 0 ? '<div class="empty-state" style="padding:20px; font-size:12px;">No pages</div>' :
+    `<div class="page-item ${!_inboxPage?'active':''}" onclick="_inboxPage=null; renderInbox();">
+       <i data-lucide="layers" class="icon-sm" style="color:var(--text-muted);"></i>
+       <div class="info"><div class="name">All pages</div><div class="meta">${_conversations.length} convs</div></div>
+     </div>` +
+    pages.map(p => `
+      <div class="page-item ${_inboxPage===p.id?'active':''}" onclick="selectInboxPage('${esc(p.id)}')">
+        <i data-lucide="${p.type==='facebook'?'facebook':p.type.startsWith('zalo')?'message-square':'instagram'}" class="icon-sm" style="color:var(--accent);"></i>
+        <div class="info"><div class="name">${esc(p.name)}</div><div class="meta">${pageCounts[p.id]||0} convs · ${p.type}</div></div>
+      </div>`).join('');
+
+  // Conversation list (middle)
+  const search = (document.getElementById('inboxSearch')?.value || '').toLowerCase().trim();
+  let convs = _conversations.map(c => {
+    const msgs = _messages.filter(m => m.conversation_id === c.id);
+    const latest = msgs[0];
+    return { ...c, _latest: latest, _msgCount: msgs.length };
+  }).filter(c => c._latest);
+
+  if (_inboxChannel !== 'all') {
+    const ch = _inboxChannel;
+    convs = convs.filter(c => {
+      const page = (window.DEMO_DATA?.pages || []).find(p => p.id === c.page_id);
+      if (!page) return false;
+      if (ch === 'facebook') return page.type === 'facebook';
+      if (ch === 'zalo_oa') return page.type === 'zalo_oa' || page.type === 'zalo';
+      if (ch === 'instagram') return page.type === 'instagram';
+      return true;
+    });
+  }
+  if (_inboxPage) convs = convs.filter(c => c.page_id === _inboxPage);
+  if (search) convs = convs.filter(c => (c.customer_name||'').toLowerCase().includes(search) || (c._latest.content||'').toLowerCase().includes(search));
+
+  convs.sort((a,b) => new Date(b._latest.created_time).getTime() - new Date(a._latest.created_time).getTime());
+
+  document.getElementById('inboxList').innerHTML = convs.length === 0 ? '<div class="empty-state" style="padding:30px 20px;"><i data-lucide="inbox" style="opacity:.3;"></i><h3>Không có hội thoại</h3></div>' : convs.map(c => {
+    const cust = _customers.find(cu => c.id.endsWith((cu.name||'').toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,'')));
+    const stage = cust?._stage || 'active';
+    const initial = (c.customer_name || c.id).charAt(0).toUpperCase();
+    return `<div class="conv-item ${_selectedConv === c.id ? 'active' : ''}" onclick="selectConv('${esc(c.id)}')">
+      <div class="avatar-c ${stage}">${esc(initial)}</div>
+      <div class="body">
+        <div class="top">
+          <span class="name">${esc((c.customer_name||c.id).slice(0,28))}</span>
+          <span class="time">${(c._latest.created_time||'').slice(11,16)}</span>
+        </div>
+        <div class="snip">${esc((c._latest.content||'').slice(0,60))}</div>
+        <div class="bottom">
+          <span class="pill pill-${stage}">${stage.toUpperCase()}</span>
+          <span class="count-badge">${c._msgCount}</span>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  if (_selectedConv) renderInboxDetail();
+}
+
+function selectConv(id) {
+  _selectedConv = id;
+  renderInbox();
+  renderInboxDetail();
+}
+
+function renderInboxDetail() {
+  const conv = _conversations.find(c => c.id === _selectedConv);
+  if (!conv) return;
+  const cust = _customers.find(cu => conv.id.endsWith((cu.name||'').toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,'')));
+  const stage = cust?._stage || 'active';
+  const msgs = _messages.filter(m => m.conversation_id === _selectedConv).slice().reverse(); // chronological
+
+  // Header
+  document.getElementById('inboxDetailHeader').innerHTML = `
+    <div style="display:flex; align-items:center; gap:10px; text-transform:none; font-weight:normal;">
+      <div class="avatar-c sm ${stage}">${esc((conv.customer_name||'?').charAt(0).toUpperCase())}</div>
+      <div>
+        <div style="font-weight:600; color:var(--text); font-size:14px;">${esc(conv.customer_name || conv.id)}</div>
+        <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">
+          <span class="pill pill-${stage}">${stage.toUpperCase()}</span>
+          · ${msgs.length} messages
+        </div>
+      </div>
+    </div>`;
+
+  // Messages with date separators
+  let lastDate = '';
+  let html = '';
+  msgs.forEach(m => {
+    const date = (m.created_time || '').slice(0, 10);
+    if (date !== lastDate) {
+      const label = date === new Date().toISOString().slice(0,10) ? 'Today' :
+                    date === new Date(Date.now()-86400000).toISOString().slice(0,10) ? 'Yesterday' : date;
+      html += `<div class="date-sep"><span>${label}</span></div>`;
+      lastDate = date;
+    }
+    const initial = (m.sender_name||'?').charAt(0).toUpperCase();
+    html += `<div class="msg-row ${m.sender_type}">
+      <div class="avatar-c sm ${m.sender_type==='customer'?stage:'active'}">${esc(initial)}</div>
+      <div>
+        <div class="bubble">${esc(m.content)}</div>
+        <div class="time-mini">${esc(m.sender_name||'?')} · ${(m.created_time||'').slice(11,16)}</div>
+      </div>
+    </div>`;
+  });
+  document.getElementById('inboxTabMsgs').innerHTML = html;
+
+  // Customer info tab
+  if (cust) {
+    document.getElementById('inboxTabInfo').innerHTML = `
+      <div style="text-align:center; padding:20px 0; border-bottom:1px solid var(--border); margin-bottom:8px;">
+        <div class="avatar-c ${stage}" style="width:64px; height:64px; font-size:24px; margin:0 auto 12px;">${esc((cust.name||'?').charAt(0).toUpperCase())}</div>
+        <div style="font-weight:600; font-size:16px;">${esc(cust.name)}</div>
+        <div style="margin-top:6px;"><span class="pill pill-${stage}">${stage.toUpperCase()}</span></div>
+      </div>
+      <div class="info-row"><span class="label">Page</span><span class="value">${esc(cust.page_id || '—')}</span></div>
+      <div class="info-row"><span class="label">Total messages</span><span class="value">${msgs.length}</span></div>
+      <div class="info-row"><span class="label">Days silent</span><span class="value">${cust._days < 9999 ? cust._days + 'd' : '—'}</span></div>
+      <div class="info-row"><span class="label">First seen</span><span class="value">${(cust.first_seen_at||'').slice(0,10) || '—'}</span></div>
+      <div class="info-row"><span class="label">Last seen</span><span class="value">${(cust.last_seen_at||'').slice(0,16) || '—'}</span></div>
+      <div style="margin-top:18px; display:flex; gap:8px;">
+        <button class="btn btn-primary" style="flex:1;" onclick="toast('Reply sent (demo)','success');"><i data-lucide="send" class="icon-sm"></i> Reply</button>
+        <button class="btn" onclick="openPartnerDrawer(_customers.find(c => c.id === '${esc(cust.id)}'))"><i data-lucide="external-link" class="icon-sm"></i></button>
+      </div>`;
+  }
+}
+
+// ═══════════════ Performance ═══════════════
+let _perfChart, _perfRatioChart, _perfHourBarChart, _perfDOWChart, _perfRange = 30;
+function setPerfRange(days, btn) {
+  _perfRange = days;
+  document.querySelectorAll('#sec-performance .filter-segs button').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  renderPerformance();
+}
+function renderPerformance() {
+  const since = Date.now() - _perfRange * 86400000;
+  const periodMsgs = _messages.filter(m => new Date(m.created_time).getTime() >= since);
+  const total = periodMsgs.length;
+  const cust = periodMsgs.filter(m => m.sender_type === 'customer').length;
+  const agent = periodMsgs.filter(m => m.sender_type === 'agent').length;
+  const activeP = _customers.filter(c => c._stage === 'active' || c._stage === 'sleeping').length;
+  const sleepingP = _customers.filter(c => c._stage === 'at_risk' || c._stage === 'dormant').length;
+  const totalP = _customers.length;
+  const avgMsgPerP = totalP > 0 ? (total / totalP).toFixed(1) : '0';
+  const validDays = _customers.filter(c => c._days < 9999).map(c => c._days);
+  const avgSilence = validDays.length > 0 ? (validDays.reduce((a,b) => a+b, 0) / validDays.length).toFixed(0) : '0';
+
+  document.getElementById('perfMsgs').textContent = total;
+  document.getElementById('perfActive').textContent = activeP;
+  document.getElementById('perfSleeping').textContent = sleepingP;
+  document.getElementById('perfRate').textContent = total > 0 ? Math.round(agent/total*100)+'%' : '0%';
+  document.getElementById('perfAvgMsg').textContent = avgMsgPerP;
+  document.getElementById('perfAvgSilence').textContent = avgSilence + 'd';
+
+  // Trend (period-aware: 7/30/90 days)
+  const numDays = _perfRange;
+  const days = {};
+  for (let i=numDays-1; i>=0; i--) { const d = new Date(Date.now()-i*86400000).toISOString().slice(0,10); days[d] = {customer:0, agent:0}; }
+  periodMsgs.forEach(m => { const d = (m.created_time||'').slice(0,10); if (days[d]) { if (m.sender_type==='agent') days[d].agent++; else days[d].customer++; } });
+  const labels = Object.keys(days);
+  const ctx = document.getElementById('perfTrend').getContext('2d');
+  if (_perfChart) _perfChart.destroy();
+  _perfChart = new Chart(ctx, {
+    type: 'bar',
+    data: { labels: labels.map(d => d.slice(5)), datasets: [
+      { label:'Khách', data: labels.map(d => days[d].customer), backgroundColor:'#3b82f6' },
+      { label:'Nhân viên', data: labels.map(d => days[d].agent), backgroundColor:'#10b981' },
+    ]},
+    options: { responsive:true, maintainAspectRatio:false, scales:{ x:{stacked:true}, y:{stacked:true} } }
+  });
+
+  // Ratio doughnut
+  if (_perfRatioChart) _perfRatioChart.destroy();
+  _perfRatioChart = new Chart(document.getElementById('perfRatio'), {
+    type:'doughnut',
+    data:{ labels:['Khách', 'Nhân viên'], datasets:[{ data:[cust, agent], backgroundColor:['#3b82f6', '#10b981'], borderWidth:0 }] },
+    options:{ responsive:true, maintainAspectRatio:false, cutout:'68%', plugins:{ legend:{ position:'bottom' } } }
+  });
+
+  // Hour bar (24h distribution)
+  const hourBins = Array(24).fill(0);
+  periodMsgs.forEach(m => { try { hourBins[new Date(m.created_time).getHours()]++; } catch {} });
+  if (_perfHourBarChart) _perfHourBarChart.destroy();
+  _perfHourBarChart = new Chart(document.getElementById('perfHourBar'), {
+    type:'bar',
+    data:{ labels: hourBins.map((_,i) => i+'h'), datasets:[{ data: hourBins, backgroundColor:'#a78bfa', borderRadius:3 }] },
+    options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ display:false } }, scales:{ x:{ ticks:{ font:{ size:9 } } } } }
+  });
+
+  // Day of week
+  const dowNames = ['CN','T2','T3','T4','T5','T6','T7'];
+  const dow = Array(7).fill(0);
+  periodMsgs.forEach(m => { try { dow[new Date(m.created_time).getDay()]++; } catch {} });
+  if (_perfDOWChart) _perfDOWChart.destroy();
+  _perfDOWChart = new Chart(document.getElementById('perfDayOfWeek'), {
+    type:'bar',
+    data:{ labels: dowNames, datasets:[{ data: dow, backgroundColor: dow.map((_,i) => i===0 || i===6 ? '#f97316' : '#10b981'), borderRadius:6 }] },
+    options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ display:false } } }
+  });
+
+  // Top senders
+  const senderCount = {};
+  periodMsgs.forEach(m => { const k = (m.sender_name || '?').slice(0, 30); senderCount[k] = (senderCount[k] || 0) + 1; });
+  const topSenders = Object.entries(senderCount).sort((a,b) => b[1]-a[1]).slice(0, 8);
+  const maxS = topSenders[0]?.[1] || 1;
+  document.getElementById('perfTopSenders').innerHTML = topSenders.length === 0 ? '<div class="empty-state">Không có dữ liệu</div>' :
+    topSenders.map(([name, n]) => `
+      <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">
+        <div style="flex:1; font-size:12px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${esc(name)}</div>
+        <div class="progress" style="width:80px;"><span style="width:${n/maxS*100}%; background:var(--accent);"></span></div>
+        <div style="width:34px; text-align:right; font-weight:600; font-size:12px;">${n}</div>
+      </div>`).join('');
+
+  // Heatmap 7 days × 24 hours
+  const since30 = Date.now() - 30*86400000;
+  const heat = Array.from({length:7}, () => Array(24).fill(0));
+  _messages.forEach(m => {
+    const t = new Date(m.created_time).getTime();
+    if (t < since30) return;
+    const d = new Date(t);
+    heat[d.getDay()][d.getHours()]++;
+  });
+  const maxH = Math.max(...heat.flat(), 1);
+  const dayNames = ['CN','T2','T3','T4','T5','T6','T7'];
+  const cellColor = (v) => {
+    if (v === 0) return 'var(--bg-subtle)';
+    const intensity = Math.min(1, v / maxH);
+    const alpha = 0.2 + intensity * 0.8;
+    return `rgba(59,130,246,${alpha})`;
+  };
+  let heatHtml = '<div class="heatmap"><div></div>';
+  for (let h = 0; h < 24; h++) heatHtml += `<div style="text-align:center; color:var(--text-muted);">${h}</div>`;
+  for (let d = 0; d < 7; d++) {
+    heatHtml += `<div class="heatmap-label">${dayNames[d]}</div>`;
+    for (let h = 0; h < 24; h++) {
+      const v = heat[d][h];
+      heatHtml += `<div class="heatmap-cell" style="background:${cellColor(v)}; color:${v > maxH/2 ? '#fff' : 'var(--text-muted)'};" title="${dayNames[d]} ${h}h: ${v} msgs">${v||''}</div>`;
+    }
+  }
+  heatHtml += '</div>';
+  document.getElementById('perfHeatmap').innerHTML = heatHtml;
+
+  // Top partners
+  const counts = {};
+  _messages.forEach(m => { counts[m.conversation_id] = (counts[m.conversation_id]||0)+1; });
+  const convMap = Object.fromEntries(_conversations.map(c => [c.id, c.customer_name || c.id]));
+  const top = Object.entries(counts).sort((a,b) => b[1]-a[1]).slice(0,10);
+  const max = top[0]?.[1] || 1;
+  document.getElementById('topPartners').innerHTML = top.map(([cid,n]) => `
+    <div style="display:flex; align-items:center; gap:12px; margin-bottom:8px;">
+      <div style="flex:1; font-size:13px;">${esc(convMap[cid] || cid)}</div>
+      <div class="progress"><span style="width:${n/max*100}%; background:var(--pink);"></span></div>
+      <div style="width:40px; text-align:right; font-weight:600;">${n}</div>
+    </div>`).join('') || '<div class="empty-state">Không có dữ liệu</div>';
+}
+
+// ═══════════════ Reports (NEW) ═══════════════
+function setReportRange(days, btn) {
+  _reportRange = days;
+  document.querySelectorAll('#sec-reports .filter-segs button').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  renderReports();
+}
+function renderReports() {
+  const since = Date.now() - _reportRange * 86400000;
+  const msgsInPeriod = _messages.filter(m => new Date(m.created_time).getTime() >= since);
+  const activeIds = new Set(msgsInPeriod.map(m => m.conversation_id));
+  const need = _customers.filter(c => c._stage === 'at_risk' || c._stage === 'dormant').length;
+
+  document.getElementById('rptPeriod').textContent = `last ${_reportRange}d`;
+  document.getElementById('rptMsgs').textContent = msgsInPeriod.length;
+  document.getElementById('rptActive').textContent = activeIds.size;
+  document.getElementById('rptNeed').textContent = need;
+
+  // Preview = mini summary
+  const stages = { active:0, sleeping:0, at_risk:0, dormant:0, churned:0 };
+  _customers.forEach(c => stages[c._stage]++);
+  document.getElementById('reportPreview').innerHTML = `
+    <h3 style="margin-top:0;">Summary report — last ${_reportRange} days</h3>
+    <p><b>Total partners:</b> ${_customers.length}</p>
+    <p><b>Tin nhắn trong khoảng:</b> ${msgsInPeriod.length} (${msgsInPeriod.filter(m => m.sender_type==='customer').length} from customers, ${msgsInPeriod.filter(m => m.sender_type==='agent').length} from agents)</p>
+    <p><b>Đối tác active:</b> ${activeIds.size}</p>
+    <h4>Stage distribution</h4>
+    <table style="width:100%;">
+      ${Object.entries(stages).map(([k,v]) => `<tr><td><span style="color:${STAGE_COLOR[k]}; font-weight:600;">●</span> ${STAGE_LABEL[k]}</td><td>${v}</td><td>${_customers.length > 0 ? (v/_customers.length*100).toFixed(1) : 0}%</td></tr>`).join('')}
+    </table>`;
+}
+function csvEscape(s) { s = String(s ?? ''); return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; }
+function downloadFile(filename, content, type='text/plain') {
+  const blob = new Blob([content], { type });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename; a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 100);
+  toast(`Downloaded ${filename}`, 'success');
+}
+function exportCSV(kind) {
+  let csv, filename;
+  if (kind === 'partners') {
+    csv = 'id,name,page_id,stage,days_silent,last_seen_at,first_seen_at\n';
+    _customers.forEach(c => {
+      csv += [c.id, c.name, c.page_id, c._stage, c._days, c.last_seen_at, c.first_seen_at].map(csvEscape).join(',') + '\n';
+    });
+    filename = `partners-${new Date().toISOString().slice(0,10)}.csv`;
+  } else {
+    csv = 'conversation_id,sender_type,sender_name,content,created_time\n';
+    _messages.forEach(m => {
+      csv += [m.conversation_id, m.sender_type, m.sender_name, m.content, m.created_time].map(csvEscape).join(',') + '\n';
+    });
+    filename = `messages-${new Date().toISOString().slice(0,10)}.csv`;
+  }
+  downloadFile(filename, csv, 'text/csv');
+}
+function exportJSON() {
+  downloadFile(`export-${new Date().toISOString().slice(0,10)}.json`, JSON.stringify({ customers: _customers, messages: _messages, conversations: _conversations }, null, 2), 'application/json');
+}
+function exportHTMLReport() {
+  const since = Date.now() - _reportRange*86400000;
+  const msgsInPeriod = _messages.filter(m => new Date(m.created_time).getTime() >= since);
+  const stages = { active:0, sleeping:0, at_risk:0, dormant:0, churned:0 };
+  _customers.forEach(c => stages[c._stage]++);
+  const cust = msgsInPeriod.filter(m => m.sender_type==='customer').length;
+  const agent = msgsInPeriod.filter(m => m.sender_type==='agent').length;
+  const topPartners = _customers.filter(c => c._stage === 'at_risk' || c._stage === 'dormant').slice(0,10);
+
+  const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>AIECOS Report ${new Date().toISOString().slice(0,10)}</title>
+  <style>
+    body { font-family: -apple-system, sans-serif; max-width:900px; margin:40px auto; padding:0 20px; color:#0f172a; }
+    h1 { border-bottom:2px solid #0f172a; padding-bottom:8px; }
+    h2 { margin-top:30px; color:#475569; }
+    .kpi-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin:20px 0; }
+    .kpi { background:#f3f4f6; padding:14px; border-radius:8px; }
+    .kpi .label { font-size:12px; color:#94a3b8; text-transform:uppercase; }
+    .kpi .value { font-size:24px; font-weight:700; margin-top:4px; }
+    table { width:100%; border-collapse:collapse; margin:10px 0; }
+    th, td { padding:8px 12px; text-align:left; border-bottom:1px solid #e5e7eb; font-size:13px; }
+    th { background:#f3f4f6; }
+    .footer { margin-top:40px; padding-top:20px; border-top:1px solid #e5e7eb; color:#94a3b8; font-size:11px; }
+  </style></head><body>
+    <h1>AIECOS Social CRM — Report</h1>
+    <p><b>Period:</b> last ${_reportRange} days · <b>Generated:</b> ${new Date().toISOString()}</p>
+
+    <h2>Key metrics</h2>
+    <div class="kpi-grid">
+      <div class="kpi"><div class="label">Total partners</div><div class="value">${_customers.length}</div></div>
+      <div class="kpi"><div class="label">Tin nhắn trong khoảng</div><div class="value">${msgsInPeriod.length}</div></div>
+      <div class="kpi"><div class="label">From customers</div><div class="value">${cust}</div></div>
+      <div class="kpi"><div class="label">From agents</div><div class="value">${agent}</div></div>
+    </div>
+
+    <h2>Partner stage distribution</h2>
+    <table><thead><tr><th>Stage</th><th>Count</th><th>%</th></tr></thead><tbody>
+      ${Object.entries(stages).map(([k,v]) => `<tr><td>${STAGE_LABEL[k]}</td><td>${v}</td><td>${_customers.length>0?(v/_customers.length*100).toFixed(1):0}%</td></tr>`).join('')}
+    </tbody></table>
+
+    <h2>Partners needing attention (At-Risk + Dormant — top 10)</h2>
+    <table><thead><tr><th>Partner</th><th>Stage</th><th>Days silent</th><th>Last contact</th></tr></thead><tbody>
+      ${topPartners.map(p => `<tr><td>${esc(p.name)}</td><td>${p._stage.toUpperCase()}</td><td>${p._days}d</td><td>${(p.last_seen_at||'').slice(0,10)}</td></tr>`).join('')}
+    </tbody></table>
+
+    <div class="footer">Generated by AIECOS Social CRM · https://github.com/aiecosvietnam/aiecos-social-crm</div>
+  </body></html>`;
+  downloadFile(`AIECOS-report-${new Date().toISOString().slice(0,10)}.html`, html, 'text/html');
+}
+
+// ═══════════════ Icon helper — re-render Lucide after innerHTML changes ═══════════════
+function renderIcons() {
+  if (window.lucide && typeof window.lucide.createIcons === 'function') {
+    window.lucide.createIcons();
+  }
+}
+// Patch all render functions to re-render icons after they update DOM
+['renderDashboard','renderTriage','renderInbox','renderPipeline','renderPartner360','renderPerformance','renderReports','renderInboxDetail'].forEach(fn => {
+  const orig = window[fn];
+  if (typeof orig === 'function') {
+    window[fn] = function(...args) { const r = orig.apply(this, args); renderIcons(); return r; };
+  }
+});
+
+// ═══════════════ Cmd+K input wiring ═══════════════
+document.getElementById('cmdkInput').addEventListener('input', renderCmdK);
+
+// ═══════════════ Wrap copy with toast feedback ═══════════════
+const _origCopy = window.copyText;
+window.copyText = function(btn) { _origCopy(btn); toast('Copied to clipboard', 'success', 1500); };
+
+// ═══════════════ Init ═══════════════
+document.getElementById('cfgUrl').value = CFG.url;
+document.getElementById('cfgKey').value = CFG.key;
+document.getElementById('cfgSchema').value = CFG.schema;
+renderIcons();    // Initial render of static icons (nav, badges)
+loadAll();
+</script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+version = 1
+
+[[annotations]]
+path = ["src/**", "tests/**", "scripts/**", "docs/**", ".github/**", "compose.yaml", "docker-compose*.yml", "*.props", "*.json", "*.md"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2026 DX-OS Contributors"
+SPDX-License-Identifier = "Apache-2.0"
+
+[[annotations]]
+path = ["chrome-extension/**", "sync-receiver/**", "admin-ui/**", "mcp-server/**", "examples/**", "docs/aiecos/**"]
+precedence = "override"
+SPDX-FileCopyrightText = "2026 AIECOS"
+SPDX-License-Identifier = "MIT"

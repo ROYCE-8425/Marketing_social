@@ -1,0 +1,21 @@
+COMMAND: dotnet.exe build DXOS.slnx -c Release --no-restore -warnaserror
+EXIT_CODE: 0
+DURATION_MS: 1323
+STDOUT:
+  DXOS.Domain -> C:\Users\199X\OneDrive\M├íy t├¡nh\olympic\dx-os\src\DXOS.Domain\bin\Release\net10.0\DXOS.Domain.dll
+  DXOS.Application -> C:\Users\199X\OneDrive\M├íy t├¡nh\olympic\dx-os\src\DXOS.Application\bin\Release\net10.0\DXOS.Application.dll
+  DXOS.Workflows -> C:\Users\199X\OneDrive\M├íy t├¡nh\olympic\dx-os\src\DXOS.Workflows\bin\Release\net10.0\DXOS.Workflows.dll
+  DXOS.Infrastructure -> C:\Users\199X\OneDrive\M├íy t├¡nh\olympic\dx-os\src\DXOS.Infrastructure\bin\Release\net10.0\DXOS.Infrastructure.dll
+  DXOS.Api -> C:\Users\199X\OneDrive\M├íy t├¡nh\olympic\dx-os\src\DXOS.Api\bin\Release\net10.0\DXOS.Api.dll
+  DXOS.AppHost -> C:\Users\199X\OneDrive\M├íy t├¡nh\olympic\dx-os\src\DXOS.AppHost\bin\Release\net10.0\DXOS.AppHost.dll
+  DXOS.Unit.Tests -> C:\Users\199X\OneDrive\M├íy t├¡nh\olympic\dx-os\tests\DXOS.Unit.Tests\bin\Release\net10.0\DXOS.Unit.Tests.dll
+  DXOS.Architecture.Tests -> C:\Users\199X\OneDrive\M├íy t├¡nh\olympic\dx-os\tests\DXOS.Architecture.Tests\bin\Release\net10.0\DXOS.Architecture.Tests.dll
+  DXOS.Integration.Tests -> C:\Users\199X\OneDrive\M├íy t├¡nh\olympic\dx-os\tests\DXOS.Integration.Tests\bin\Release\net10.0\DXOS.Integration.Tests.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:01.07
+
+STDERR:

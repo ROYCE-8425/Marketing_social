@@ -1,0 +1,31 @@
+name: Documentation Improvement
+description: Suggest improvements or report errors in DX-OS documentation
+title: "[Docs]: "
+labels: ["documentation"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for helping us improve DX-OS documentation!
+  - type: input
+    id: doc_page
+    attributes:
+      label: Documentation Page / URL
+      description: Which file or documentation section is affected?
+      placeholder: e.g. docs/build-from-source.md
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Description of Issue or Suggested Improvement
+      description: Explain what is missing, unclear, or incorrect.
+      placeholder: Describe the documentation issue...
+    validations:
+      required: true
+  - type: checkboxes
+    id: contribution
+    attributes:
+      label: Contribution
+      options:
+        - label: I would like to submit a PR to fix this documentation issue.

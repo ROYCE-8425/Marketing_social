@@ -1,0 +1,456 @@
+﻿{
+    "runId":  "d22cdd0d-82fc-4f98-a132-26c49bcbd772",
+    "postLocks":  {
+                      "src\\DXOS.Infrastructure\\packages.lock.json":  {
+                                                                           "Hash":  "04555E767EB0194DC2B52C59847513011C22BAA04183A7AAB3A43F03C336FC49",
+                                                                           "Length":  13577
+                                                                       },
+                      "tests\\DXOS.Architecture.Tests\\packages.lock.json":  {
+                                                                                 "Hash":  "057173BB1790E4DC78E015F2D577A8A5119023BB3F2CD4532A55FB405F8B67F2",
+                                                                                 "Length":  66888
+                                                                             },
+                      "src\\DXOS.Api\\packages.lock.json":  {
+                                                                "Hash":  "8B767CC489DC5342083E45DBE936EEB457B426894E04C8C686A19B93E4E2F63E",
+                                                                "Length":  28552
+                                                            },
+                      "src\\DXOS.Application\\packages.lock.json":  {
+                                                                        "Hash":  "956C49D24E8E0917F84962D175E47BDA2265302ED0F05128E88E32880661C25D",
+                                                                        "Length":  132
+                                                                    },
+                      "src\\DXOS.Workflows\\packages.lock.json":  {
+                                                                      "Hash":  "ACACC0D204D97A75A6F886511190EE0C68AB3DA8E3FF96FC274A50E639057A57",
+                                                                      "Length":  30391
+                                                                  },
+                      "tests\\DXOS.Unit.Tests\\packages.lock.json":  {
+                                                                         "Hash":  "07D8FF3B85A6C7BC259FEF0E722C2B2714CB28BBF610CBCA166A090046A89BDE",
+                                                                         "Length":  39788
+                                                                     },
+                      "src\\DXOS.Domain\\packages.lock.json":  {
+                                                                   "Hash":  "2241481B7E74DCDCD600303146B730ECC12CBD8E49AA55755EF95EE499FE229A",
+                                                                   "Length":  66
+                                                               },
+                      "tests\\DXOS.Integration.Tests\\packages.lock.json":  {
+                                                                                "Hash":  "D1DF139FC3F396D925D3F0B8CF685E0867E4219FADB09D3F4B914795C041FB40",
+                                                                                "Length":  44066
+                                                                            },
+                      "src\\DXOS.AppHost\\packages.lock.json":  {
+                                                                    "Hash":  "DDBBEA2DA988DD547571F69FD5DDC253CF1C781B18F669C6A4C63016EABA284D",
+                                                                    "Length":  33742
+                                                                }
+                  },
+    "repositoryRoot":  "C:\\Users\\199X\\OneDrive\\Máy tính\\olympic\\dx-os",
+    "overallResult":  "PASS",
+    "sanitizationResult":  "Applied",
+    "resolvedTools":  {
+                          "git":  {
+                                      "Version":  "2.52.0.1",
+                                      "Path":  "C:\\Program Files\\Git\\cmd\\git.exe"
+                                  },
+                          "docker":  {
+                                         "Version":  "0.0.0.0",
+                                         "Path":  "C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.exe"
+                                     },
+                          "powershell.exe":  {
+                                                 "Version":  "10.0.26100.8875",
+                                                 "Path":  "C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe"
+                                             },
+                          "openspec.cmd":  {
+                                               "Version":  "0.0.0.0",
+                                               "Path":  "C:\\Users\\199X\\AppData\\Roaming\\npm\\openspec.cmd"
+                                           },
+                          "dotnet":  {
+                                         "Version":  "10.0.1026.32716",
+                                         "Path":  "C:\\Program Files\\dotnet\\dotnet.exe"
+                                     }
+                      },
+    "firstFailure":  null,
+    "schemaVersion":  "1.0",
+    "endTime":  "2026-08-16T03:21:52.0371706+07:00",
+    "sanitizationPolicy":  "Redact SECRET_KEY",
+    "gitRevision":  "1fe1af3791d4b282351256f6c2c33bab8f5351c5",
+    "profile":  "Runtime",
+    "dotnetVersion":  "10.0.302",
+    "gates":  [
+                  {
+                      "timeoutSeconds":  60,
+                      "command":  "dotnet",
+                      "durationSeconds":  1.07,
+                      "arguments":  [
+                                        "restore",
+                                        "DXOS.slnx",
+                                        "--locked-mode"
+                                    ],
+                      "error":  null,
+                      "startTime":  "2026-08-16T03:21:05.7256387+07:00",
+                      "status":  "READY",
+                      "activation":  "always",
+                      "id":  "foundation-restore",
+                      "exitCode":  0,
+                      "task":  "BR001-R2.4",
+                      "encodedInvocation":  "restore DXOS.slnx --locked-mode",
+                      "outputHash":  "7263546B69A73255D6DE77F6D48BC3DA62E5D74F8CE99A331B06611471D81733",
+                      "processState":  "completed",
+                      "expectedOutputChecks":  {
+
+                                               },
+                      "outputPath":  "Runtime-foundation-restore.out.txt"
+                  },
+                  {
+                      "timeoutSeconds":  30,
+                      "command":  "dotnet",
+                      "durationSeconds":  4.02,
+                      "arguments":  [
+                                        "format",
+                                        "whitespace",
+                                        "DXOS.slnx",
+                                        "--verify-no-changes",
+                                        "--no-restore"
+                                    ],
+                      "error":  null,
+                      "startTime":  "2026-08-16T03:21:06.8185716+07:00",
+                      "status":  "READY",
+                      "activation":  "always",
+                      "id":  "foundation-format",
+                      "exitCode":  0,
+                      "task":  "BR001-R2.4",
+                      "encodedInvocation":  "format whitespace DXOS.slnx --verify-no-changes --no-restore",
+                      "outputHash":  "1FDEC6DD33C66917DEEB7E4A146143156EF99AE35845764051BE0CFF21F5A1FA",
+                      "processState":  "completed",
+                      "expectedOutputChecks":  {
+
+                                               },
+                      "outputPath":  "Runtime-foundation-format.out.txt"
+                  },
+                  {
+                      "timeoutSeconds":  120,
+                      "command":  "dotnet",
+                      "durationSeconds":  1.81,
+                      "arguments":  [
+                                        "build",
+                                        "DXOS.slnx",
+                                        "-c",
+                                        "Release",
+                                        "--no-restore",
+                                        "-warnaserror"
+                                    ],
+                      "error":  null,
+                      "startTime":  "2026-08-16T03:21:10.8438003+07:00",
+                      "status":  "READY",
+                      "activation":  "always",
+                      "id":  "foundation-build",
+                      "exitCode":  0,
+                      "task":  "BR001-R2.4",
+                      "encodedInvocation":  "build DXOS.slnx -c Release --no-restore -warnaserror",
+                      "outputHash":  "88B05079E2FE2F3AF9379D78F4D52394D14C9D1EB2335C74F36AD76A06400438",
+                      "processState":  "completed",
+                      "expectedOutputChecks":  {
+
+                                               },
+                      "outputPath":  "Runtime-foundation-build.out.txt"
+                  },
+                  {
+                      "timeoutSeconds":  30,
+                      "command":  "openspec.cmd",
+                      "durationSeconds":  1.63,
+                      "arguments":  [
+                                        "validate",
+                                        "bootstrap-remediation-001",
+                                        "--type",
+                                        "change",
+                                        "--strict",
+                                        "--no-interactive"
+                                    ],
+                      "error":  null,
+                      "startTime":  "2026-08-16T03:21:12.6555766+07:00",
+                      "status":  "READY",
+                      "activation":  "always",
+                      "id":  "foundation-openspec",
+                      "exitCode":  0,
+                      "task":  "BR001-R6.2",
+                      "encodedInvocation":  "validate bootstrap-remediation-001 --type change --strict --no-interactive",
+                      "outputHash":  "0EE65F9F0A0AE87943A937B6AE57071D07AC276C6A2733BD08BE4E137934B2CC",
+                      "processState":  "completed",
+                      "expectedOutputChecks":  {
+
+                                               },
+                      "outputPath":  "Runtime-foundation-openspec.out.txt"
+                  },
+                  {
+                      "timeoutSeconds":  15,
+                      "command":  "git",
+                      "durationSeconds":  0.06,
+                      "arguments":  [
+                                        "diff",
+                                        "--check"
+                                    ],
+                      "error":  null,
+                      "startTime":  "2026-08-16T03:21:14.2929935+07:00",
+                      "status":  "READY",
+                      "activation":  "always",
+                      "id":  "foundation-hygiene",
+                      "exitCode":  0,
+                      "task":  "BR001-R2.4",
+                      "encodedInvocation":  "diff --check",
+                      "outputHash":  "1FDEC6DD33C66917DEEB7E4A146143156EF99AE35845764051BE0CFF21F5A1FA",
+                      "processState":  "completed",
+                      "expectedOutputChecks":  {
+
+                                               },
+                      "outputPath":  "Runtime-foundation-hygiene.out.txt"
+                  },
+                  {
+                      "timeoutSeconds":  30,
+                      "command":  "docker",
+                      "durationSeconds":  0.14,
+                      "arguments":  [
+                                        "compose",
+                                        "-f",
+                                        "compose.yaml",
+                                        "config"
+                                    ],
+                      "error":  null,
+                      "startTime":  "2026-08-16T03:21:14.3632208+07:00",
+                      "status":  "READY",
+                      "activation":  "always",
+                      "id":  "runtime-docker-compose",
+                      "exitCode":  0,
+                      "task":  "BR001-R4.4",
+                      "encodedInvocation":  "compose -f compose.yaml config",
+                      "outputHash":  "8AAE606E3007AF71F97E279AF171A0AE03864C511AB7E4CC52C7DAE4D42BBC00",
+                      "processState":  "completed",
+                      "expectedOutputChecks":  {
+
+                                               },
+                      "outputPath":  "Runtime-runtime-docker-compose.out.txt"
+                  },
+                  {
+                      "timeoutSeconds":  180,
+                      "command":  "powershell.exe",
+                      "durationSeconds":  10.59,
+                      "arguments":  [
+                                        "-NoProfile",
+                                        "-ExecutionPolicy",
+                                        "Bypass",
+                                        "-File",
+                                        "scripts/smoke-runtime.ps1",
+                                        "-Mode",
+                                        "Compose"
+                                    ],
+                      "error":  null,
+                      "startTime":  "2026-08-16T03:21:14.5073739+07:00",
+                      "status":  "READY",
+                      "activation":  "always",
+                      "id":  "runtime-smoke-compose",
+                      "exitCode":  0,
+                      "task":  "BR001-R4.4",
+                      "encodedInvocation":  "-NoProfile -ExecutionPolicy Bypass -File scripts/smoke-runtime.ps1 -Mode Compose",
+                      "outputHash":  "FFF6AE88C1350554C072B19AFFCAA6C2825EA8D505A8289FF70E9A5C7BAE9859",
+                      "processState":  "completed",
+                      "expectedOutputChecks":  {
+
+                                               },
+                      "outputPath":  "Runtime-runtime-smoke-compose.out.txt"
+                  },
+                  {
+                      "timeoutSeconds":  180,
+                      "command":  "powershell.exe",
+                      "durationSeconds":  14.77,
+                      "arguments":  [
+                                        "-NoProfile",
+                                        "-ExecutionPolicy",
+                                        "Bypass",
+                                        "-File",
+                                        "scripts/smoke-runtime.ps1",
+                                        "-Mode",
+                                        "Aspire"
+                                    ],
+                      "error":  null,
+                      "startTime":  "2026-08-16T03:21:25.1017420+07:00",
+                      "status":  "READY",
+                      "activation":  "always",
+                      "id":  "runtime-smoke-aspire",
+                      "exitCode":  0,
+                      "task":  "BR001-R4.4",
+                      "encodedInvocation":  "-NoProfile -ExecutionPolicy Bypass -File scripts/smoke-runtime.ps1 -Mode Aspire",
+                      "outputHash":  "D19DB94783FCD873CFD9732F0ABE651F40C67265D1840828E24A60D1F4628925",
+                      "processState":  "completed",
+                      "expectedOutputChecks":  {
+
+                                               },
+                      "outputPath":  "Runtime-runtime-smoke-aspire.out.txt"
+                  },
+                  {
+                      "timeoutSeconds":  60,
+                      "command":  "powershell.exe",
+                      "durationSeconds":  2.1,
+                      "arguments":  [
+                                        "-NoProfile",
+                                        "-ExecutionPolicy",
+                                        "Bypass",
+                                        "-File",
+                                        "scripts/run-test-project.ps1",
+                                        "-ProjectPath",
+                                        "tests/DXOS.Unit.Tests/DXOS.Unit.Tests.csproj",
+                                        "-TimeoutSeconds",
+                                        "60",
+                                        "-EvidenceRoot",
+                                        "artifacts/task-runs/open_source-cab.4/runs/8682f54269a9",
+                                        "-ResultPath",
+                                        "artifacts/task-runs/open_source-cab.4/runs/8682f54269a9/unit-test-ctrf.json"
+                                    ],
+                      "error":  null,
+                      "startTime":  "2026-08-16T03:21:39.8802661+07:00",
+                      "status":  "READY",
+                      "activation":  "always",
+                      "id":  "runtime-unit-tests",
+                      "exitCode":  0,
+                      "task":  "BR001-R5.2",
+                      "encodedInvocation":  "-NoProfile -ExecutionPolicy Bypass -File scripts/run-test-project.ps1 -ProjectPath tests/DXOS.Unit.Tests/DXOS.Unit.Tests.csproj -TimeoutSeconds 60 -EvidenceRoot artifacts/task-runs/open_source-cab.4/runs/8682f54269a9 -ResultPath artifacts/task-runs/open_source-cab.4/runs/8682f54269a9/unit-test-ctrf.json",
+                      "outputHash":  "CF169F83E77CE042BEF47E60477A36409E3520055A75373EEBF1B372EF456C5D",
+                      "processState":  "completed",
+                      "expectedOutputChecks":  {
+                                                   "artifacts/task-runs/open_source-cab.4/runs/8682f54269a9/unit-test-ctrf.json":  {
+                                                                                                                                       "hash":  "BEA890F5111DE73953EF9AF0EE58A1E9A3D851B84F56E31BFBF82CD56FAF1EE4",
+                                                                                                                                       "exists":  true
+                                                                                                                                   }
+                                               },
+                      "outputPath":  "Runtime-runtime-unit-tests.out.txt"
+                  },
+                  {
+                      "timeoutSeconds":  60,
+                      "command":  "powershell.exe",
+                      "durationSeconds":  1.99,
+                      "arguments":  [
+                                        "-NoProfile",
+                                        "-ExecutionPolicy",
+                                        "Bypass",
+                                        "-File",
+                                        "scripts/run-test-project.ps1",
+                                        "-ProjectPath",
+                                        "tests/DXOS.Architecture.Tests/DXOS.Architecture.Tests.csproj",
+                                        "-TimeoutSeconds",
+                                        "60",
+                                        "-EvidenceRoot",
+                                        "artifacts/task-runs/open_source-cab.4/runs/8682f54269a9",
+                                        "-ResultPath",
+                                        "artifacts/task-runs/open_source-cab.4/runs/8682f54269a9/arch-test-ctrf.json"
+                                    ],
+                      "error":  null,
+                      "startTime":  "2026-08-16T03:21:41.9703142+07:00",
+                      "status":  "READY",
+                      "activation":  "always",
+                      "id":  "runtime-architecture-tests",
+                      "exitCode":  0,
+                      "task":  "BR001-R5.2",
+                      "encodedInvocation":  "-NoProfile -ExecutionPolicy Bypass -File scripts/run-test-project.ps1 -ProjectPath tests/DXOS.Architecture.Tests/DXOS.Architecture.Tests.csproj -TimeoutSeconds 60 -EvidenceRoot artifacts/task-runs/open_source-cab.4/runs/8682f54269a9 -ResultPath artifacts/task-runs/open_source-cab.4/runs/8682f54269a9/arch-test-ctrf.json",
+                      "outputHash":  "86BF3C2F32B50575A111C3E9EFEA424C4E414375D99AE9A4347C5C805C787445",
+                      "processState":  "completed",
+                      "expectedOutputChecks":  {
+                                                   "artifacts/task-runs/open_source-cab.4/runs/8682f54269a9/arch-test-ctrf.json":  {
+                                                                                                                                       "hash":  "D7897E7AC46754D30A039F46EE489D2EEE4139CB75C0D6CF68EC0B82092650F6",
+                                                                                                                                       "exists":  true
+                                                                                                                                   }
+                                               },
+                      "outputPath":  "Runtime-runtime-architecture-tests.out.txt"
+                  },
+                  {
+                      "timeoutSeconds":  120,
+                      "command":  "powershell.exe",
+                      "durationSeconds":  7.98,
+                      "arguments":  [
+                                        "-NoProfile",
+                                        "-ExecutionPolicy",
+                                        "Bypass",
+                                        "-File",
+                                        "scripts/run-test-project.ps1",
+                                        "-ProjectPath",
+                                        "tests/DXOS.Integration.Tests/DXOS.Integration.Tests.csproj",
+                                        "-TimeoutSeconds",
+                                        "120",
+                                        "-EvidenceRoot",
+                                        "artifacts/task-runs/open_source-cab.4/runs/8682f54269a9",
+                                        "-ResultPath",
+                                        "artifacts/task-runs/open_source-cab.4/runs/8682f54269a9/int-test-ctrf.json"
+                                    ],
+                      "error":  null,
+                      "startTime":  "2026-08-16T03:21:43.9785607+07:00",
+                      "status":  "READY",
+                      "activation":  "always",
+                      "id":  "runtime-integration-tests",
+                      "exitCode":  0,
+                      "task":  "BR001-R5.3",
+                      "encodedInvocation":  "-NoProfile -ExecutionPolicy Bypass -File scripts/run-test-project.ps1 -ProjectPath tests/DXOS.Integration.Tests/DXOS.Integration.Tests.csproj -TimeoutSeconds 120 -EvidenceRoot artifacts/task-runs/open_source-cab.4/runs/8682f54269a9 -ResultPath artifacts/task-runs/open_source-cab.4/runs/8682f54269a9/int-test-ctrf.json",
+                      "outputHash":  "3074D3E0C0802CC9165138199FACA51F066BB1F99095CF2BA59257A9548296BF",
+                      "processState":  "completed",
+                      "expectedOutputChecks":  {
+                                                   "artifacts/task-runs/open_source-cab.4/runs/8682f54269a9/int-test-ctrf.json":  {
+                                                                                                                                      "hash":  "0FF1D76EFFF31D88784DF5AF24E53E326B389F654363B925FB9640C282CC7AA1",
+                                                                                                                                      "exists":  true
+                                                                                                                                  }
+                                               },
+                      "outputPath":  "Runtime-runtime-integration-tests.out.txt"
+                  },
+                  {
+                      "timeoutSeconds":  300,
+                      "command":  "",
+                      "durationSeconds":  0,
+                      "arguments":  [
+
+                                    ],
+                      "error":  null,
+                      "startTime":  "2026-08-16T03:21:51.9688394+07:00",
+                      "status":  "NOT_APPLICABLE",
+                      "activation":  "manual",
+                      "id":  "runtime-e2e-tests",
+                      "exitCode":  0,
+                      "task":  "BR001-R5.1",
+                      "encodedInvocation":  "",
+                      "outputHash":  "1878E77B74F4ECFB3583914A5A865632CD1D51BE8F70363B77826E87D0C11652",
+                      "processState":  "completed",
+                      "expectedOutputChecks":  {
+
+                                               },
+                      "outputPath":  "Runtime-runtime-e2e-tests.out.txt"
+                  }
+              ],
+    "locks":  {
+                  "src\\DXOS.Infrastructure\\packages.lock.json":  {
+                                                                       "Hash":  "04555E767EB0194DC2B52C59847513011C22BAA04183A7AAB3A43F03C336FC49",
+                                                                       "Length":  13577
+                                                                   },
+                  "tests\\DXOS.Architecture.Tests\\packages.lock.json":  {
+                                                                             "Hash":  "057173BB1790E4DC78E015F2D577A8A5119023BB3F2CD4532A55FB405F8B67F2",
+                                                                             "Length":  66888
+                                                                         },
+                  "src\\DXOS.Api\\packages.lock.json":  {
+                                                            "Hash":  "8B767CC489DC5342083E45DBE936EEB457B426894E04C8C686A19B93E4E2F63E",
+                                                            "Length":  28552
+                                                        },
+                  "src\\DXOS.Application\\packages.lock.json":  {
+                                                                    "Hash":  "956C49D24E8E0917F84962D175E47BDA2265302ED0F05128E88E32880661C25D",
+                                                                    "Length":  132
+                                                                },
+                  "src\\DXOS.Workflows\\packages.lock.json":  {
+                                                                  "Hash":  "ACACC0D204D97A75A6F886511190EE0C68AB3DA8E3FF96FC274A50E639057A57",
+                                                                  "Length":  30391
+                                                              },
+                  "tests\\DXOS.Unit.Tests\\packages.lock.json":  {
+                                                                     "Hash":  "07D8FF3B85A6C7BC259FEF0E722C2B2714CB28BBF610CBCA166A090046A89BDE",
+                                                                     "Length":  39788
+                                                                 },
+                  "src\\DXOS.Domain\\packages.lock.json":  {
+                                                               "Hash":  "2241481B7E74DCDCD600303146B730ECC12CBD8E49AA55755EF95EE499FE229A",
+                                                               "Length":  66
+                                                           },
+                  "tests\\DXOS.Integration.Tests\\packages.lock.json":  {
+                                                                            "Hash":  "D1DF139FC3F396D925D3F0B8CF685E0867E4219FADB09D3F4B914795C041FB40",
+                                                                            "Length":  44066
+                                                                        },
+                  "src\\DXOS.AppHost\\packages.lock.json":  {
+                                                                "Hash":  "DDBBEA2DA988DD547571F69FD5DDC253CF1C781B18F669C6A4C63016EABA284D",
+                                                                "Length":  33742
+                                                            }
+              },
+    "totalDurationSeconds":  46.27,
+    "startTime":  "2026-08-16T03:21:05.6794271+07:00"
+}

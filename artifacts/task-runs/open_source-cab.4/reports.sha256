@@ -1,0 +1,10 @@
+0a48aaf575b42d6fa86f5bfe1b802173666e6e0f272b7f2afad47d9e19320d1d  artifacts/task-runs/open_source-cab.4/prompt.md
+489b3c45cf697d1fca54fa2fbab8a34aac82fb2c2aac6e55de78488e94bf6cec  artifacts/task-runs/open_source-cab.4/package-and-license-delta.md
+7e5b37d0d8cc4b468f3b5b1917c11985c74a16430454102dd1f5ce0ccfb20080  artifacts/task-runs/open_source-cab.4/implementation-report.md
+0fb9f8e01bfb27a4a8f632c549a3517060203e29371d6b7e170cea202ed46e24  artifacts/task-runs/open_source-cab.4/verification.md
+792da15c516d61edbaa0ac7d570db9fb5ce57883a044d3b27fef6496e9734f82  artifacts/task-runs/open_source-cab.4/run-r5-verification.ps1
+12dc7d7aaa5bbc4bbb6bb41ff2aaecd5ef3eed8bbabba8a93bae1887ca755ea6  artifacts/task-runs/open_source-cab.4/run-r5-final-verification.ps1
+c531252b1732c2fc5d686cb023dd9ab0156c6b7e83375b553fb9d15fb6302844  artifacts/task-runs/open_source-cab.4/finalizer-publish-helper.ps1
+afc5ca8a90e45eb4290aa88cd76f83aac30ae8b64b0e86df491969ac3b01e9c4  artifacts/task-runs/open_source-cab.4/test-finalizer-ordering-fixture.ps1
+cb498b14746a30094bc69f6eeafc41f93cadcec8d8d82cc496a2e1b316e522ec  artifacts/task-runs/open_source-cab.4/finalizer-ordering-fixture.log
+cb340d01f426242ece83b4eda1fd7020c9a497a438d4d540c72ff74ea279e1c6  artifacts/task-runs/open_source-cab.4/verification-output.sha256

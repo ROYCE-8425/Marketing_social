@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <PackageReference Include="Elsa" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DXOS.Application\DXOS.Application.csproj" />
+  </ItemGroup>
+</Project>

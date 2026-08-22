@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+    <UseMicrosoftTestingPlatformRunner>true</UseMicrosoftTestingPlatformRunner>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="xunit.v3" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\DXOS.Domain\DXOS.Domain.csproj" />
+    <ProjectReference Include="..\..\src\DXOS.Application\DXOS.Application.csproj" />
+    <ProjectReference Include="..\..\src\DXOS.Workflows\DXOS.Workflows.csproj" />
+    <ProjectReference Include="..\..\src\DXOS.Api\DXOS.Api.csproj" />
+    <ProjectReference Include="..\..\src\DXOS.Infrastructure\DXOS.Infrastructure.csproj" />
+  </ItemGroup>
+</Project>

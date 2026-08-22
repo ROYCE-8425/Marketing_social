@@ -1,0 +1,15 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src\DXOS.Api\DXOS.Api.csproj" />
+    <Project Path="src\DXOS.AppHost\DXOS.AppHost.csproj" />
+    <Project Path="src\DXOS.Application\DXOS.Application.csproj" />
+    <Project Path="src\DXOS.Domain\DXOS.Domain.csproj" />
+    <Project Path="src\DXOS.Infrastructure\DXOS.Infrastructure.csproj" />
+    <Project Path="src\DXOS.Workflows\DXOS.Workflows.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests\DXOS.Architecture.Tests\DXOS.Architecture.Tests.csproj" />
+    <Project Path="tests\DXOS.Integration.Tests\DXOS.Integration.Tests.csproj" />
+    <Project Path="tests\DXOS.Unit.Tests\DXOS.Unit.Tests.csproj" />
+  </Folder>
+</Solution>

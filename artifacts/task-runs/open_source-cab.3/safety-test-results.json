@@ -1,0 +1,90 @@
+[
+    {
+        "details":  "Timed-out process was killed",
+        "expected":  "HasExited: True",
+        "testName":  "timeout-terminates-owned-process-tree",
+        "passed":  true,
+        "actual":  "HasExited: True",
+        "testNumber":  1
+    },
+    {
+        "details":  "Unrelated process survived timeout kill",
+        "expected":  "HasExited: False",
+        "testName":  "unrelated-process-survives-timeout",
+        "passed":  true,
+        "actual":  "HasExited: False",
+        "testNumber":  2
+    },
+    {
+        "details":  "Concurrent sentinel container created after snapshot survived Aspire teardown",
+        "expected":  "Running container 522a748c8ca1dff826095a5c5c5f46726286f33a36792fce17cc784a81803f89",
+        "testName":  "unrelated-container-survives-aspire-cleanup",
+        "passed":  true,
+        "actual":  "Status: running",
+        "testNumber":  3
+    },
+    {
+        "details":  "Concurrent sentinel network created after snapshot survived Aspire teardown",
+        "expected":  "Network 2ca1fc1506ce40805f38b92fc125d1249d2bddfc1140037c664c1d170ae48cda exists",
+        "testName":  "unrelated-network-survives-aspire-cleanup",
+        "passed":  true,
+        "actual":  "Exists: True",
+        "testNumber":  4
+    },
+    {
+        "details":  "Concurrent sentinel volume created after snapshot survived Aspire teardown",
+        "expected":  "Volume dxos-safety-4c110214c910-vol exists",
+        "testName":  "unrelated-volume-survives-aspire-cleanup",
+        "passed":  true,
+        "actual":  "Exists: True",
+        "testNumber":  5
+    },
+    {
+        "details":  "Pre-existing collision sentinel was not modified or removed",
+        "expected":  "Role: original-collision-proof",
+        "testName":  "migration-collision-preserves-existing-container",
+        "passed":  true,
+        "actual":  "Role: original-collision-proof",
+        "testNumber":  6
+    },
+    {
+        "details":  "Cleanup failure was not swallowed and caused non-zero exit",
+        "expected":  "Exit code 1 with error message",
+        "testName":  "cleanup-failure-fails-closed",
+        "passed":  true,
+        "actual":  "Exit code 1",
+        "testNumber":  7
+    },
+    {
+        "details":  "Compose config failed closed when POSTGRES_PASSWORD was missing",
+        "expected":  "Exit non-zero with missing variable error",
+        "testName":  "compose-missing-secret-fails-closed",
+        "passed":  true,
+        "actual":  "Exit: 1",
+        "testNumber":  8
+    },
+    {
+        "details":  "Generated secret was never logged or leaked",
+        "expected":  "Secret not in stdout/stderr/files",
+        "testName":  "generated-secret-never-disclosed",
+        "passed":  true,
+        "actual":  "Secret in stdout/stderr: False, in files: False",
+        "testNumber":  9
+    },
+    {
+        "details":  "Zero safety-run Docker resources remain in environment",
+        "expected":  "Residue count: 0",
+        "testName":  "zero-current-run-docker-residue",
+        "passed":  true,
+        "actual":  "Residue count: 0",
+        "testNumber":  10
+    },
+    {
+        "details":  "PreContainers: 4/4, PreNetworks: 8/8, PreVolumes: 25/25",
+        "expected":  "0 pre-existing mutations and exact canonical match",
+        "testName":  "exact-pre-existing-docker-state-preserved",
+        "passed":  true,
+        "actual":  "Mutations: 0, ExactMatch: True",
+        "testNumber":  11
+    }
+]

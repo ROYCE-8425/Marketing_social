@@ -1,0 +1,105 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "tools": [
+    {
+      "name": "gitleaks",
+      "version": "8.30.0",
+      "license": "MIT",
+      "repository": "https://github.com/gitleaks/gitleaks",
+      "forbiddenVersions": [ "8.30.1" ],
+      "artifacts": {
+        "windows-x64": {
+          "url": "https://github.com/gitleaks/gitleaks/releases/download/v8.30.0/gitleaks_8.30.0_windows_x64.zip",
+          "sha256": "54fe94f644b832dd08e8c3a5915efb3bfa862386d59fb27ca0792cb687a83573",
+          "archiveType": "zip",
+          "executable": "gitleaks.exe",
+          "executableSha256": "9d08e3f5cfb35a98f230b97bcda24f8d3fc66363c91868ffc98dac0afebdcb72",
+          "cacheRelativePath": "gitleaks/8.30.0/gitleaks.exe"
+        },
+        "linux-x64": {
+          "url": "https://github.com/gitleaks/gitleaks/releases/download/v8.30.0/gitleaks_8.30.0_linux_x64.tar.gz",
+          "sha256": "79a3ab579b53f71efd634f3aaf7e04a0fa0cf206b7ed434638d1547a2470a66e",
+          "archiveType": "tar.gz",
+          "executable": "gitleaks",
+          "executableSha256": "8b6fd684fcd5b4ebe39b68abb072ce59e1063ce7ed4abd556157697845f1f088",
+          "cacheRelativePath": "gitleaks/8.30.0/gitleaks"
+        }
+      }
+    },
+    {
+      "name": "trivy",
+      "version": "0.72.0",
+      "license": "Apache-2.0",
+      "repository": "https://github.com/aquasecurity/trivy",
+      "forbiddenVersions": [ "0.69.4", "0.69.5", "0.69.6" ],
+      "artifacts": {
+        "windows-x64": {
+          "url": "https://github.com/aquasecurity/trivy/releases/download/v0.72.0/trivy_0.72.0_windows-64bit.zip",
+          "sha256": "ed3cf122060f61818fe1f735fd97557954e16e10bc8b058af9852271cf2e91b3",
+          "archiveType": "zip",
+          "executable": "trivy.exe",
+          "executableSha256": "5c233d1514d6fd91f7a4f834beb92070f8a9793c71801f7f2149a7b30f90b821",
+          "cacheRelativePath": "trivy/0.72.0/trivy.exe"
+        },
+        "linux-x64": {
+          "url": "https://github.com/aquasecurity/trivy/releases/download/v0.72.0/trivy_0.72.0_Linux-64bit.tar.gz",
+          "sha256": "bbb64b9695866ce4a7a8f5c9592002c5961cab378577fa3f8a040df362b9b2ea",
+          "archiveType": "tar.gz",
+          "executable": "trivy",
+          "executableSha256": "0e69edd134a3c338baa1a6806920773615d682b18cbc6a0cba2a3b658ef9b63e",
+          "cacheRelativePath": "trivy/0.72.0/trivy"
+        }
+      }
+    },
+    {
+      "name": "syft",
+      "version": "1.50.0",
+      "license": "Apache-2.0",
+      "repository": "https://github.com/anchore/syft",
+      "forbiddenVersions": [],
+      "artifacts": {
+        "windows-x64": {
+          "url": "https://github.com/anchore/syft/releases/download/v1.50.0/syft_1.50.0_windows_amd64.zip",
+          "sha256": "815ee6973ec5dff6a671d7f41b0e78835a8c45b91d5a39f4743ea1cee833d3be",
+          "archiveType": "zip",
+          "executable": "syft.exe",
+          "executableSha256": "98a3779f229905fec96e16018adf27ed7a93adc2869d17e6fb21961eb501d398",
+          "cacheRelativePath": "syft/1.50.0/syft.exe"
+        },
+        "linux-x64": {
+          "url": "https://github.com/anchore/syft/releases/download/v1.50.0/syft_1.50.0_linux_amd64.tar.gz",
+          "sha256": "bf7b29ff57f06da30918266a0e1c2885a8f99784798d1bdb1628886aa015d788",
+          "archiveType": "tar.gz",
+          "executable": "syft",
+          "executableSha256": "22f2b95baf524d45ad16b0ad5cdeb200c4b8a816493768cec50e4682b1f24b0e",
+          "cacheRelativePath": "syft/1.50.0/syft"
+        }
+      }
+    },
+    {
+      "name": "grype",
+      "version": "0.116.1",
+      "license": "Apache-2.0",
+      "repository": "https://github.com/anchore/grype",
+      "forbiddenVersions": [],
+      "artifacts": {
+        "windows-x64": {
+          "url": "https://github.com/anchore/grype/releases/download/v0.116.1/grype_0.116.1_windows_amd64.zip",
+          "sha256": "a8ad864f2f06c9afcc90d417f46f5587adeaba4e1e46cc4e32a6a076dae2fda7",
+          "archiveType": "zip",
+          "executable": "grype.exe",
+          "executableSha256": "0ab5d366118e20784222ce13c0f696e5997ae42bbcea80420d264a9c42098b57",
+          "cacheRelativePath": "grype/0.116.1/grype.exe"
+        },
+        "linux-x64": {
+          "url": "https://github.com/anchore/grype/releases/download/v0.116.1/grype_0.116.1_linux_amd64.tar.gz",
+          "sha256": "0122df7b655981abe547ad3d2190d65551dac6a2bfc80b4dc2a989b5d0587458",
+          "archiveType": "tar.gz",
+          "executable": "grype",
+          "executableSha256": "a8fff88f37a08af6a536e162f37f9902ec94af03df9928ee6295dffe7044dc43",
+          "cacheRelativePath": "grype/0.116.1/grype"
+        }
+      }
+    }
+  ]
+}

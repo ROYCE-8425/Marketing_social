@@ -1,0 +1,62 @@
+name: CI Quality Gate
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Full Quality Gate (Ubuntu Parity)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '22'
+
+      - name: Install OpenSpec CLI
+        shell: bash
+        run: |
+          npm install -g @fission-ai/openspec@1.8.0
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@3951f0dfe7a07e2313ec93c75700083e2005cbab # v4.3.0
+        with:
+          dotnet-version: '10.0.302'
+
+      - name: Acquire Pinned Security Tools
+        shell: pwsh
+        run: |
+          ./scripts/setup-security-tools.ps1
+
+      - name: Verify Security Canaries
+        shell: pwsh
+        run: |
+          ./scripts/verify-security-canaries.ps1
+
+      - name: Run Full Quality Gate
+        shell: pwsh
+        run: |
+          ./scripts/check.ps1 -Profile Full
+
+      - name: Upload Quality Gate Evidence
+        if: always()
+        uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 # v4.6.1
+        with:
+          name: quality-gate-evidence
+          path: |
+            artifacts/quality-gate/
+            artifacts/security/
+            artifacts/task-runs/
+          if-no-files-found: error

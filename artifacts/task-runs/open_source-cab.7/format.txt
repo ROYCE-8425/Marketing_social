@@ -1,0 +1,6 @@
+COMMAND: dotnet.exe format whitespace DXOS.slnx --verify-no-changes --no-restore
+EXIT_CODE: 0
+DURATION_MS: 3569
+STDOUT:
+
+STDERR:

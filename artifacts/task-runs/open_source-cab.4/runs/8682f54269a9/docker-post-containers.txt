@@ -1,0 +1,4 @@
+d2207333c10c|royce-postgres|postgres:15-alpine|Exited (0) 5 weeks ago
+9be6068d2418|royce-redis|redis:7-alpine|Exited (0) 5 weeks ago
+51575dbf0ed5|royce-clickhouse|clickhouse/clickhouse-server:latest|Exited (137) 5 weeks ago
+74346c97a33f|royce-qdrant|qdrant/qdrant:latest|Exited (143) 5 weeks ago

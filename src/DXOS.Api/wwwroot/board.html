@@ -1,0 +1,1794 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DX-OS — Bảng điều hành Lead đến CPL (GĐ 1.5)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="icon" type="image/png" href="/logos/hoc-cung-royce-logo.png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* Học cùng Royce Design System Tokens */
+        :root {
+            --background: 150 30% 99%;
+            --foreground: 150 20% 10%;
+            --card: 0 0% 100%;
+            --card-foreground: 222.2 84% 4.9%;
+            --primary-hsl: 152 69% 40%;
+            --primary: #059669;
+            --primary-foreground: 0 0% 100%;
+            --secondary: 210 40% 96.1%;
+            --muted: 210 40% 96.1%;
+            --muted-foreground: 215.4 16.3% 46.9%;
+            --accent: 210 40% 96.1%;
+            --destructive: 0 84.2% 60.2%;
+            --border-hsl: 214.3 31.8% 91.4%;
+            --ring: 152 69% 40%;
+            --radius: 0.5rem;
+            --ai: 262 83% 58%;
+            --ai-soft: 262 90% 96%;
+
+            --bg-page: hsl(var(--background));
+            --surface: hsl(var(--card));
+            --surface-subtle: hsl(var(--muted));
+            --border: hsl(var(--border-hsl));
+            --border-focus: hsl(var(--ring));
+            --text-main: hsl(var(--foreground));
+            --text-muted: hsl(var(--muted-foreground));
+            --text-subtle: #94a3b8;
+            --primary-hex: #059669;
+            --primary-hover: #047857;
+            --primary-light: hsl(152 69% 95%);
+            --primary-text: hsl(152 69% 24%);
+            --success: #059669;
+            --success-light: #ecfdf5;
+            --success-text: #047857;
+            --warning: #d97706;
+            --warning-light: #fffbeb;
+            --warning-text: #92400e;
+            --danger: hsl(var(--destructive));
+            --danger-light: #fef2f2;
+            --danger-text: #991b1b;
+            --info: hsl(var(--ai));
+            --info-light: hsl(var(--ai-soft));
+            --info-text: #5b21b6;
+            --radius-sm: calc(var(--radius) - 4px);
+            --radius-md: var(--radius);
+            --radius-lg: 16px;
+            --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.05);
+            --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+            --shadow-md: 0 10px 30px rgba(15, 23, 42, 0.08);
+            --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html, body { min-height: 100%; }
+        body {
+            background-color: var(--bg-page);
+            color: var(--text-main);
+            font-family: Inter, system-ui, sans-serif;
+            font-size: 14.5px;
+            line-height: 1.5;
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+            position: relative;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            background-color: var(--bg-page);
+            background-image:
+                radial-gradient(ellipse 80% 50% at 50% -10%, hsl(var(--primary-hsl) / 0.12), transparent 55%),
+                radial-gradient(ellipse 40% 30% at 90% 10%, hsl(262 83% 58% / 0.08), transparent 50%),
+                linear-gradient(hsl(214.3 31.8% 91.4% / 0.55) 1px, transparent 1px),
+                linear-gradient(90deg, hsl(214.3 31.8% 91.4% / 0.55) 1px, transparent 1px);
+            background-size: auto, auto, 48px 48px, 48px 48px;
+            background-position: center;
+            mask-image: linear-gradient(to bottom, black 0%, black 70%, transparent 100%);
+        }
+
+        .top-nav {
+            position: sticky;
+            top: 0;
+            z-index: 40;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+            padding: 12px 24px;
+            background: hsl(var(--background) / 0.85);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .brand img {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .brand strong {
+            display: block;
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        .brand small {
+            display: block;
+            font-size: 12px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 24px 20px 80px;
+        }
+
+        /* Status Banner */
+        .system-banner {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            background-color: #ecfdf5;
+            border: 1px solid #a7f3d0;
+            border-left: 4px solid var(--primary);
+            border-radius: var(--radius-lg);
+            padding: 12px 18px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .banner-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            color: var(--success-text);
+            font-size: 13.5px;
+        }
+
+        .banner-badge {
+            background-color: var(--primary);
+            color: white;
+            padding: 2px 8px;
+            border-radius: var(--radius-sm);
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+        }
+
+        .health-probes {
+            display: flex;
+            gap: 14px;
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .probe-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .probe-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #cbd5e1;
+        }
+
+        .probe-dot.active {
+            background-color: var(--success);
+            box-shadow: 0 0 0 2px rgba(22, 163, 74, 0.2);
+        }
+
+        /* Header Bar */
+        .header-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .header-info h1 {
+            font-size: 28px;
+            font-weight: 800;
+            letter-spacing: -0.04em;
+            background: linear-gradient(135deg, hsl(var(--primary-hsl)) 0%, hsl(160 84% 39%) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header-info p {
+            color: var(--text-muted);
+            font-size: 13.5px;
+            margin-top: 2px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        /* Role & Actor Switcher */
+        .control-strip {
+            background-color: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 14px 18px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .role-selector {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .role-selector-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .role-chips {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .role-chip {
+            padding: 6px 12px;
+            border-radius: var(--radius-sm);
+            font-size: 13px;
+            font-weight: 500;
+            border: 1px solid var(--border);
+            background-color: var(--surface-subtle);
+            color: var(--text-main);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .role-chip:hover {
+            border-color: var(--primary);
+            background-color: var(--primary-light);
+        }
+
+        .role-chip.selected {
+            background-color: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            box-shadow: 0 6px 16px hsl(var(--primary-hsl) / 0.25);
+        }
+
+        .custom-actor-inputs {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+        }
+
+        /* Grid Layout */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        @media (max-width: 1100px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Card Panels */
+        .card {
+            background-color: hsl(var(--card) / 0.94);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow);
+            padding: 22px;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .card.full-width {
+            grid-column: span 2;
+        }
+
+        @media (max-width: 1100px) {
+            .card.full-width {
+                grid-column: span 1;
+            }
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .card-header h2 {
+            font-size: 16.5px;
+            font-weight: 700;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card-header .badge {
+            font-size: 11.5px;
+            padding: 3px 9px;
+            border-radius: 9999px;
+            font-weight: 600;
+        }
+
+        /* Forms & Inputs */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-group label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        input, select, textarea {
+            font-family: inherit;
+            font-size: 13.5px;
+            padding: 8px 12px;
+            min-height: 40px;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            background-color: var(--surface);
+            color: var(--text-main);
+            outline: none;
+            transition: var(--transition);
+            width: 100%;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px hsl(var(--primary-hsl) / 0.18);
+        }
+
+        /* Buttons */
+        button {
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 600;
+            padding: 7px 15px;
+            min-height: 38px;
+            border-radius: 9999px;
+            border: 1px solid var(--border);
+            background-color: var(--surface);
+            color: var(--text-main);
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        button:hover {
+            background-color: var(--surface-subtle);
+            border-color: #cbd5e1;
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+            color: white;
+            border-color: transparent;
+            box-shadow: 0 6px 16px hsl(var(--primary-hsl) / 0.25);
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: linear-gradient(135deg, #047857 0%, #065f46 100%);
+            transform: translateY(-1px);
+        }
+
+        .btn-success {
+            background-color: var(--success-light);
+            color: var(--success-text);
+            border-color: #bbf7d0;
+        }
+
+        .btn-success:hover:not(:disabled) { background-color: #dcfce7; }
+
+        .btn-warning {
+            background-color: var(--warning-light);
+            color: var(--warning-text);
+            border-color: #fde68a;
+        }
+
+        .btn-warning:hover:not(:disabled) { background-color: #fef3c7; }
+
+        .btn-danger {
+            background-color: var(--danger-light);
+            color: var(--danger-text);
+            border-color: #fecdd3;
+        }
+
+        .btn-danger:hover:not(:disabled) { background-color: #fee2e2; }
+
+        .btn-sm {
+            padding: 4px 10px;
+            font-size: 11.5px;
+            min-height: 30px;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        /* Status Pills */
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 3px 8px;
+            border-radius: 9999px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .status-draft { background-color: #f1f5f9; color: #475569; }
+        .status-pending-review { background-color: #fffbeb; color: #b45309; }
+        .status-pending-approval { background-color: hsl(var(--ai-soft)); color: #5b21b6; }
+        .status-published { background-color: #d1fae5; color: #047857; }
+        .status-rejected { background-color: #fee2e2; color: #b91c1c; }
+
+        /* Lead Label Badges */
+        .lead-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 7px;
+            border-radius: var(--radius-sm);
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+        }
+        .lead-hot { background-color: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; }
+        .lead-warm { background-color: #fef3c7; color: #b45309; border: 1px solid #fcd34d; }
+        .lead-cold { background-color: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; }
+        .lead-junk { background-color: #f1f5f9; color: #64748b; border: 1px solid #cbd5e1; }
+
+        /* Tables */
+        .table-responsive {
+            overflow-x: auto;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            text-align: left;
+        }
+
+        th {
+            background-color: var(--surface-subtle);
+            color: var(--text-muted);
+            font-weight: 600;
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border);
+            font-size: 11.5px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        td {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-main);
+            vertical-align: middle;
+        }
+
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background-color: #fafbfc; }
+
+        /* KPI Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 12px;
+        }
+
+        .stat-box {
+            background-color: var(--surface-subtle);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 12px 14px;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .stat-value {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-top: 4px;
+        }
+
+        .stat-sub {
+            font-size: 11px;
+            color: var(--text-subtle);
+            margin-top: 2px;
+        }
+
+        /* SLA Timer Badge */
+        .sla-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 6px;
+            border-radius: var(--radius-sm);
+            font-size: 11px;
+            font-weight: 600;
+            background-color: #f1f5f9;
+            color: #475569;
+        }
+
+        .sla-badge.urgent {
+            background-color: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .undo-timer {
+            font-size: 11px;
+            font-weight: 700;
+            color: #d97706;
+            margin-left: 4px;
+        }
+
+        /* Log Stream */
+        .log-console {
+            background-color: hsl(var(--muted));
+            color: var(--text-main);
+            font-family: Inter, system-ui, sans-serif;
+            font-size: 12.5px;
+            padding: 14px;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            max-height: 220px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .log-entry {
+            display: flex;
+            gap: 8px;
+            line-height: 1.4;
+        }
+
+        .log-time { color: var(--text-muted); }
+        .log-code-200 { color: #047857; font-weight: 600; }
+        .log-code-400 { color: #dc2626; font-weight: 600; }
+        .log-code-403 { color: #b45309; font-weight: 600; }
+        .log-code-409 { color: #6d28d9; font-weight: 600; }
+        .log-msg { word-break: break-all; }
+
+        .empty-state {
+            text-align: center;
+            padding: 24px 12px;
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+
+        /* Modal dialog */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 100;
+            background: rgba(15, 23, 42, 0.5);
+            backdrop-filter: blur(4px);
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-overlay.open { display: flex; }
+        .modal-card {
+            background: #fff;
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            max-width: 480px;
+            width: 90%;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .modal-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+    </style>
+</head>
+<body>
+    <header class="top-nav">
+        <a class="brand" href="/">
+            <img src="/logos/hoc-cung-royce-logo.png" alt="Học cùng Royce">
+            <span>
+                <strong>DX-OS</strong>
+                <small>Lead đến CPL · Giai đoạn 1.5 Nội bộ (Chưa kết nối sàn ads)</small>
+            </span>
+        </a>
+        <div class="health-probes" style="margin:0;">
+            <div class="probe-item">
+                <span class="probe-dot" id="probe-live-nav"></span>
+                <span>API</span>
+            </div>
+            <div class="probe-item">
+                <span class="probe-dot" id="probe-ready-nav"></span>
+                <span>CSDL</span>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Status Banner -->
+        <div class="system-banner">
+            <div class="banner-title">
+                <span class="banner-badge">DX-OS Giai đoạn 1.5</span>
+                <span>TRẠNG THÁI: VẬN HÀNH NỘI BỘ (adsLive: false · Không gọi API Facebook/TikTok/Zalo · Tiền tệ VND)</span>
+            </div>
+            <div class="health-probes">
+                <div class="probe-item">
+                    <span class="probe-dot" id="probe-live"></span>
+                    <span>API: <strong id="status-live">Đang kiểm tra...</strong></span>
+                </div>
+                <div class="probe-item">
+                    <span class="probe-dot" id="probe-ready"></span>
+                    <span>CSDL: <strong id="status-ready">Đang kiểm tra...</strong></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top Header & Quick Actions -->
+        <div class="header-bar">
+            <div class="header-info">
+                <h1>Bảng Điều Hành Tiếp Thị & Lead-to-CPL</h1>
+                <p>Quy trình duyệt Poka-yoke (Hoàn tác 15p), chấm 5 yếu tố, chuẩn hóa SĐT VN, loại trùng, phân luồng Sales & Đề xuất ngân sách</p>
+            </div>
+            <div class="header-actions">
+                <button type="button" id="btn-seed" class="btn-primary">
+                    <span>🌱</span> Gieo dữ liệu demo
+                </button>
+                <button type="button" id="btn-smoke" class="btn-success">
+                    <span>⚡</span> Elsa Smoke
+                </button>
+                <button type="button" id="btn-refresh" title="Làm mới toàn bộ">
+                    <span>🔄</span> Làm mới
+                </button>
+            </div>
+        </div>
+
+        <!-- Role & Actor Switcher -->
+        <div class="control-strip">
+            <div class="role-selector">
+                <span class="role-selector-label">Vai trò đang chọn:</span>
+                <div class="role-chips">
+                    <button type="button" class="role-chip selected" data-role="Marketer" data-actor="mai">Chuyên viên (Mai)</button>
+                    <button type="button" class="role-chip" data-role="Owner" data-actor="royce">Chủ DN (Royce)</button>
+                    <button type="button" class="role-chip" data-role="Sales" data-actor="an">Kinh doanh (An)</button>
+                    <button type="button" class="role-chip" data-role="Content" data-actor="linh">Nội dung (Linh)</button>
+                    <button type="button" class="role-chip" data-role="System" data-actor="system-bot">Hệ thống (Bot)</button>
+                </div>
+            </div>
+            <div class="custom-actor-inputs">
+                <label for="header-role" style="font-size:12px; font-weight:600; color:var(--text-muted);">Role:</label>
+                <select id="header-role" style="width:110px; min-height:34px; padding:4px 8px;">
+                    <option value="Marketer">Marketer</option>
+                    <option value="Owner">Owner</option>
+                    <option value="Sales">Sales</option>
+                    <option value="Content">Content</option>
+                    <option value="System">System</option>
+                </select>
+                <label for="header-actor" style="font-size:12px; font-weight:600; color:var(--text-muted);">Actor:</label>
+                <input type="text" id="header-actor" value="mai" style="width:100px; min-height:34px; padding:4px 8px;" />
+            </div>
+        </div>
+
+        <!-- Dashboard Grid -->
+        <div class="dashboard-grid">
+            <!-- Surface 1: Marketing Campaigns & Multi-step Approval -->
+            <div class="card">
+                <div class="card-header">
+                    <h2><span>📢</span> Chiến dịch & Phê duyệt Poka-yoke</h2>
+                    <span class="badge" style="background-color: var(--primary-light); color: var(--primary-text);" id="campaign-count">0 chiến dịch</span>
+                </div>
+
+                <!-- Create Draft Form -->
+                <form id="form-create-campaign" style="display:flex; gap:10px;">
+                    <input type="text" id="input-campaign-topic" placeholder="Nhập chủ đề chiến dịch (ví dụ: Ra mắt máy pha cà phê Q3)" required />
+                    <button type="submit" class="btn-primary" style="white-space:nowrap;">Tạo bản nháp</button>
+                </form>
+
+                <!-- Campaigns Table -->
+                <div class="table-responsive">
+                    <table id="table-campaigns">
+                        <thead>
+                            <tr>
+                                <th>Chủ đề & Bản copy</th>
+                                <th>Trạng thái</th>
+                                <th>Người tạo</th>
+                                <th>Thao tác quy trình</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td colspan="4" class="empty-state">Đang tải danh sách chiến dịch...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Surface 2: Traffic Ingest via Elsa Workflow Engine -->
+            <div class="card">
+                <div class="card-header">
+                    <h2><span>📈</span> Ghi nhận lưu lượng (Elsa Workflow)</h2>
+                    <span class="badge" style="background-color: var(--info-light); color: var(--info-text);">Elsa 3.7.1</span>
+                </div>
+
+                <!-- Traffic Ingest Form -->
+                <form id="form-ingest-traffic" style="display:flex; flex-direction:column; gap:12px;">
+                    <div class="form-grid">
+                        <div class="form-group" style="grid-column: span 2;">
+                            <label for="traffic-campaign-select">Chọn chiến dịch:</label>
+                            <select id="traffic-campaign-select" required>
+                                <option value="">-- Chọn chiến dịch tiếp thị --</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="traffic-date">Ngày ghi nhận:</label>
+                            <input type="date" id="traffic-date" required />
+                        </div>
+                        <div class="form-group">
+                            <label for="traffic-spend">Chi phí quảng cáo (₫):</label>
+                            <input type="number" id="traffic-spend" min="0" step="1000" placeholder="ví dụ: 1500000" required />
+                        </div>
+                        <div class="form-group">
+                            <label for="traffic-impressions">Lượt hiển thị (Impressions):</label>
+                            <input type="number" id="traffic-impressions" min="0" placeholder="ví dụ: 10000" required />
+                        </div>
+                        <div class="form-group">
+                            <label for="traffic-clicks">Lượt nhấp (Clicks):</label>
+                            <input type="number" id="traffic-clicks" min="0" placeholder="ví dụ: 500" required />
+                        </div>
+                        <div class="form-group">
+                            <label for="traffic-visits">Lượt truy cập (Visits):</label>
+                            <input type="number" id="traffic-visits" min="0" placeholder="ví dụ: 420" required />
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-primary" style="align-self:flex-start;">
+                        <span>⚡</span> Ghi nhận lưu lượng (Chạy Workflow)
+                    </button>
+                </form>
+
+                <!-- Selected Campaign Traffic Stats -->
+                <div id="traffic-stats-container" style="display:none; flex-direction:column; gap:12px;">
+                    <div class="stats-grid">
+                        <div class="stat-box">
+                            <div class="stat-label">Tổng hiển thị</div>
+                            <div class="stat-value" id="stat-impressions">0</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-label">Tổng lượt nhấp</div>
+                            <div class="stat-value" id="stat-clicks">0</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-label">Tỷ lệ nhấp (CTR)</div>
+                            <div class="stat-value" id="stat-ctr">0.00%</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-label">Tổng truy cập</div>
+                            <div class="stat-value" id="stat-visits">0</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-label">Tổng chi phí</div>
+                            <div class="stat-value" id="stat-spend" style="color:var(--primary);">0 ₫</div>
+                        </div>
+                    </div>
+
+                    <!-- Snapshots Table -->
+                    <div class="table-responsive">
+                        <table id="table-traffic-snapshots">
+                            <thead>
+                                <tr>
+                                    <th>Ngày</th>
+                                    <th>Hiển thị</th>
+                                    <th>Nhấp</th>
+                                    <th>Truy cập</th>
+                                    <th>Chi phí</th>
+                                    <th>Người ghi</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Surface 3: Lead Intake, 5-Factor Scoring & Sales SLA -->
+            <div class="card full-width">
+                <div class="card-header">
+                    <h2><span>🎯</span> Tiếp nhận Lead (Chuẩn hóa SĐT VN &amp; Loại trùng &amp; Chấm 5 yếu tố)</h2>
+                    <span class="badge" style="background-color: var(--success-light); color: var(--success-text);" id="lead-count">0 Lead</span>
+                </div>
+
+                <!-- Lead Intake Form -->
+                <form id="form-create-lead" style="display:flex; flex-direction:column; gap:12px;">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="lead-name">Họ và tên / Nhu cầu:</label>
+                            <input type="text" id="lead-name" placeholder="Nguyễn Văn A (cần tư vấn khóa học)" required />
+                        </div>
+                        <div class="form-group">
+                            <label for="lead-phone">SĐT VN (0xxxxxxxxx hoặc +84...):</label>
+                            <input type="tel" id="lead-phone" placeholder="0901234567" />
+                        </div>
+                        <div class="form-group">
+                            <label for="lead-email">Email (domain có dấu chấm):</label>
+                            <input type="email" id="lead-email" placeholder="khachhang@congty.vn" />
+                        </div>
+                        <div class="form-group">
+                            <label for="lead-campaign-select">Gắn với chiến dịch:</label>
+                            <select id="lead-campaign-select">
+                                <option value="">-- Không gắn --</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="btn-group">
+                        <button type="button" id="btn-lead-form" class="btn-primary">
+                            <span>📝</span> Form Website (Hành vi 40đ · Kênh 20đ)
+                        </button>
+                        <button type="button" id="btn-lead-msg" class="btn-warning">
+                            <span>💬</span> Tin nhắn (stub-zalo)
+                        </button>
+                        <button type="button" id="btn-lead-call" class="btn-success">
+                            <span>📞</span> Cuộc gọi (stub-call)
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Leads Table -->
+                <div class="table-responsive">
+                    <table id="table-leads">
+                        <thead>
+                            <tr>
+                                <th>Khách hàng &amp; Liên hệ</th>
+                                <th>Nguồn &amp; Loại trùng</th>
+                                <th>Nhãn &amp; Điểm (5 yếu tố)</th>
+                                <th>Phân công Sales</th>
+                                <th>SLA Phản hồi</th>
+                                <th>Thao tác Sales</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td colspan="6" class="empty-state">Chưa có Lead nào. Nhập form bên trên hoặc bấm "Gieo dữ liệu demo"!</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Surface 4: Budget Spend Proposals (Pacing Stub) -->
+            <div class="card">
+                <div class="card-header">
+                    <h2><span>⚖️</span> Đề xuất chuyển ngân sách (Pacing Stub)</h2>
+                    <span class="badge" style="background-color: var(--warning-light); color: var(--warning-text);" id="proposal-count">0 đề xuất</span>
+                </div>
+
+                <!-- Create Spend Proposal Form (System/Marketer) -->
+                <form id="form-create-proposal" style="display:flex; flex-direction:column; gap:10px;">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="prop-from">Từ chiến dịch / nhóm:</label>
+                            <input type="text" id="prop-from" placeholder="ví dụ: Chiến dịch CPL cao" required />
+                        </div>
+                        <div class="form-group">
+                            <label for="prop-to">Sang chiến dịch / nhóm:</label>
+                            <input type="text" id="prop-to" placeholder="ví dụ: Chiến dịch CPL thấp" required />
+                        </div>
+                        <div class="form-group">
+                            <label for="prop-percent">Tỷ lệ chuyển (%):</label>
+                            <input type="number" id="prop-percent" min="1" max="100" value="20" required />
+                        </div>
+                        <div class="form-group">
+                            <label for="prop-rationale">Lý do đề xuất:</label>
+                            <input type="text" id="prop-rationale" placeholder="ví dụ: Tối ưu chi phí CPL" required />
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-primary btn-sm" style="align-self:flex-start;">
+                        <span>📤</span> Gửi đề xuất ngân sách (System/Marketer)
+                    </button>
+                </form>
+
+                <!-- Spend Proposals Table -->
+                <div class="table-responsive">
+                    <table id="table-proposals">
+                        <thead>
+                            <tr>
+                                <th>Chuyển ngân sách</th>
+                                <th>Tỷ lệ &amp; Lý do</th>
+                                <th>Người đề xuất</th>
+                                <th>Trạng thái</th>
+                                <th>Thao tác (Chủ DN)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td colspan="5" class="empty-state">Chưa có đề xuất ngân sách nào.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Surface 5: CPL & Spend Pacing Dashboard -->
+            <div class="card">
+                <div class="card-header">
+                    <h2><span>💰</span> Chỉ số Chi phí / Lead (CPL) &amp; Pacing</h2>
+                    <span class="badge" style="background-color: #fee2e2; color: #991b1b;">adsLive: false</span>
+                </div>
+
+                <!-- CPL Stats Overview -->
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <div class="stat-label">Tổng chi phí</div>
+                        <div class="stat-value" id="cpl-spend">0 ₫</div>
+                        <div class="stat-sub">Từ lưu lượng đã lưu</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">Tổng số Lead</div>
+                        <div class="stat-value" id="cpl-lead-count">0</div>
+                        <div class="stat-sub">Khách hàng tiếp nhận</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">CPL Trung bình</div>
+                        <div class="stat-value" id="cpl-value" style="color:var(--primary);">0 ₫</div>
+                        <div class="stat-sub">Chi phí / mỗi lead</div>
+                    </div>
+                </div>
+
+                <!-- Pacing & Budget Control -->
+                <form id="form-cpl-pacing" style="background-color:var(--surface-subtle); padding:14px; border-radius:var(--radius-sm); border:1px solid var(--border); display:flex; flex-direction:column; gap:12px;">
+                    <div style="font-size:13px; font-weight:600; color:var(--text-main);">Mô phỏng &amp; Kiểm soát ngân sách</div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="pacing-spend-override">Chi phí thử nghiệm (₫):</label>
+                            <input type="number" id="pacing-spend-override" min="0" placeholder="Để trống để dùng thực chi" />
+                        </div>
+                        <div class="form-group">
+                            <label for="pacing-daily">Chi tiêu dự kiến/ngày (₫):</label>
+                            <input type="number" id="pacing-daily" min="0" step="100000" placeholder="ví dụ: 1000000" />
+                        </div>
+                        <div class="form-group">
+                            <label for="pacing-budget">Tổng ngân sách cấp (₫):</label>
+                            <input type="number" id="pacing-budget" min="0" step="1000000" placeholder="ví dụ: 30000000" />
+                        </div>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                        <button type="submit" class="btn-primary btn-sm">Cập nhật tính toán</button>
+                        <div style="display:flex; gap:16px; font-size:13px;">
+                            <span>Số ngày hết ngân sách: <strong id="pacing-days">--</strong></span>
+                            <span>Dự kiến số lead thu được: <strong id="pacing-projected">--</strong></span>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Activity & API Error Log Stream -->
+        <div class="card" style="margin-top:24px;">
+            <div class="card-header">
+                <h2><span>📋</span> Nhật ký tương tác API &amp; Thông báo lỗi</h2>
+                <button type="button" class="btn-sm" id="btn-clear-logs">Xóa nhật ký</button>
+            </div>
+            <div class="log-console" id="log-stream">
+                <div class="log-entry">
+                    <span class="log-time">[Khởi động]</span>
+                    <span class="log-code-200">200 OK</span>
+                    <span class="log-msg">Bảng điều hành DX-OS Giai đoạn 1.5 sẵn sàng.</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Rejection Reason Modal Dialog -->
+    <div class="modal-overlay" id="reject-modal">
+        <div class="modal-card">
+            <div class="modal-title" id="modal-title">Nhập lý do từ chối (Bắt buộc)</div>
+            <div class="form-group">
+                <label for="modal-reason-input" style="font-size:13px; font-weight:600;">Lý do chi tiết:</label>
+                <textarea id="modal-reason-input" rows="3" placeholder="Nhập lý do từ chối..." required></textarea>
+            </div>
+            <div class="btn-group" style="justify-content:flex-end;">
+                <button type="button" class="btn-sm" id="modal-cancel-btn">Hủy</button>
+                <button type="button" class="btn-sm btn-danger" id="modal-confirm-btn">Xác nhận từ chối</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // State
+        const state = {
+            role: "Marketer",
+            actor: "mai",
+            campaigns: [],
+            leads: [],
+            proposals: [],
+            selectedCampaignId: null,
+            slaInterval: null,
+            modalCallback: null
+        };
+
+        // Formatters
+        const vndFormatter = new Intl.NumberFormat("vi-VN", {
+            style: "currency",
+            currency: "VND",
+            maximumFractionDigits: 0
+        });
+
+        function formatVnd(val) {
+            return vndFormatter.format(Number(val) || 0);
+        }
+
+        function formatNumber(val) {
+            return new Intl.NumberFormat("vi-VN").format(Number(val) || 0);
+        }
+
+        function log(code, msg) {
+            const stream = document.getElementById("log-stream");
+            const entry = document.createElement("div");
+            entry.className = "log-entry";
+            const now = new Date().toLocaleTimeString("vi-VN");
+            
+            let codeClass = "log-code-200";
+            if (code >= 400 && code < 403) codeClass = "log-code-400";
+            else if (code === 403) codeClass = "log-code-403";
+            else if (code === 409) codeClass = "log-code-409";
+            else if (code >= 500) codeClass = "log-code-400";
+
+            entry.innerHTML = `<span class="log-time">[${now}]</span><span class="${codeClass}">${code}</span><span class="log-msg">${msg}</span>`;
+            stream.insertBefore(entry, stream.firstChild);
+        }
+
+        async function api(url, method = "GET", body = null) {
+            const headers = {
+                "Content-Type": "application/json",
+                "X-DXOS-Role": state.role,
+                "X-DXOS-Actor": state.actor
+            };
+            const opts = { method, headers };
+            if (body) opts.body = JSON.stringify(body);
+
+            try {
+                const res = await fetch(url, opts);
+                const data = await res.json().catch(() => ({}));
+                if (!res.ok) {
+                    const errMsg = data.error || (data.code ? `[${data.code}] Thao tác thất bại` : `HTTP ${res.status}`);
+                    log(res.status, `${method} ${url} ➔ ${errMsg}`);
+                    throw new Error(errMsg);
+                }
+                log(res.status, `${method} ${url} ➔ Thành công`);
+                return data;
+            } catch (err) {
+                throw err;
+            }
+        }
+
+        // Modal Helpers
+        function showRejectModal(title, onConfirm) {
+            document.getElementById("modal-title").textContent = title;
+            document.getElementById("modal-reason-input").value = "";
+            state.modalCallback = onConfirm;
+            document.getElementById("reject-modal").classList.add("open");
+            document.getElementById("modal-reason-input").focus();
+        }
+
+        function closeRejectModal() {
+            document.getElementById("reject-modal").classList.remove("open");
+            state.modalCallback = null;
+        }
+
+        document.getElementById("modal-cancel-btn").addEventListener("click", closeRejectModal);
+        document.getElementById("modal-confirm-btn").addEventListener("click", () => {
+            const reason = document.getElementById("modal-reason-input").value.trim();
+            if (!reason) {
+                alert("Vui lòng nhập lý do từ chối.");
+                return;
+            }
+            if (state.modalCallback) {
+                const cb = state.modalCallback;
+                closeRejectModal();
+                cb(reason);
+            }
+        });
+
+        // Health check
+        async function checkHealth() {
+            try {
+                const liveRes = await fetch("/health/live");
+                const liveEl = document.getElementById("status-live");
+                const liveDot = document.getElementById("probe-live");
+                const liveNav = document.getElementById("probe-live-nav");
+                if (liveRes.ok) {
+                    liveEl.textContent = "Sẵn sàng";
+                    liveEl.style.color = "var(--success)";
+                    liveDot.className = "probe-dot active";
+                    if (liveNav) liveNav.className = "probe-dot active";
+                } else {
+                    liveEl.textContent = "Lỗi";
+                    liveEl.style.color = "var(--danger)";
+                    liveDot.className = "probe-dot";
+                    if (liveNav) liveNav.className = "probe-dot";
+                }
+            } catch (e) {
+                document.getElementById("status-live").textContent = "Không kết nối";
+            }
+
+            try {
+                const readyRes = await fetch("/health/ready");
+                const readyEl = document.getElementById("status-ready");
+                const readyDot = document.getElementById("probe-ready");
+                const readyNav = document.getElementById("probe-ready-nav");
+                if (readyRes.ok) {
+                    readyEl.textContent = "Đã kết nối";
+                    readyEl.style.color = "var(--success)";
+                    readyDot.className = "probe-dot active";
+                    if (readyNav) readyNav.className = "probe-dot active";
+                } else {
+                    readyEl.textContent = "Chưa kết nối";
+                    readyEl.style.color = "var(--danger)";
+                    readyDot.className = "probe-dot";
+                    if (readyNav) readyNav.className = "probe-dot";
+                }
+            } catch (e) {
+                document.getElementById("status-ready").textContent = "Lỗi";
+            }
+        }
+
+        // Render Campaigns
+        function renderCampaigns() {
+            const tbody = document.querySelector("#table-campaigns tbody");
+            const selectTraffic = document.getElementById("traffic-campaign-select");
+            const selectLead = document.getElementById("lead-campaign-select");
+            document.getElementById("campaign-count").textContent = `${state.campaigns.length} chiến dịch`;
+
+            if (state.campaigns.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="empty-state">Chưa có chiến dịch nào. Nhập chủ đề bên trên để tạo bản nháp!</td></tr>`;
+                selectTraffic.innerHTML = `<option value="">-- Không có chiến dịch --</option>`;
+                selectLead.innerHTML = `<option value="">-- Không gắn --</option>`;
+                return;
+            }
+
+            const now = new Date();
+            let html = "";
+            let optTrafficHtml = `<option value="">-- Chọn chiến dịch tiếp thị --</option>`;
+            let optLeadHtml = `<option value="">-- Không gắn --</option>`;
+
+            state.campaigns.forEach(c => {
+                let statusPillClass = "status-draft";
+                let statusLabel = "Nháp (Draft)";
+                if (c.status === "PendingReview") {
+                    statusPillClass = "status-pending-review";
+                    statusLabel = "Chờ duyệt nội bộ (Pending Review)";
+                } else if (c.status === "PendingApproval") {
+                    statusPillClass = "status-pending-approval";
+                    statusLabel = "Chờ Chủ DN phê duyệt (Pending Approval)";
+                } else if (c.status === "Published") {
+                    statusPillClass = "status-published";
+                    statusLabel = "Đã phát hành (Published)";
+                } else if (c.status === "Rejected") {
+                    statusPillClass = "status-rejected";
+                    statusLabel = "Từ chối (Rejected)";
+                }
+
+                // Action buttons based on status
+                let actions = `<div class="btn-group">`;
+                if (c.status === "Draft") {
+                    actions += `<button class="btn-sm btn-primary" onclick="submitReview('${c.id}')" title="Trình duyệt nội bộ">Trình duyệt</button>`;
+                    actions += `<button class="btn-sm btn-warning" onclick="sendToOwner('${c.id}')" title="Chuyên viên gửi thẳng Chủ DN">Gửi chủ DN</button>`;
+                } else if (c.status === "PendingReview") {
+                    actions += `<button class="btn-sm btn-primary" onclick="submitReview('${c.id}')" title="Chuyển sang Chờ chủ DN">Gửi lên Chủ DN</button>`;
+                    actions += `<button class="btn-sm btn-danger" onclick="promptRejectCampaign('${c.id}')">Từ chối</button>`;
+                } else if (c.status === "PendingApproval") {
+                    actions += `<button class="btn-sm btn-success" onclick="approveCampaign('${c.id}')" title="Chỉ Chủ DN mới có quyền duyệt">Phê duyệt (Chủ DN)</button>`;
+                    actions += `<button class="btn-sm btn-danger" onclick="promptRejectCampaign('${c.id}')">Từ chối</button>`;
+                } else if (c.status === "Published") {
+                    actions += `<button class="btn-sm btn-info" onclick="selectCampaignForTraffic('${c.id}')">Xem lưu lượng</button>`;
+                    
+                    // Undo 15-min countdown
+                    if (c.approvedAtUtc) {
+                        const approvedDate = new Date(c.approvedAtUtc);
+                        const elapsedSec = Math.floor((now - approvedDate) / 1000);
+                        const remainSec = Math.max(0, 900 - elapsedSec);
+                        if (remainSec > 0) {
+                            const min = Math.floor(remainSec / 60);
+                            const sec = remainSec % 60;
+                            actions += `<button class="btn-sm btn-warning" onclick="undoCampaign('${c.id}')" title="Hoàn tác phê duyệt về Chờ duyệt">Hoàn tác <span class="undo-timer">(${min}p ${sec}s)</span></button>`;
+                        }
+                    }
+                }
+                actions += `</div>`;
+
+                let rejectDetail = "";
+                if (c.status === "Rejected" && c.rejectionReason) {
+                    rejectDetail = `<div style="font-size:12px; color:var(--danger-text); margin-top:3px;">❌ Lý do từ chối: <strong>${c.rejectionReason}</strong></div>`;
+                }
+
+                let copySnapshotInfo = "";
+                if (c.copySnapshot) {
+                    copySnapshotInfo = `<div style="font-size:11.5px; color:var(--text-subtle); margin-top:2px;">🔒 Bản copy bất biến: <em>${c.copySnapshot}</em></div>`;
+                }
+
+                html += `
+                    <tr>
+                        <td>
+                            <div style="font-weight:600; color:var(--text-main);">${c.topic}</div>
+                            <div style="font-size:12px; color:var(--text-muted); margin-top:2px;">${c.copy || ""}</div>
+                            ${copySnapshotInfo}
+                            ${rejectDetail}
+                        </td>
+                        <td><span class="status-pill ${statusPillClass}">${statusLabel}</span></td>
+                        <td><span style="font-size:12px; color:var(--text-muted);">${c.createdByActor || "--"}</span></td>
+                        <td>${actions}</td>
+                    </tr>
+                `;
+
+                optTrafficHtml += `<option value="${c.id}" ${state.selectedCampaignId === c.id ? "selected" : ""}>${c.topic} [${c.status}]</option>`;
+                optLeadHtml += `<option value="${c.id}">${c.topic}</option>`;
+            });
+
+            tbody.innerHTML = html;
+            selectTraffic.innerHTML = optTrafficHtml;
+            selectLead.innerHTML = optLeadHtml;
+        }
+
+        // Render Leads
+        function renderLeads() {
+            const tbody = document.querySelector("#table-leads tbody");
+            document.getElementById("lead-count").textContent = `${state.leads.length} Lead`;
+
+            if (state.leads.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="empty-state">Chưa có Lead nào. Nhập form bên trên hoặc bấm "Gieo dữ liệu demo"!</td></tr>`;
+                return;
+            }
+
+            const now = new Date();
+            let html = "";
+            state.leads.forEach(lead => {
+                // Label Badge
+                let labelBadgeClass = "lead-junk";
+                let labelText = "RÁC (Junk)";
+                if (lead.label === "Hot") {
+                    labelBadgeClass = "lead-hot";
+                    labelText = "🔥 NÓNG (Hot)";
+                } else if (lead.label === "Warm") {
+                    labelBadgeClass = "lead-warm";
+                    labelText = "⚡ ẤM (Warm)";
+                } else if (lead.label === "Cold") {
+                    labelBadgeClass = "lead-cold";
+                    labelText = "❄️ LẠNH (Cold)";
+                }
+
+                // Sources list
+                const sourcesList = (lead.sources && lead.sources.length > 0) ? lead.sources.join(", ") : lead.source;
+
+                // Breakdown text
+                let breakdownInfo = "";
+                if (lead.scoreBreakdown) {
+                    const b = lead.scoreBreakdown;
+                    breakdownInfo = `<div style="font-size:11px; color:var(--text-muted); margin-top:2px;">Hành vi:${b.behavior}đ · Kênh:${b.channel}đ · C.Dịch:${b.campaign}đ · Giờ:${b.time}đ · Ý định:${b.intent}đ</div>`;
+                }
+
+                // Reasons
+                let reasonsInfo = "";
+                if (lead.reasons && lead.reasons.length > 0) {
+                    reasonsInfo = `<div style="font-size:11px; color:var(--text-subtle); margin-top:2px;">• ${lead.reasons.join("<br>• ")}</div>`;
+                }
+
+                // SLA countdown
+                let slaHtml = "--";
+                if (lead.claimedByActor) {
+                    slaHtml = `<span style="color:var(--success); font-size:12px; font-weight:600;">✓ Đã nhận bởi <strong>${lead.claimedByActor}</strong></span>`;
+                } else if (lead.assignedAtUtc && (lead.label === "Hot" || lead.label === "Warm")) {
+                    const assignedDate = new Date(lead.assignedAtUtc);
+                    const slaMaxSec = lead.label === "Hot" ? 300 : 1800;
+                    const elapsedSec = Math.floor((now - assignedDate) / 1000);
+                    const remainSec = Math.max(0, slaMaxSec - elapsedSec);
+                    const min = Math.floor(remainSec / 60);
+                    const sec = remainSec % 60;
+                    const isUrgent = remainSec < 120;
+                    slaHtml = `<span class="sla-badge ${isUrgent ? "urgent" : ""}">⏱ Còn ${min}p ${sec}s (${lead.label === "Hot" ? "5p" : "30p"})</span>`;
+                } else {
+                    slaHtml = `<span style="font-size:12px; color:var(--text-subtle);">Không gán Sales</span>`;
+                }
+
+                let salesAssignmentText = lead.assignedToActor
+                    ? `<div style="font-weight:600; color:var(--text-main);">${lead.assignedToActor}</div>`
+                    : `<div style="font-size:12px; color:var(--warning-text); font-style:italic;">Hàng đợi nội bộ (welcomeQueued)</div>`;
+
+                let rejectNotice = "";
+                if (lead.lastRejectionReason) {
+                    rejectNotice = `<div style="font-size:11.5px; color:var(--danger-text); margin-top:2px;">⚠️ Lý do từ chối gần nhất: <em>${lead.lastRejectionReason}</em></div>`;
+                }
+
+                // Action buttons for Sales
+                let actions = `<div class="btn-group">`;
+                if (!lead.claimedByActor && lead.assignedToActor) {
+                    actions += `<button class="btn-sm btn-success" onclick="claimLead('${lead.id}')">Nhận xử lý</button>`;
+                    actions += `<button class="btn-sm btn-danger" onclick="promptRejectLead('${lead.id}')">Từ chối</button>`;
+                }
+                actions += `</div>`;
+
+                html += `
+                    <tr>
+                        <td>
+                            <div style="font-weight:600;">${lead.name}</div>
+                            <div style="font-size:12px; color:var(--text-muted);">${lead.phone || "Không có SĐT"} ${lead.email ? `• ${lead.email}` : ""}</div>
+                            ${rejectNotice}
+                        </td>
+                        <td>
+                            <div style="font-weight:500;">${sourcesList}</div>
+                            <div style="font-size:11px; color:var(--text-muted);">Loại trùng: Tự động gom nguồn</div>
+                        </td>
+                        <td>
+                            <div><span class="lead-badge ${labelBadgeClass}">${labelText}</span> <strong style="margin-left:4px;">${lead.score}/100đ</strong></div>
+                            ${breakdownInfo}
+                            ${reasonsInfo}
+                        </td>
+                        <td>${salesAssignmentText}</td>
+                        <td>${slaHtml}</td>
+                        <td>${actions}</td>
+                    </tr>
+                `;
+            });
+
+            tbody.innerHTML = html;
+        }
+
+        // Render Spend Proposals
+        function renderProposals() {
+            const tbody = document.querySelector("#table-proposals tbody");
+            document.getElementById("proposal-count").textContent = `${state.proposals.length} đề xuất`;
+
+            if (state.proposals.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="empty-state">Chưa có đề xuất chuyển ngân sách nào.</td></tr>`;
+                return;
+            }
+
+            let html = "";
+            state.proposals.forEach(p => {
+                let statusBadge = `<span class="status-pill status-pending-review">Chờ duyệt (Pending)</span>`;
+                if (p.status === "Accepted") {
+                    statusBadge = `<span class="status-pill status-published">Đã chấp nhận (Accepted)</span>`;
+                } else if (p.status === "Rejected") {
+                    statusBadge = `<span class="status-pill status-rejected">Đã từ chối (Rejected)</span>`;
+                }
+
+                let actions = `<div class="btn-group">`;
+                if (p.status === "Pending") {
+                    actions += `<button class="btn-sm btn-success" onclick="approveProposal('${p.id}')">Phê duyệt</button>`;
+                    actions += `<button class="btn-sm btn-danger" onclick="promptRejectProposal('${p.id}')">Từ chối</button>`;
+                }
+                actions += `</div>`;
+
+                let rejectDetail = p.rejectionReason ? `<div style="font-size:11.5px; color:var(--danger-text);">Lý do: ${p.rejectionReason}</div>` : "";
+
+                html += `
+                    <tr>
+                        <td>
+                            <div style="font-weight:600;">${p.fromNote} ➔ ${p.toNote}</div>
+                        </td>
+                        <td>
+                            <div><strong>${p.percent}%</strong></div>
+                            <div style="font-size:12px; color:var(--text-muted);">${p.rationale}</div>
+                        </td>
+                        <td>
+                            <div style="font-size:12.5px;">${p.proposedByActor} (${p.proposedByRole})</div>
+                        </td>
+                        <td>
+                            ${statusBadge}
+                            ${rejectDetail}
+                        </td>
+                        <td>${actions}</td>
+                    </tr>
+                `;
+            });
+
+            tbody.innerHTML = html;
+        }
+
+        // Render CPL Dashboard
+        async function loadCpl(spendOverride = null, daily = null, budget = null) {
+            let url = "/dashboard/cpl";
+            const params = new URLSearchParams();
+            if (spendOverride !== null && spendOverride !== "") params.append("spend", spendOverride);
+            if (daily !== null && daily !== "") params.append("dailySpend", daily);
+            if (budget !== null && budget !== "") params.append("budget", budget);
+            const qs = params.toString();
+            if (qs) url += `?${qs}`;
+
+            try {
+                const data = await api(url);
+                document.getElementById("cpl-spend").textContent = formatVnd(data.spend);
+                document.getElementById("cpl-lead-count").textContent = formatNumber(data.leadCount);
+                document.getElementById("cpl-value").textContent = formatVnd(data.cpl);
+
+                document.getElementById("pacing-days").textContent = `${data.daysUntilEmpty || 0} ngày`;
+                document.getElementById("pacing-projected").textContent = `${formatNumber(data.projectedLeads || 0)} lead`;
+            } catch (e) {
+                // Handled
+            }
+        }
+
+        // Load Campaign Traffic
+        async function loadCampaignTraffic(campaignId) {
+            if (!campaignId) {
+                document.getElementById("traffic-stats-container").style.display = "none";
+                return;
+            }
+            state.selectedCampaignId = campaignId;
+            try {
+                const data = await api(`/campaigns/${campaignId}/traffic`);
+                document.getElementById("traffic-stats-container").style.display = "flex";
+                document.getElementById("stat-impressions").textContent = formatNumber(data.totals.impressions);
+                document.getElementById("stat-clicks").textContent = formatNumber(data.totals.clicks);
+                document.getElementById("stat-ctr").textContent = (Number(data.totals.ctr) * 100).toFixed(2) + "%";
+                document.getElementById("stat-visits").textContent = formatNumber(data.totals.visits);
+                document.getElementById("stat-spend").textContent = formatVnd(data.totals.spendVnd);
+
+                const tbody = document.querySelector("#table-traffic-snapshots tbody");
+                if (!data.snapshots || data.snapshots.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="6" class="empty-state">Chưa có đợt lưu lượng nào cho chiến dịch này.</td></tr>`;
+                } else {
+                    tbody.innerHTML = data.snapshots.map(s => `
+                        <tr>
+                            <td><strong>${s.periodDate}</strong></td>
+                            <td>${formatNumber(s.impressions)}</td>
+                            <td>${formatNumber(s.clicks)}</td>
+                            <td>${formatNumber(s.visits)}</td>
+                            <td style="font-weight:600; color:var(--primary);">${formatVnd(s.spendVnd)}</td>
+                            <td><span style="font-size:12px; color:var(--text-muted);">${s.recordedByActor}</span></td>
+                        </tr>
+                    `).join("");
+                }
+            } catch (e) {
+                document.getElementById("traffic-stats-container").style.display = "none";
+            }
+        }
+
+        // Campaign Actions
+        window.submitReview = async function(id) {
+            try {
+                await api(`/campaigns/${id}/submit-review`, "POST");
+                await refreshAll();
+            } catch (e) { alert(e.message); }
+        };
+
+        window.sendToOwner = async function(id) {
+            try {
+                await api(`/campaigns/${id}/send-to-owner`, "POST");
+                await refreshAll();
+            } catch (e) { alert(e.message); }
+        };
+
+        window.approveCampaign = async function(id) {
+            try {
+                await api(`/campaigns/${id}/approve`, "POST");
+                await refreshAll();
+            } catch (e) { alert(e.message); }
+        };
+
+        window.undoCampaign = async function(id) {
+            try {
+                await api(`/campaigns/${id}/undo`, "POST");
+                await refreshAll();
+            } catch (e) { alert(e.message); }
+        };
+
+        window.promptRejectCampaign = function(id) {
+            showRejectModal("Từ chối chiến dịch (Bắt buộc lý do)", async (reason) => {
+                try {
+                    await api(`/campaigns/${id}/reject`, "POST", { reason });
+                    await refreshAll();
+                } catch (e) { alert(e.message); }
+            });
+        };
+
+        // Lead Actions
+        window.claimLead = async function(id) {
+            try {
+                await api(`/leads/${id}/claim`, "POST");
+                await refreshAll();
+            } catch (e) { alert(e.message); }
+        };
+
+        window.promptRejectLead = function(id) {
+            showRejectModal("Kinh doanh từ chối Lead (Sẽ chuyển round-robin sang Sales khác)", async (reason) => {
+                try {
+                    await api(`/leads/${id}/reject`, "POST", { reason });
+                    await refreshAll();
+                } catch (e) { alert(e.message); }
+            });
+        };
+
+        // Spend Proposal Actions
+        window.approveProposal = async function(id) {
+            try {
+                await api(`/dashboard/spend-proposal/${id}/approve`, "POST");
+                await refreshAll();
+            } catch (e) { alert(e.message); }
+        };
+
+        window.promptRejectProposal = function(id) {
+            showRejectModal("Chủ DN từ chối đề xuất ngân sách", async (reason) => {
+                try {
+                    await api(`/dashboard/spend-proposal/${id}/reject`, "POST", { reason });
+                    await refreshAll();
+                } catch (e) { alert(e.message); }
+            });
+        };
+
+        window.selectCampaignForTraffic = function(id) {
+            const sel = document.getElementById("traffic-campaign-select");
+            sel.value = id;
+            loadCampaignTraffic(id);
+        };
+
+        async function refreshAll() {
+            await checkHealth();
+            try {
+                state.campaigns = await api("/campaigns");
+                renderCampaigns();
+            } catch (e) {}
+
+            try {
+                state.leads = await api("/leads");
+                renderLeads();
+            } catch (e) {}
+
+            try {
+                state.proposals = await api("/dashboard/spend-proposals");
+                renderProposals();
+            } catch (e) {}
+
+            if (state.selectedCampaignId) {
+                await loadCampaignTraffic(state.selectedCampaignId);
+            }
+            await loadCpl();
+        }
+
+        // Event Listeners
+        document.querySelectorAll(".role-chip").forEach(btn => {
+            btn.addEventListener("click", () => {
+                document.querySelectorAll(".role-chip").forEach(b => b.classList.remove("selected"));
+                btn.classList.add("selected");
+                state.role = btn.dataset.role;
+                state.actor = btn.dataset.actor;
+                document.getElementById("header-role").value = state.role;
+                document.getElementById("header-actor").value = state.actor;
+                log(200, `Chuyển vai trò sang ${state.role} (${state.actor})`);
+            });
+        });
+
+        document.getElementById("header-role").addEventListener("change", (e) => {
+            state.role = e.target.value;
+        });
+
+        document.getElementById("header-actor").addEventListener("input", (e) => {
+            state.actor = e.target.value;
+        });
+
+        document.getElementById("btn-refresh").addEventListener("click", refreshAll);
+
+        document.getElementById("btn-seed").addEventListener("click", async () => {
+            try {
+                const res = await api("/demo/seed", "POST");
+                log(200, `Đã gieo demo thành công: 1 chiến dịch, ${res.leads ? res.leads.length : 2} leads.`);
+                await refreshAll();
+            } catch (e) {
+                alert(e.message);
+            }
+        });
+
+        document.getElementById("btn-smoke").addEventListener("click", async () => {
+            try {
+                const res = await api("/smoke/workflow", "POST");
+                log(200, `Elsa Smoke Workflow hoàn tất: OutputResult=${res.outputResult}, Status=${res.status}`);
+            } catch (e) {
+                alert(e.message);
+            }
+        });
+
+        document.getElementById("btn-clear-logs").addEventListener("click", () => {
+            document.getElementById("log-stream").innerHTML = "";
+        });
+
+        // Form Create Campaign
+        document.getElementById("form-create-campaign").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const topic = document.getElementById("input-campaign-topic").value.trim();
+            if (!topic) return;
+            try {
+                await api("/campaigns", "POST", { topic });
+                document.getElementById("input-campaign-topic").value = "";
+                await refreshAll();
+            } catch (err) {
+                alert(err.message);
+            }
+        });
+
+        // Traffic Ingest Form
+        document.getElementById("form-ingest-traffic").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const campaignId = document.getElementById("traffic-campaign-select").value;
+            if (!campaignId) {
+                alert("Vui lòng chọn chiến dịch cần ghi nhận lưu lượng.");
+                return;
+            }
+
+            const periodDate = document.getElementById("traffic-date").value;
+            const spendVnd = Number(document.getElementById("traffic-spend").value);
+            const impressions = Number(document.getElementById("traffic-impressions").value);
+            const clicks = Number(document.getElementById("traffic-clicks").value);
+            const visits = Number(document.getElementById("traffic-visits").value);
+
+            if (clicks > impressions) {
+                alert("Số lượt nhấp (Clicks) không thể vượt quá số lượt hiển thị (Impressions).");
+                return;
+            }
+
+            try {
+                const res = await api(`/campaigns/${campaignId}/traffic`, "POST", {
+                    periodDate,
+                    impressions,
+                    clicks,
+                    visits,
+                    spendVnd
+                });
+                log(200, `Đã ghi nhận lưu lượng qua Elsa Workflow! Tổng chi phí: ${formatVnd(res.totals.spendVnd)}`);
+                await loadCampaignTraffic(campaignId);
+                await loadCpl();
+            } catch (err) {
+                alert(err.message);
+            }
+        });
+
+        document.getElementById("traffic-campaign-select").addEventListener("change", (e) => {
+            loadCampaignTraffic(e.target.value);
+        });
+
+        // Lead Intake
+        async function submitLead(sourceEndpoint) {
+            const name = document.getElementById("lead-name").value.trim();
+            const phone = document.getElementById("lead-phone").value.trim();
+            const email = document.getElementById("lead-email").value.trim();
+            const campaignIdVal = document.getElementById("lead-campaign-select").value;
+            const campaignId = campaignIdVal ? campaignIdVal : null;
+
+            if (!name) {
+                alert("Vui lòng nhập họ tên hoặc nhu cầu khách hàng.");
+                return;
+            }
+
+            try {
+                const lead = await api(sourceEndpoint, "POST", { name, phone, email, campaignId });
+                log(200, `Tiếp nhận Lead thành công: ${lead.name} (${lead.label} · ${lead.score}đ)`);
+                await refreshAll();
+                document.getElementById("lead-name").value = "";
+                document.getElementById("lead-phone").value = "";
+                document.getElementById("lead-email").value = "";
+            } catch (err) {
+                alert(err.message);
+            }
+        }
+
+        document.getElementById("btn-lead-form").addEventListener("click", () => submitLead("/leads/webhook"));
+        document.getElementById("btn-lead-msg").addEventListener("click", () => submitLead("/leads/message"));
+        document.getElementById("btn-lead-call").addEventListener("click", () => submitLead("/leads/call"));
+
+        // Spend Proposal Form
+        document.getElementById("form-create-proposal").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const fromNote = document.getElementById("prop-from").value.trim();
+            const toNote = document.getElementById("prop-to").value.trim();
+            const percent = Number(document.getElementById("prop-percent").value);
+            const rationale = document.getElementById("prop-rationale").value.trim();
+
+            try {
+                await api("/dashboard/spend-proposal", "POST", { fromNote, toNote, percent, rationale });
+                document.getElementById("prop-from").value = "";
+                document.getElementById("prop-to").value = "";
+                document.getElementById("prop-rationale").value = "";
+                await refreshAll();
+            } catch (err) {
+                alert(err.message);
+            }
+        });
+
+        // Pacing Simulation Form
+        document.getElementById("form-cpl-pacing").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const spend = document.getElementById("pacing-spend-override").value;
+            const daily = document.getElementById("pacing-daily").value;
+            const budget = document.getElementById("pacing-budget").value;
+            await loadCpl(spend, daily, budget);
+        });
+
+        // Default Date
+        document.getElementById("traffic-date").value = new Date().toISOString().split("T")[0];
+
+        // Init
+        refreshAll();
+        state.slaInterval = setInterval(() => {
+            renderCampaigns();
+            renderLeads();
+        }, 1000);
+    </script>
+</body>
+</html>

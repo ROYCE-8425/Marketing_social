@@ -1,0 +1,50 @@
+name: Bug Report
+description: File a bug report to help us fix issues in DX-OS
+title: "[Bug]: "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for reporting a bug! Please ensure you have searched existing issues and discussions before submitting.
+        **Note:** For security vulnerabilities, do NOT use this form; please refer to [SECURITY.md](https://github.com/ROYCE-8425/open_source/blob/main/SECURITY.md).
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      description: A clear and concise description of the bug.
+      placeholder: Describe what happened...
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to Reproduce
+      description: Detailed steps to reproduce the behavior.
+      placeholder: |
+        1. Start DX-OS with 'docker compose up'
+        2. Send request to endpoint '...'
+        3. See error
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: What did you expect to happen?
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Environment Info
+      description: Operating System, .NET SDK version, Docker version, etc.
+      placeholder: e.g. Windows 11 / .NET 10.0.100 / Docker 24.0
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant Logs or Screenshots
+      description: Attach relevant log outputs or stack traces.
+      render: shell

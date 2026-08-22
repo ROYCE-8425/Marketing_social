@@ -1,0 +1,5 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="..\DXOS.Domain\DXOS.Domain.csproj" />
+  </ItemGroup>
+</Project>

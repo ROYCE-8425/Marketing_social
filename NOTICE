@@ -1,0 +1,42 @@
+DX-OS
+Copyright 2026 DX-OS Contributors
+
+This product includes software developed as part of the DX-OS project under the Apache License 2.0.
+
+This product includes AIECOS Social CRM (https://github.com/aiecosvietnam/aiecos-social-crm)
+Copyright (c) 2026 AIECOS. Licensed under the MIT License.
+See LICENSES/MIT-AIECOS.txt. AIECOS files live in chrome-extension/, sync-receiver/,
+admin-ui/, mcp-server/, examples/, and docs/aiecos/. They are not relicensed to Apache-2.0.
+
+This product depends on or redistributes third-party open-source components under their respective licenses:
+
+- Elsa Workflows (https://github.com/elsa-workflows/elsa-core)
+  Copyright (c) Elsa Workflows Contributors. Licensed under the MIT License.
+
+- Npgsql Entity Framework Core PostgreSQL Provider (https://github.com/npgsql/efcore.pg)
+  Copyright (c) The Npgsql Development Team. Licensed under the PostgreSQL License.
+
+- PostgreSQL Database (https://www.postgresql.org/)
+  Portions Copyright (c) 1996-2026, PostgreSQL Global Development Group.
+  Portions Copyright (c) 1994, The Regents of the University of California.
+
+- Microsoft .NET, Entity Framework Core, and .NET Aspire (https://github.com/dotnet/aspire, https://github.com/dotnet/efcore)
+  Copyright (c) .NET Foundation and Contributors. Licensed under the MIT License.
+
+- ArchUnitNET (https://github.com/TNG/ArchUnitNET)
+  Copyright (c) 2026 TNG Technology Consulting GmbH. Licensed under the Apache License 2.0.
+
+- Testcontainers for .NET (https://github.com/testcontainers/testcontainers-dotnet)
+  Copyright (c) 2019-2026 Testcontainers. Licensed under the MIT License.
+
+- xUnit.net (https://github.com/xunit/xunit)
+  Copyright (c) .NET Foundation and Contributors. Licensed under the Apache License 2.0.
+
+- Gitleaks (https://github.com/gitleaks/gitleaks)
+  Copyright (c) Zachary Rice. Licensed under the MIT License.
+
+- Trivy (https://github.com/aquasecurity/trivy)
+  Copyright (c) 2019-2026 Aqua Security Software Ltd. Licensed under the Apache License 2.0.
+
+- Syft and Grype (https://github.com/anchore/syft, https://github.com/anchore/grype)
+  Copyright (c) Anchore, Inc. Licensed under the Apache License 2.0.

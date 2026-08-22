@@ -1,0 +1,9 @@
+COMMAND: bd.cmd dep cycles
+EXIT_CODE: 0
+DURATION_MS: 365
+STDOUT:
+
+Γ£ô No dependency cycles detected
+
+
+STDERR:

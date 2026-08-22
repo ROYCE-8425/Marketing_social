@@ -1,0 +1,30 @@
+COMMAND: powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts\check.ps1 -EvidencePath artifacts\quality-gate\frozen-r3-run\evidence-Full.json
+EXIT_CODE: 1
+DURATION_MS: 9198
+STDOUT:
+
+=== Running Gate: foundation-restore (BR001-R2.4) ===
+Profile: Full | Status: READY | Timeout: 60s
+Gate succeeded.
+
+=== Running Gate: foundation-format (BR001-R2.4) ===
+Profile: Full | Status: READY | Timeout: 30s
+Gate succeeded.
+
+=== Running Gate: foundation-build (BR001-R2.4) ===
+Profile: Full | Status: READY | Timeout: 120s
+Gate succeeded.
+
+=== Running Gate: foundation-openspec (BR001-R6.2) ===
+Profile: Full | Status: READY | Timeout: 30s
+Gate succeeded.
+
+=== Running Gate: foundation-hygiene (BR001-R2.4) ===
+Profile: Full | Status: READY | Timeout: 15s
+Gate succeeded.
+
+=== Running Gate: runtime-unit-tests (BR001-R5.2) ===
+Profile: Full | Status: NOT_IMPLEMENTED | Timeout: 60s
+Gate is NOT_IMPLEMENTED. Failing fast.
+
+STDERR:

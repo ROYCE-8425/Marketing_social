@@ -1,0 +1,65 @@
+COMMAND: bd.cmd show open_source-cab.7 --json
+EXIT_CODE: 0
+DURATION_MS: 2827
+STDOUT:
+[
+  {
+    "id": "open_source-cab.7",
+    "title": "Implement deterministic DX-OS quality gate",
+    "description": "BR001-R3: replace false-green scripts/check.ps1 with explicit tool preflight, native exit propagation, bounded commands, DXOS.slnx targeting, and evidence outputs.",
+    "acceptance_criteria": "The Windows-safe gate stops non-zero on every missing required tool or failed command, cannot be overwritten by later success, names all targets, and exposes deterministic staged checks for downstream runtime/test/security tasks.",
+    "notes": "Codex authorized BR001-R3 implementation preparation on 2026-08-13. Authoritative prompt: artifacts/task-runs/open_source-cab.7/prompt.md. Keep issue in_progress and OpenSpec R3 checkboxes unchecked until independent Codex PASS.",
+    "spec_id": "openspec/changes/bootstrap-remediation-001/tasks.md#br001-r3-deterministic-quality-gate",
+    "status": "in_progress",
+    "priority": 0,
+    "issue_type": "task",
+    "assignee": "ROYCE-8425",
+    "owner": "royce8425@github.com",
+    "created_at": "2026-08-11T06:20:20Z",
+    "created_by": "ROYCE-8425",
+    "updated_at": "2026-08-13T03:14:08Z",
+    "started_at": "2026-08-13T03:14:08Z",
+    "dependencies": [
+      {
+        "id": "open_source-cab.2",
+        "title": "Create minimal DX-OS build system",
+        "description": "BR001-R2: recreate DX-OS-owned .NET 10 SDK, CPM, feed, solution, project-boundary, ignore, and package metadata in the extracted repository; do not inherit Elsa build infrastructure.",
+        "acceptance_criteria": "Pinned .NET 10 configuration restores/builds DXOS.slnx from the extracted repository using only approved packages/feeds, and executable architecture checks prove the intended DX-OS project graph contains no Elsa source reference.",
+        "spec_id": "openspec/changes/bootstrap-remediation-001/tasks.md#br001-r2-minimal-dx-os-build-system",
+        "status": "closed",
+        "priority": 0,
+        "issue_type": "task",
+        "assignee": "ROYCE-8425",
+        "owner": "royce8425@github.com",
+        "created_at": "2026-08-11T05:55:46Z",
+        "created_by": "ROYCE-8425",
+        "updated_at": "2026-08-13T02:23:42Z",
+        "started_at": "2026-08-11T17:51:22Z",
+        "closed_at": "2026-08-13T02:23:42Z",
+        "close_reason": "Codex Re-review 12 PASS: SDK 10.0.302, exact nine-project graph, CPM/feed policy, nine stable locks, locked restore, warning-free Release build, hygiene, and evidence runner independently verified.",
+        "dependency_type": "blocks"
+      },
+      {
+        "id": "open_source-cab",
+        "title": "DX-OS bootstrap remediation",
+        "description": "Resolve the accepted NOT_READY findings from docs/audits/BOOTSTRAP-AUDIT-001.md under the authoritative OpenSpec change bootstrap-remediation-001. OpenSpec defines the contract; Beads tracks execution.",
+        "acceptance_criteria": "A CLEAN CLONE / READY audit proves a public DX-OS-owned open-source repository, independent identity/history, approved OSS license, source-to-demo reproducibility without private source, dependency/attribution/SBOM/service disclosure, CI/release metadata, and every required quality/runtime gate.",
+        "spec_id": "openspec/changes/bootstrap-remediation-001/proposal.md",
+        "status": "open",
+        "priority": 0,
+        "issue_type": "epic",
+        "owner": "royce8425@github.com",
+        "created_at": "2026-08-11T05:55:44Z",
+        "created_by": "ROYCE-8425",
+        "updated_at": "2026-08-13T02:44:54Z",
+        "dependency_type": "parent-child"
+      }
+    ],
+    "parent": "open_source-cab",
+    "dependent_count": 1,
+    "dependency_count": 2,
+    "comment_count": 0
+  }
+]
+
+STDERR:

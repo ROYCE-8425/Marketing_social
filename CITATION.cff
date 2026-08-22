@@ -1,0 +1,21 @@
+cff-version: 1.2.0
+message: "If you use DX-OS in your research, product, or organization, please cite it as below."
+title: "DX-OS: Open-Source AI-Native Marketing Operating System"
+abstract: "An open-source, AI-native operating system designed for SMEs to orchestrate, automate, and govern marketing workflows, analytics, and AI agent execution."
+version: 0.1.0-alpha
+date-released: 2026-08-19
+license: Apache-2.0
+repository-code: "https://github.com/ROYCE-8425/Marketing_social"
+url: "https://github.com/ROYCE-8425/Marketing_social"
+authors:
+  - name: "DX-OS Contributors"
+    website: "https://github.com/ROYCE-8425/Marketing_social"
+keywords:
+  - "marketing automation"
+  - "workflow orchestration"
+  - "elsa workflows"
+  - "ai agents"
+  - "dotnet"
+  - "csharp"
+  - "postgresql"
+  - "open source"

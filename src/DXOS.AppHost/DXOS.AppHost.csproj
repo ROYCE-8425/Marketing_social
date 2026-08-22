@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <Sdk Name="Aspire.AppHost.Sdk" Version="13.4.6" />
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <IsAspireHost>true</IsAspireHost>
+    <!-- Keep Aspire Dashboard and DCP RID packages in the lock file for Windows and Linux CI. -->
+    <RuntimeIdentifiers>win-x64;linux-x64</RuntimeIdentifiers>
+    <SkipAddAspireDefaultReferences>true</SkipAddAspireDefaultReferences>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Aspire.Hosting.AppHost" />
+    <PackageReference Include="Aspire.Hosting.PostgreSQL" />
+    <PackageReference Include="Aspire.Dashboard.Sdk.linux-x64" />
+    <PackageReference Include="Aspire.Dashboard.Sdk.win-x64" />
+    <PackageReference Include="Aspire.Hosting.Orchestration.linux-x64" />
+    <PackageReference Include="Aspire.Hosting.Orchestration.win-x64" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DXOS.Api\DXOS.Api.csproj" />
+  </ItemGroup>
+</Project>

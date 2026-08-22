@@ -1,0 +1,1 @@
+﻿Gate is NOT_APPLICABLE (no real UI exists)

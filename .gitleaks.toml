@@ -1,0 +1,13 @@
+# Gitleaks configuration for DX-OS
+# SPDX-License-Identifier: Apache-2.0
+
+title = "DX-OS Gitleaks Configuration"
+
+[allowlist]
+  description = "Allowlist for synthetic test fixtures and canary values that are intentionally non-secret"
+  commits = []
+  paths = []
+  # Suppress synthetic test token used in verify-check-contract.ps1 stale-report canary test
+  regexes = [
+    '''ghp_stale123''',
+  ]

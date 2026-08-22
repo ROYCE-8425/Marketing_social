@@ -1,0 +1,80 @@
+ M Directory.Packages.props
+ M global.json
+ M scripts/check-contract.json
+ M scripts/check.ps1
+ M scripts/verify-check-contract.ps1
+ M src/DXOS.Api/packages.lock.json
+ M src/DXOS.AppHost/packages.lock.json
+ M src/DXOS.Application/packages.lock.json
+ M src/DXOS.Domain/packages.lock.json
+ M src/DXOS.Infrastructure/packages.lock.json
+ M src/DXOS.Workflows/packages.lock.json
+ M tests/DXOS.Architecture.Tests/DXOS.Architecture.Tests.csproj
+ D tests/DXOS.Architecture.Tests/UnitTest1.cs
+ M tests/DXOS.Architecture.Tests/packages.lock.json
+ M tests/DXOS.Integration.Tests/DXOS.Integration.Tests.csproj
+ D tests/DXOS.Integration.Tests/UnitTest1.cs
+ M tests/DXOS.Integration.Tests/packages.lock.json
+ D tests/DXOS.Unit.Tests/UnitTest1.cs
+ M tests/DXOS.Unit.Tests/packages.lock.json
+?? artifacts/task-runs/open_source-cab.4/.run.lock
+?? artifacts/task-runs/open_source-cab.4/finalizer-ordering-fixture.log
+?? artifacts/task-runs/open_source-cab.4/finalizer-publish-helper.ps1
+?? artifacts/task-runs/open_source-cab.4/implementation-report.md
+?? artifacts/task-runs/open_source-cab.4/package-and-license-delta.md
+?? artifacts/task-runs/open_source-cab.4/prompt.md
+?? artifacts/task-runs/open_source-cab.4/reports.sha256
+?? artifacts/task-runs/open_source-cab.4/review.md
+?? artifacts/task-runs/open_source-cab.4/run-r5-final-verification.ps1
+?? artifacts/task-runs/open_source-cab.4/run-r5-verification.ps1
+?? artifacts/task-runs/open_source-cab.4/runs/8682f54269a9/Foundation-foundation-build.out.txt
+?? artifacts/task-runs/open_source-cab.4/runs/8682f54269a9/Foundation-foundation-format.out.txt
+?? artifacts/task-runs/open_source-cab.4/runs/8682f54269a9/Foundation-foundation-hygiene.out.txt
+?? artifacts/task-runs/open_source-cab.4/runs/8682f54269a9/Foundation-foundation-openspec.out.txt
+?? artifacts/task-runs/open_source-cab.4/runs/8682f54269a9/Foundation-foundation-restore.out.txt
+?? artifacts/task-runs/open_source-cab.4/runs/8682f54269a9/Runtime-foundation-build.out.txt
+?? artifacts/task-runs/open_source-cab.4/runs/8682f54269a9/Runtime-foundation-format.out.txt
+?? artifacts/task-runs/open_source-cab.4/runs/8682f54269a9/Runtime-foundation-hygiene.out.txt
+?? artifacts/task-runs/open_source-cab.4/runs/8682f54269a9/Runtime-foundation-openspec.out.txt
+?? artifacts/task-runs/open_source-cab.4/runs/8682f54269a9/Runtime-foundation-restore.out.txt
+?? artifacts/task-runs/open_source-cab.4/runs/8682f54269a9/Runtime-runtime-architecture-tests.out.txt
+?? artifacts/task-runs/open_source-cab.4/runs/8682f54269a9/Runtime-runtime-docker-compose.out.txt
+?? artifacts/task-runs/open_source-cab.4/runs/8682f54269a9/Runtime-runtime-e2e-tests.out.txt
+?? artifacts/task-runs/open_source-cab.4/runs/8682f54269a9/Runtime-runtime-integration-tests.out.txt
+?? artifacts/task-runs/open_source-cab.4/runs/8682f54269a9/Runtime-runtime-smoke-aspire.out.txt
+?? artifacts/task-runs/open_source-cab.4/runs/8682f54269a9/Runtime-runtime-smoke-compose.out.txt
+?? artifacts/task-runs/open_source-cab.4/runs/8682f54269a9/Runtime-runtime-unit-tests.out.txt
+?? artifacts/task-runs/open_source-cab.4/runs/8682f54269a9/arch-test-ctrf.json
+?? artifacts/task-runs/open_source-cab.4/runs/8682f54269a9/docker-baseline-containers.txt
+?? artifacts/task-runs/open_source-cab.4/runs/8682f54269a9/docker-baseline-networks.txt
+?? artifacts/task-runs/open_source-cab.4/runs/8682f54269a9/docker-baseline-volumes.txt
+?? artifacts/task-runs/open_source-cab.4/runs/8682f54269a9/docker-diff-evidence.json
+?? artifacts/task-runs/open_source-cab.4/runs/8682f54269a9/docker-post-containers.txt
+?? artifacts/task-runs/open_source-cab.4/runs/8682f54269a9/docker-post-networks.txt
+?? artifacts/task-runs/open_source-cab.4/runs/8682f54269a9/docker-post-volumes.txt
+?? artifacts/task-runs/open_source-cab.4/runs/8682f54269a9/foundation-evidence.json
+?? artifacts/task-runs/open_source-cab.4/runs/8682f54269a9/git-status.txt
+?? artifacts/task-runs/open_source-cab.4/runs/8682f54269a9/int-test-ctrf.json
+?? artifacts/task-runs/open_source-cab.4/runs/8682f54269a9/negative-docker-ctrf.json
+?? artifacts/task-runs/open_source-cab.4/runs/8682f54269a9/runtime-evidence.json
+?? artifacts/task-runs/open_source-cab.4/runs/8682f54269a9/step-01-Environment_Preflight___Baseline_Inventories.log
+?? artifacts/task-runs/open_source-cab.4/runs/8682f54269a9/step-02-OpenSpec_Validation.log
+?? artifacts/task-runs/open_source-cab.4/runs/8682f54269a9/step-03-Contract_Verifier.log
+?? artifacts/task-runs/open_source-cab.4/runs/8682f54269a9/step-04-Docker-Absence_Failure_Boundary___CTRF_Assertion.log
+?? artifacts/task-runs/open_source-cab.4/runs/8682f54269a9/step-05-Foundation_Quality_Gate.log
+?? artifacts/task-runs/open_source-cab.4/runs/8682f54269a9/step-06-Runtime_Quality_Gate.log
+?? artifacts/task-runs/open_source-cab.4/runs/8682f54269a9/step-07-Docker_Residue___Exact_State_Delta_Audit.log
+?? artifacts/task-runs/open_source-cab.4/runs/8682f54269a9/unit-test-ctrf.json
+?? artifacts/task-runs/open_source-cab.4/test-finalizer-ordering-fixture.ps1
+?? artifacts/task-runs/open_source-cab.4/verification-output.sha256
+?? artifacts/task-runs/open_source-cab.4/verification.md
+?? docs/testing.md
+?? scripts/run-test-project.ps1
+?? tests/DXOS.Architecture.Tests/ArchitectureTests.cs
+?? tests/DXOS.Architecture.Tests/Fixtures/ViolatingDomainFixture.cs
+?? tests/DXOS.Architecture.Tests/Fixtures/ViolatingProjectReferenceFixture.cs
+?? tests/DXOS.Integration.Tests/ContainerTeardownFixtureTests.cs
+?? tests/DXOS.Integration.Tests/PostgresAndElsaIntegrationTests.cs
+?? tests/DXOS.Integration.Tests/Teardown/ContainerTeardownHelper.cs
+?? tests/DXOS.Unit.Tests/BootstrapDbContextFactoryTests.cs
+?? tests/DXOS.Unit.Tests/BootstrapDbContextModelTests.cs

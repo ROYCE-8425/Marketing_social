@@ -1,0 +1,8 @@
+COMMAND: dotnet.exe restore DXOS.slnx --locked-mode
+EXIT_CODE: 0
+DURATION_MS: 987
+STDOUT:
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+
+STDERR:
