@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="referrer" content="no-referrer">
 <title>AIECOS Social CRM — Open-source Pancake → Supabase</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="Open-source social CRM template — Pancake (Zalo/Facebook) → Supabase with admin UI + MCP server for AI agents. 5-stage B2B partner classification.">
@@ -985,7 +986,7 @@ async function loadAll() {
     try {
       const [cust, msgs, convs, pages] = await Promise.all([
         rest('customers?select=id,name,page_id,last_seen_at,first_seen_at&order=last_seen_at.desc.nullslast&limit=500'),
-        rest('messages?select=id,conversation_id,sender_type,sender_name,content,created_time&order=created_time.desc&limit=5000'),
+        rest('messages?select=id,conversation_id,page_id,sender_id,sender_type,sender_name,content,message_type,attachments_json,created_time&order=created_time.desc&limit=5000'),
         rest('conversations?select=id,page_id,customer_name&limit=500'),
         rest('pages').catch(() => []),
       ]);
@@ -1540,14 +1541,46 @@ function renderInboxDetail() {
       atts.forEach(att => {
         const type = att.type || 'file';
         const url = att.url || '';
+        if (!url) return;
+
+        let fileName = att.title;
+        if (!fileName) {
+          try {
+            const raw = url.split('?')[0].split('/').pop();
+            fileName = decodeURIComponent(raw) || 'Tập tin đính kèm';
+          } catch(e) { fileName = 'Tập tin đính kèm'; }
+        }
+
         if (type === 'image') {
-          attHtml += `<img src="${esc(url)}" alt="Hình ảnh" loading="lazy" class="msg-media-img" onclick="openLightbox('${esc(url)}')">`;
+          attHtml += `
+            <div style="position:relative; margin-top:4px;">
+              <img src="${esc(url)}" alt="Hình ảnh" loading="lazy" referrerpolicy="no-referrer" class="msg-media-img" onclick="openLightbox('${esc(url)}')">
+              <div style="margin-top:4px; font-size:11px;">
+                <a href="${esc(url)}" target="_blank" rel="noopener noreferrer" style="color:var(--accent); text-decoration:none; display:inline-flex; align-items:center; gap:4px; font-weight:500;"><i data-lucide="external-link" style="width:12px; height:12px;"></i> Mở ảnh gốc</a>
+              </div>
+            </div>`;
         } else if (type === 'audio') {
-          attHtml += `<div class="voice-card"><i data-lucide="mic" style="color:var(--accent); width:16px; height:16px; flex-shrink:0;"></i><audio controls preload="none" src="${esc(url)}" class="voice-audio"></audio></div>`;
+          attHtml += `
+            <div class="voice-card">
+              <i data-lucide="mic" style="color:var(--accent); width:16px; height:16px; flex-shrink:0;"></i>
+              <audio controls preload="none" referrerpolicy="no-referrer" src="${esc(url)}" class="voice-audio"></audio>
+              <a href="${esc(url)}" target="_blank" rel="noopener noreferrer" download style="color:var(--text-muted); padding:4px;" title="Tải file âm thanh"><i data-lucide="download" style="width:14px; height:14px;"></i></a>
+            </div>`;
         } else if (type === 'video') {
-          attHtml += `<video controls preload="none" src="${esc(url)}" class="msg-media-video"></video>`;
+          attHtml += `
+            <div style="position:relative; margin-top:4px;">
+              <video controls preload="none" referrerpolicy="no-referrer" src="${esc(url)}" class="msg-media-video"></video>
+              <div style="margin-top:4px; font-size:11px;">
+                <a href="${esc(url)}" target="_blank" rel="noopener noreferrer" style="color:var(--accent); text-decoration:none; display:inline-flex; align-items:center; gap:4px; font-weight:500;"><i data-lucide="external-link" style="width:12px; height:12px;"></i> Mở video</a>
+              </div>
+            </div>`;
         } else {
-          attHtml += `<a href="${esc(url)}" target="_blank" download class="file-card"><i data-lucide="file" class="icon-sm"></i><span>${esc(att.title || 'Tập tin đính kèm')}</span><i data-lucide="download" class="icon-sm" style="margin-left:auto;"></i></a>`;
+          attHtml += `
+            <a href="${esc(url)}" target="_blank" rel="noopener noreferrer" download class="file-card">
+              <i data-lucide="file-text" class="icon-sm" style="color:var(--accent); flex-shrink:0;"></i>
+              <span style="max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-weight:500;">${esc(fileName)}</span>
+              <i data-lucide="download" class="icon-sm" style="margin-left:auto; flex-shrink:0;"></i>
+            </a>`;
         }
       });
     }
