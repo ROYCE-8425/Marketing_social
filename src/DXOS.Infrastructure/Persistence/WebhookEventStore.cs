@@ -68,4 +68,13 @@ public sealed class WebhookEventStore : IWebhookEventStore
         record.ProcessedAtUtc = DateTimeOffset.UtcNow;
         await _db.SaveChangesAsync(cancellationToken);
     }
+
+    public async Task<DateTimeOffset?> GetLastReceivedAtUtcAsync(CancellationToken cancellationToken)
+    {
+        return await _db.WebhookEvents
+            .AsNoTracking()
+            .OrderByDescending(e => e.ReceivedAtUtc)
+            .Select(e => (DateTimeOffset?)e.ReceivedAtUtc)
+            .FirstOrDefaultAsync(cancellationToken);
+    }
 }

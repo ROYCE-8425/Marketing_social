@@ -35,6 +35,7 @@ builder.Services.AddScoped<LeadService>();
 builder.Services.AddScoped<DemoSeedService>();
 builder.Services.AddScoped<TrafficService>();
 builder.Services.AddScoped<SpendProposalService>();
+builder.Services.AddScoped<McpService>();
 
 // Health Checks
 builder.Services.AddHealthChecks()

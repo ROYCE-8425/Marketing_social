@@ -1,3 +1,4 @@
+using System.Text.Json;
 using DXOS.Application;
 using DXOS.Domain;
 using Elsa.Workflows;
@@ -407,6 +408,80 @@ internal static class MarketingEndpoints
                     projectedLeads = dashboard.ProjectedLeads,
                     status = "NOT_READY"
                 });
+            }
+            catch (DomainRuleException ex)
+            {
+                return MapDomainException(ex);
+            }
+        });
+
+        // MCP Server Endpoints (Pure Application layer facade, zero token leaks, zero PostgREST)
+        app.MapGet("/mcp/tools", (McpService mcp) =>
+        {
+            return Results.Ok(new
+            {
+                server = "DXOS.Mcp",
+                version = "1.0.0",
+                tools = McpService.GetToolDefinitions().Select(t => new
+                {
+                    name = t.Name,
+                    description = t.Description,
+                    inputSchema = t.InputSchema
+                }).ToList()
+            });
+        });
+
+        app.MapPost("/mcp/tools/{name}", async (
+            string name,
+            JsonElement? body,
+            McpService mcp,
+            HttpContext http,
+            ILoggerFactory loggerFactory,
+            CancellationToken cancellationToken) =>
+        {
+            try
+            {
+                var actor = ReadActor(http);
+                var logger = loggerFactory.CreateLogger("DXOS.Mcp");
+                logger.LogInformation("[MCP Audit] Tool: {ToolName}, Actor: {ActorId}, Role: {ActorRole}", name, actor.ActorId, actor.Role);
+
+                var result = await mcp.ExecuteToolAsync(actor, name, body, cancellationToken);
+                if (result.IsError)
+                {
+                    return Results.BadRequest(new { error = result.Error, code = "McpToolError" });
+                }
+
+                return Results.Ok(result.Content);
+            }
+            catch (DomainRuleException ex)
+            {
+                return MapDomainException(ex);
+            }
+        });
+
+        app.MapPost("/mcp", async (
+            JsonElement body,
+            McpService mcp,
+            HttpContext http,
+            ILoggerFactory loggerFactory,
+            CancellationToken cancellationToken) =>
+        {
+            try
+            {
+                var actor = ReadActor(http);
+                var logger = loggerFactory.CreateLogger("DXOS.Mcp");
+                if (body.TryGetProperty("method", out var methodProp) && methodProp.GetString() == "tools/call")
+                {
+                    string toolName = "unknown";
+                    if (body.TryGetProperty("params", out var p) && p.TryGetProperty("name", out var n))
+                    {
+                        toolName = n.GetString() ?? "unknown";
+                    }
+                    logger.LogInformation("[MCP Audit] Tool: {ToolName}, Actor: {ActorId}, Role: {ActorRole}", toolName, actor.ActorId, actor.Role);
+                }
+
+                var response = await mcp.HandleJsonRpcAsync(actor, body, cancellationToken);
+                return Results.Ok(response);
             }
             catch (DomainRuleException ex)
             {

@@ -225,6 +225,50 @@ public sealed class LeadService
         return leads;
     }
 
+    public async Task<Lead?> GetAsync(Guid leadId, CancellationToken cancellationToken)
+    {
+        var lead = await _store.GetAsync(leadId, cancellationToken);
+        if (lead is not null && lead.ReleaseIfExpired(_clock.UtcNow))
+        {
+            await _store.UpdateAsync(lead, cancellationToken);
+        }
+
+        return lead;
+    }
+
+    public async Task<IReadOnlyList<Lead>> SearchAsync(
+        string? query,
+        LeadLabel? label,
+        int limit,
+        CancellationToken cancellationToken)
+    {
+        var all = await ListAsync(cancellationToken);
+        var q = query?.Trim();
+        var hasQ = !string.IsNullOrWhiteSpace(q);
+        var max = limit > 0 ? limit : 50;
+
+        return all.Where(lead =>
+        {
+            if (label.HasValue && lead.Label != label.Value)
+            {
+                return false;
+            }
+
+            if (hasQ)
+            {
+                var matchName = lead.Name.Contains(q!, StringComparison.OrdinalIgnoreCase);
+                var matchPhone = lead.Phone?.Contains(q!, StringComparison.OrdinalIgnoreCase) == true;
+                var matchEmail = lead.Email?.Contains(q!, StringComparison.OrdinalIgnoreCase) == true;
+                if (!matchName && !matchPhone && !matchEmail)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }).Take(max).ToList();
+    }
+
     public async Task<Lead> ClaimAsync(ActorContext actor, Guid leadId, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(actor.ActorId))

@@ -126,6 +126,11 @@ public sealed class PlatformLeadIntakeTests
 
             return Task.CompletedTask;
         }
+
+        public Task<DateTimeOffset?> GetLastReceivedAtUtcAsync(CancellationToken cancellationToken)
+        {
+            return Task.FromResult<DateTimeOffset?>(null);
+        }
     }
 
     private sealed class MemoryLeadStore : ILeadStore
