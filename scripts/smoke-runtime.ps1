@@ -401,11 +401,11 @@ try {
         $packagesRoot = if ($env:NUGET_PACKAGES) {
             $env:NUGET_PACKAGES
         } elseif ($env:HOME) {
-            Join-Path $env:HOME ".nuget" "packages"
+            [System.IO.Path]::Combine($env:HOME, ".nuget", "packages")
         } else {
-            Join-Path $env:USERPROFILE ".nuget" "packages"
+            [System.IO.Path]::Combine($env:USERPROFILE, ".nuget", "packages")
         }
-        $dcpCandidate = Join-Path $packagesRoot "aspire.hosting.orchestration.$dcpRid" "13.4.6" "tools" $dcpFile
+        $dcpCandidate = [System.IO.Path]::Combine($packagesRoot, "aspire.hosting.orchestration.$dcpRid", "13.4.6", "tools", $dcpFile)
         if (Test-Path -LiteralPath $dcpCandidate) {
             $psi.EnvironmentVariables["DcpPublisher__CliPath"] = $dcpCandidate
             Write-Host "DCP cli path: $dcpCandidate"

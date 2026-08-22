@@ -20,6 +20,8 @@ public sealed class LeadRecord
     public DateTimeOffset? AssignedAtUtc { get; set; }
     public string? ClaimedByActor { get; set; }
     public DateTimeOffset? ClaimedAtUtc { get; set; }
+    public DateTimeOffset? ConvertedAtUtc { get; set; }
+    public decimal? ConversionRevenueVnd { get; set; }
     public string? RejectedByActorsJson { get; set; }
     public string? LastRejectionReason { get; set; }
     public DateTimeOffset CreatedAtUtc { get; set; }

@@ -164,7 +164,9 @@ public sealed class LeadService
                     distinct.Count,
                     distinct.Count(l => l.Label == LeadLabel.Hot),
                     distinct.Count(l => l.Label == LeadLabel.Warm),
-                    distinct.Count(l => l.Label == LeadLabel.Cold));
+                    distinct.Count(l => l.Label == LeadLabel.Cold),
+                    distinct.Count(l => l.IsConverted),
+                    distinct.Sum(l => l.ConversionRevenueVnd ?? 0m));
             })
             .ToList();
     }
@@ -283,6 +285,29 @@ public sealed class LeadService
         return lead;
     }
 
+    public async Task<Lead> ConvertAsync(ActorContext actor, Guid leadId, decimal? revenueVnd, CancellationToken cancellationToken)
+    {
+        if (actor.Role is not ActorRole.Sales and not ActorRole.System)
+        {
+            throw new DomainRuleException("ForbiddenRole", "Chỉ Sales hoặc System mới có quyền chuyển đổi lead.");
+        }
+
+        if (string.IsNullOrWhiteSpace(actor.ActorId))
+        {
+            throw new DomainRuleException("InvalidActor", "X-DXOS-Actor is required.");
+        }
+
+        var lead = await _store.GetAsync(leadId, cancellationToken);
+        if (lead is null)
+        {
+            throw new DomainRuleException("NotFound", $"Lead '{leadId}' was not found.");
+        }
+
+        lead.Convert(actor.Role, actor.ActorId, revenueVnd, _clock.UtcNow);
+        await _store.UpdateAsync(lead, cancellationToken);
+        return lead;
+    }
+
     public async Task<CplDashboard> GetCplAsync(
         decimal? spendOverride,
         decimal? dailySpend,
@@ -312,7 +337,9 @@ public sealed record PlatformLeadSummary(
     int LeadCount,
     int HotCount,
     int WarmCount,
-    int ColdCount);
+    int ColdCount,
+    int ConvertedCount = 0,
+    decimal RevenueVnd = 0m);
 
 public sealed record CplDashboard(
     decimal Spend,

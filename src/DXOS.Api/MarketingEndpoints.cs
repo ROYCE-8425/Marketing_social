@@ -231,7 +231,17 @@ internal static class MarketingEndpoints
                     fetchedAt = DateTimeOffset.UtcNow,
                     source = "unified-data-layer",
                     dataFreshness = "demo",
-                    platforms = rows
+                    adsLive = false,
+                    platforms = rows.Select(r => new
+                    {
+                        provider = r.Provider,
+                        leadCount = r.LeadCount,
+                        hotCount = r.HotCount,
+                        warmCount = r.WarmCount,
+                        coldCount = r.ColdCount,
+                        convertedCount = r.ConvertedCount,
+                        revenueVnd = r.RevenueVnd
+                    }).ToList()
                 });
             }
             catch (DomainRuleException ex)
@@ -328,6 +338,11 @@ internal static class MarketingEndpoints
             }
 
             return await ExecuteAsync(http, actor => leads.RejectAsync(actor, id, request.Reason, cancellationToken));
+        });
+
+        app.MapPost("/leads/{id:guid}/convert", async (Guid id, ConvertLeadRequest request, LeadService leads, HttpContext http, CancellationToken cancellationToken) =>
+        {
+            return await ExecuteAsync(http, actor => leads.ConvertAsync(actor, id, request?.RevenueVnd, cancellationToken));
         });
 
         app.MapPost("/dashboard/spend-proposal", async (CreateSpendProposalRequest request, SpendProposalService proposals, HttpContext http, CancellationToken cancellationToken) =>
@@ -455,7 +470,7 @@ internal static class MarketingEndpoints
         {
             "NotFound" => Results.NotFound(new { error = ex.Message, code = ex.Code }),
             "ForbiddenRole" => Results.Json(new { error = ex.Message, code = ex.Code }, statusCode: StatusCodes.Status403Forbidden),
-            "AlreadyClaimed" or "InvalidTransition" or "TerminalState" or "BrandBlocked" or "UndoWindowExpired" =>
+            "AlreadyClaimed" or "AlreadyConverted" or "InvalidTransition" or "TerminalState" or "BrandBlocked" or "UndoWindowExpired" =>
                 Results.Conflict(new { error = ex.Message, code = ex.Code }),
             _ => Results.BadRequest(new { error = ex.Message, code = ex.Code })
         };
@@ -511,6 +526,9 @@ internal static class MarketingEndpoints
             claimedAtUtc = lead.ClaimedAtUtc,
             rejectedByActors = lead.RejectedByActors,
             lastRejectionReason = lead.LastRejectionReason,
+            convertedAtUtc = lead.ConvertedAtUtc,
+            conversionRevenueVnd = lead.ConversionRevenueVnd,
+            isConverted = lead.IsConverted,
             slaRemainingSeconds = lead.SlaRemainingSeconds(nowUtc),
             welcomeQueued = true,
             welcomeChannel = "hang-doi-noi-bo",
@@ -581,6 +599,8 @@ internal static class MarketingEndpoints
 internal sealed record CreateCampaignRequest(string? Topic);
 
 internal sealed record RejectRequest(string? Reason);
+
+internal sealed record ConvertLeadRequest(decimal? RevenueVnd);
 
 internal sealed record CreateSpendProposalRequest(
     string? FromNote,

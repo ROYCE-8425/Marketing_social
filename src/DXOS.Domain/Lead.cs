@@ -28,6 +28,9 @@ public sealed class Lead
     public DateTimeOffset? AssignedAtUtc { get; private set; }
     public string? ClaimedByActor { get; private set; }
     public DateTimeOffset? ClaimedAtUtc { get; private set; }
+    public DateTimeOffset? ConvertedAtUtc { get; private set; }
+    public decimal? ConversionRevenueVnd { get; private set; }
+    public bool IsConverted => ConvertedAtUtc.HasValue;
     public IReadOnlyList<string> RejectedByActors => _rejectedByActors;
     public string? LastRejectionReason { get; private set; }
     public DateTimeOffset CreatedAtUtc { get; private set; }
@@ -109,7 +112,9 @@ public sealed class Lead
         DateTimeOffset updatedAtUtc,
         string? scoreModel = null,
         string? scoreVersion = null,
-        DateTimeOffset? scoredAtUtc = null)
+        DateTimeOffset? scoredAtUtc = null,
+        DateTimeOffset? convertedAtUtc = null,
+        decimal? conversionRevenueVnd = null)
     {
         var lead = new Lead
         {
@@ -129,6 +134,8 @@ public sealed class Lead
             AssignedAtUtc = assignedAtUtc,
             ClaimedByActor = claimedByActor,
             ClaimedAtUtc = claimedAtUtc,
+            ConvertedAtUtc = convertedAtUtc,
+            ConversionRevenueVnd = conversionRevenueVnd,
             LastRejectionReason = lastRejectionReason,
             CreatedAtUtc = createdAtUtc,
             UpdatedAtUtc = updatedAtUtc
@@ -296,6 +303,33 @@ public sealed class Lead
             AssignedAtUtc = null;
         }
 
+        UpdatedAtUtc = nowUtc;
+    }
+
+    public void Convert(ActorRole role, string salesActor, decimal? revenueVnd, DateTimeOffset nowUtc)
+    {
+        if (role is not ActorRole.Sales and not ActorRole.System)
+        {
+            throw new DomainRuleException("ForbiddenRole", "Only Sales or System can convert a lead.");
+        }
+
+        if (string.IsNullOrWhiteSpace(salesActor))
+        {
+            throw new DomainRuleException("InvalidActor", "Sales actor is required to convert a lead.");
+        }
+
+        if (ConvertedAtUtc.HasValue)
+        {
+            throw new DomainRuleException("AlreadyConverted", "Lead has already been converted.");
+        }
+
+        if (revenueVnd.HasValue && revenueVnd.Value < 0)
+        {
+            throw new DomainRuleException("InvalidRevenue", "Conversion revenue must be non-negative.");
+        }
+
+        ConvertedAtUtc = nowUtc;
+        ConversionRevenueVnd = revenueVnd;
         UpdatedAtUtc = nowUtc;
     }
 

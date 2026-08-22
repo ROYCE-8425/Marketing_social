@@ -64,6 +64,8 @@ public sealed class BootstrapDbContext : DbContext
             entity.Property(e => e.ScoredAtUtc);
             entity.Property(e => e.AssignedToActor).HasMaxLength(128);
             entity.Property(e => e.ClaimedByActor).HasMaxLength(128);
+            entity.Property(e => e.ConvertedAtUtc);
+            entity.Property(e => e.ConversionRevenueVnd).HasColumnType("numeric(18,0)");
             entity.Property(e => e.RejectedByActorsJson);
             entity.Property(e => e.LastRejectionReason).HasMaxLength(512);
             entity.Property(e => e.CreatedAtUtc).IsRequired();

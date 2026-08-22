@@ -943,6 +943,34 @@
                         </tbody>
                     </table>
                 </div>
+
+                <!-- Panel Theo kênh (GET /analytics/leads-by-platform) -->
+                <div style="margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--border);">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                        <h3 style="font-size:14px; font-weight:700; color:var(--text-main); margin:0; display:flex; align-items:center; gap:6px;">
+                            <span>📊</span> Thống kê Lead theo kênh (GET /analytics/leads-by-platform)
+                        </h3>
+                        <span id="platform-analytics-freshness" class="badge" style="background-color: var(--surface-subtle); color: var(--text-muted);">Đang tải...</span>
+                    </div>
+                    <div class="table-responsive">
+                        <table id="table-platform-analytics">
+                            <thead>
+                                <tr>
+                                    <th>Kênh (Provider)</th>
+                                    <th>Tổng Lead</th>
+                                    <th>Nóng (Hot)</th>
+                                    <th>Ấm (Warm)</th>
+                                    <th>Lạnh (Cold)</th>
+                                    <th>Chuyển đổi</th>
+                                    <th>Doanh thu (₫)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td colspan="7" class="empty-state">Chưa có dữ liệu phân tích theo kênh.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
 
             <!-- Surface 4: Budget Spend Proposals (Pacing Stub) -->
@@ -1081,6 +1109,21 @@
         </div>
     </div>
 
+    <!-- Convert Lead Modal Dialog -->
+    <div class="modal-overlay" id="convert-modal">
+        <div class="modal-card">
+            <div class="modal-title" id="convert-modal-title">Chốt đơn / Chuyển đổi Lead thành công</div>
+            <div class="form-group">
+                <label for="convert-revenue-input" style="font-size:13px; font-weight:600;">Doanh thu chuyển đổi (₫ VND, không bắt buộc):</label>
+                <input type="number" id="convert-revenue-input" min="0" step="100000" placeholder="ví dụ: 15000000" />
+            </div>
+            <div class="btn-group" style="justify-content:flex-end;">
+                <button type="button" class="btn-sm" id="convert-cancel-btn">Hủy</button>
+                <button type="button" class="btn-sm btn-primary" id="convert-confirm-btn">Xác nhận chuyển đổi</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // State
         const state = {
@@ -1089,9 +1132,11 @@
             campaigns: [],
             leads: [],
             proposals: [],
+            platformAnalytics: null,
             selectedCampaignId: null,
             slaInterval: null,
-            modalCallback: null
+            modalCallback: null,
+            convertCallback: null
         };
 
         // Formatters
@@ -1174,6 +1219,34 @@
                 const cb = state.modalCallback;
                 closeRejectModal();
                 cb(reason);
+            }
+        });
+
+        function showConvertModal(title, onConfirm) {
+            document.getElementById("convert-modal-title").textContent = title;
+            document.getElementById("convert-revenue-input").value = "";
+            state.convertCallback = onConfirm;
+            document.getElementById("convert-modal").classList.add("open");
+            document.getElementById("convert-revenue-input").focus();
+        }
+
+        function closeConvertModal() {
+            document.getElementById("convert-modal").classList.remove("open");
+            state.convertCallback = null;
+        }
+
+        document.getElementById("convert-cancel-btn").addEventListener("click", closeConvertModal);
+        document.getElementById("convert-confirm-btn").addEventListener("click", () => {
+            const revRaw = document.getElementById("convert-revenue-input").value.trim();
+            const revenueVnd = revRaw ? Number(revRaw) : null;
+            if (revenueVnd !== null && (isNaN(revenueVnd) || revenueVnd < 0)) {
+                alert("Doanh thu phải là số không âm.");
+                return;
+            }
+            if (state.convertCallback) {
+                const cb = state.convertCallback;
+                closeConvertModal();
+                cb(revenueVnd);
             }
         });
 
@@ -1388,9 +1461,17 @@
 
                 // Action buttons for Sales
                 let actions = `<div class="btn-group">`;
-                if (!lead.claimedByActor && lead.assignedToActor) {
-                    actions += `<button class="btn-sm btn-success" onclick="claimLead('${lead.id}')">Nhận xử lý</button>`;
-                    actions += `<button class="btn-sm btn-danger" onclick="promptRejectLead('${lead.id}')">Từ chối</button>`;
+                if (lead.isConverted || lead.convertedAtUtc) {
+                    const rev = (lead.conversionRevenueVnd !== null && lead.conversionRevenueVnd !== undefined)
+                        ? ` · ${formatVnd(lead.conversionRevenueVnd)}`
+                        : "";
+                    actions += `<span class="status-pill status-published" style="background:#dcfce7; color:#166534; font-weight:600;">✓ Đã chốt${rev}</span>`;
+                } else {
+                    if (!lead.claimedByActor && lead.assignedToActor) {
+                        actions += `<button class="btn-sm btn-success" onclick="claimLead('${lead.id}')">Nhận xử lý</button>`;
+                        actions += `<button class="btn-sm btn-danger" onclick="promptRejectLead('${lead.id}')">Từ chối</button>`;
+                    }
+                    actions += `<button class="btn-sm btn-primary" onclick="promptConvertLead('${lead.id}')"><span>💰</span> Chốt đơn</button>`;
                 }
                 actions += `</div>`;
 
@@ -1418,6 +1499,46 @@
             });
 
             tbody.innerHTML = html;
+        }
+
+        // Render Platform Analytics
+        function renderPlatformAnalytics() {
+            const tbody = document.querySelector("#table-platform-analytics tbody");
+            if (!tbody) return;
+            if (!state.platformAnalytics || !state.platformAnalytics.platforms || state.platformAnalytics.platforms.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="empty-state">Chưa có dữ liệu phân tích theo kênh.</td></tr>`;
+                return;
+            }
+
+            let html = "";
+            state.platformAnalytics.platforms.forEach(p => {
+                let providerBadge = `<span style="font-weight:600; text-transform:uppercase;">${p.provider}</span>`;
+                if (p.provider === "facebook") providerBadge = `<span style="font-weight:600; color:#1877f2;">📘 Facebook</span>`;
+                else if (p.provider === "tiktok") providerBadge = `<span style="font-weight:600; color:#000000;">🎵 TikTok</span>`;
+                else if (p.provider === "zalo") providerBadge = `<span style="font-weight:600; color:#0068ff;">💬 Zalo</span>`;
+                else if (p.provider === "website") providerBadge = `<span style="font-weight:600; color:var(--primary);">🌐 Website / Form</span>`;
+                else if (p.provider === "message") providerBadge = `<span style="font-weight:600; color:var(--warning-text);">💬 Tin nhắn</span>`;
+                else if (p.provider === "call") providerBadge = `<span style="font-weight:600; color:var(--success);">📞 Cuộc gọi</span>`;
+
+                html += `
+                    <tr>
+                        <td>${providerBadge}</td>
+                        <td><strong>${p.leadCount}</strong></td>
+                        <td><span class="lead-badge lead-hot">${p.hotCount}</span></td>
+                        <td><span class="lead-badge lead-warm">${p.warmCount}</span></td>
+                        <td><span class="lead-badge lead-cold">${p.coldCount}</span></td>
+                        <td><span class="status-pill status-published">${p.convertedCount || 0}</span></td>
+                        <td style="font-weight:600; color:var(--success);">${formatVnd(p.revenueVnd || 0)}</td>
+                    </tr>
+                `;
+            });
+            tbody.innerHTML = html;
+
+            const freshnessEl = document.getElementById("platform-analytics-freshness");
+            if (freshnessEl && state.platformAnalytics.fetchedAt) {
+                const dt = new Date(state.platformAnalytics.fetchedAt).toLocaleTimeString("vi-VN");
+                freshnessEl.textContent = `Cập nhật: ${dt} · Chế độ: ${state.platformAnalytics.dataFreshness || "demo"}`;
+            }
         }
 
         // Render Spend Proposals
@@ -1586,6 +1707,18 @@
             });
         };
 
+        window.promptConvertLead = function(id) {
+            showConvertModal("Chốt đơn / Chuyển đổi Lead", async (revenueVnd) => {
+                try {
+                    await api(`/leads/${id}/convert`, "POST", { revenueVnd });
+                    log(200, `Lead ${id} đã được chuyển đổi thành công!` + (revenueVnd ? ` Doanh thu: ${formatVnd(revenueVnd)}` : ""));
+                    await refreshAll();
+                } catch (e) {
+                    alert(e.message);
+                }
+            });
+        };
+
         // Spend Proposal Actions
         window.approveProposal = async function(id) {
             try {
@@ -1619,6 +1752,11 @@
             try {
                 state.leads = await api("/leads");
                 renderLeads();
+            } catch (e) {}
+
+            try {
+                state.platformAnalytics = await api("/analytics/leads-by-platform");
+                renderPlatformAnalytics();
             } catch (e) {}
 
             try {
