@@ -209,6 +209,23 @@ public sealed class McpServiceTests
     }
 
     [Fact]
+    public async Task LeadAssign_MarketerRole_ReturnsForbiddenRoleError()
+    {
+        var store = new FakeLeadStore();
+        var lead = Lead.Intake("Vu Van F", "0956789012", "f@example.com", LeadSource.Form, null, "sales-1", NowUtc);
+        store.Leads.Add(lead);
+
+        var mcp = CreateService(store);
+        var actor = new ActorContext(ActorRole.Marketer, "mai");
+
+        var args = JsonDocument.Parse($"{{\"leadId\":\"{lead.Id}\"}}").RootElement;
+        var result = await mcp.ExecuteToolAsync(actor, "lead_assign", args, CancellationToken.None);
+
+        Assert.True(result.IsError);
+        Assert.Contains("ForbiddenRole", result.Error);
+    }
+
+    [Fact]
     public async Task AnalyticsSummary_ReturnsAggregatesAndNeverContainsTokens()
     {
         var store = new FakeLeadStore();

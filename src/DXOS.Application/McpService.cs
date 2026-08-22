@@ -68,8 +68,7 @@ public sealed class McpService
                 required = new[] { "leadId" },
                 properties = new
                 {
-                    leadId = new { type = "string", description = "Định danh Lead cần nhận xử lý (GUID)." },
-                    actor = new { type = "string", description = "Mã định danh Sales nhận Lead (tùy chọn; mặc định lấy theo ActorContext)." }
+                    leadId = new { type = "string", description = "Định danh Lead cần nhận xử lý (GUID)." }
                 }
             }),
         new(
@@ -131,9 +130,9 @@ public sealed class McpService
         {
             return new McpToolResult(true, null, $"[{ex.Code}] {ex.Message}");
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            return new McpToolResult(true, null, ex.Message);
+            return new McpToolResult(true, null, "An internal error occurred while executing the tool.");
         }
     }
 
@@ -208,17 +207,7 @@ public sealed class McpService
             return new McpToolResult(true, null, "A valid GUID 'leadId' is required.");
         }
 
-        var effectiveActor = actor;
-        if (arguments.Value.TryGetProperty("actor", out var actProp) && actProp.ValueKind == JsonValueKind.String)
-        {
-            var customActorId = actProp.GetString()?.Trim();
-            if (!string.IsNullOrWhiteSpace(customActorId))
-            {
-                effectiveActor = new ActorContext(actor.Role, customActorId);
-            }
-        }
-
-        var claimed = await _leadService.ClaimAsync(effectiveActor, leadId, cancellationToken);
+        var claimed = await _leadService.ClaimAsync(actor, leadId, cancellationToken);
         return new McpToolResult(false, new
         {
             message = $"Lead '{leadId}' đã được nhận xử lý bởi '{claimed.ClaimedByActor}'.",

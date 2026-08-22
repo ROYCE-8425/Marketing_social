@@ -416,19 +416,27 @@ internal static class MarketingEndpoints
         });
 
         // MCP Server Endpoints (Pure Application layer facade, zero token leaks, zero PostgREST)
-        app.MapGet("/mcp/tools", (McpService mcp) =>
+        app.MapGet("/mcp/tools", (McpService mcp, HttpContext http) =>
         {
-            return Results.Ok(new
+            try
             {
-                server = "DXOS.Mcp",
-                version = "1.0.0",
-                tools = McpService.GetToolDefinitions().Select(t => new
+                ReadActor(http);
+                return Results.Ok(new
                 {
-                    name = t.Name,
-                    description = t.Description,
-                    inputSchema = t.InputSchema
-                }).ToList()
-            });
+                    server = "DXOS.Mcp",
+                    version = "1.0.0",
+                    tools = McpService.GetToolDefinitions().Select(t => new
+                    {
+                        name = t.Name,
+                        description = t.Description,
+                        inputSchema = t.InputSchema
+                    }).ToList()
+                });
+            }
+            catch (DomainRuleException ex)
+            {
+                return MapDomainException(ex);
+            }
         });
 
         app.MapPost("/mcp/tools/{name}", async (
