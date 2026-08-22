@@ -502,15 +502,139 @@ internal static class MarketingEndpoints
             }
         });
 
+        // ── Zalo Official Account Webhook Endpoints ──
+        app.MapGet("/zalo_verifierUUI68vAK8oD0lAz_a85rHsIpy4Y8nIGNDp4p.html", () =>
+            Results.Content("UUI68vAK8oD0lAz_a85rHsIpy4Y8nIGNDp4p", "text/html"));
+
+        app.MapGet("/integrations/zalo/webhook", (HttpContext http) =>
+        {
+            var challenge = http.Request.Query["challenge"].ToString();
+            if (!string.IsNullOrWhiteSpace(challenge))
+            {
+                return Results.Content(challenge, "text/plain");
+            }
+            return Results.Ok(new { status = "OK", provider = "zalo" });
+        });
+
+        app.MapPost("/integrations/zalo/webhook", async (
+            HttpContext http,
+            LeadService leads,
+            ZaloOaClient zaloClient,
+            BootstrapDbContext db,
+            IConfiguration config,
+            ILoggerFactory loggerFactory,
+            CancellationToken cancellationToken) =>
+        {
+            var logger = loggerFactory.CreateLogger("DXOS.ZaloWebhooks");
+            http.Request.EnableBuffering();
+            using var reader = new StreamReader(http.Request.Body, System.Text.Encoding.UTF8, leaveOpen: true);
+            var rawBody = await reader.ReadToEndAsync(cancellationToken);
+            http.Request.Body.Position = 0;
+
+            var oaSecret = config["ZALO_OA_SECRET"] ?? config["Zalo:OaSecret"];
+            var appSecret = config["ZALO_APP_SECRET"] ?? config["Zalo:AppSecret"];
+            var signature = http.Request.Headers["X-ZEP-Signature"].ToString();
+            if (string.IsNullOrWhiteSpace(signature))
+            {
+                signature = http.Request.Headers["X-Zalo-Signature"].ToString();
+            }
+            if (string.IsNullOrWhiteSpace(signature))
+            {
+                signature = http.Request.Headers["mac"].ToString();
+            }
+            var timestamp = http.Request.Headers["timestamp"].ToString();
+            var appIdHeader = http.Request.Headers["app_id"].ToString();
+
+            if (!ZaloOaClient.VerifyWebhookSignature(rawBody, signature, oaSecret, appSecret, timestamp, appIdHeader))
+            {
+                logger.LogWarning("Zalo webhook signature verification failed.");
+                return Results.Unauthorized();
+            }
+
+            if (string.IsNullOrWhiteSpace(rawBody))
+            {
+                return Results.Ok(new { error = 0, message = "SUCCESS" });
+            }
+
+            try
+            {
+                var ev = ZaloOaClient.ParseWebhookEvent(rawBody);
+                var oaId = ev.OaId ?? config["ZALO_OA_ID"] ?? "zalo_oa";
+                var senderId = ev.SenderId;
+
+                if (!string.IsNullOrWhiteSpace(senderId))
+                {
+                    var oaAccessToken = config["ZALO_OA_ACCESS_TOKEN"] ?? config["Zalo:OaAccessToken"];
+                    var zaloMode = config["ZALO_MODE"] ?? config["Zalo:Mode"] ?? "mock";
+
+                    string senderName = $"Khách Zalo {(senderId.Length > 4 ? senderId.Substring(0, 4) : senderId)}";
+                    if (!string.IsNullOrWhiteSpace(oaAccessToken) && !string.Equals(zaloMode, "mock", StringComparison.OrdinalIgnoreCase))
+                    {
+                        var profile = await zaloClient.FetchUserProfileAsync(senderId, oaAccessToken, cancellationToken);
+                        if (!string.IsNullOrWhiteSpace(profile?.DisplayName))
+                        {
+                            senderName = profile.DisplayName;
+                        }
+                    }
+
+                    var convId = $"zalo_{oaId}_{senderId}";
+                    var custId = $"zalo_user_{senderId}";
+                    var mid = ev.MessageId ?? $"zalo_msg_{Guid.NewGuid():N}";
+                    var msgText = !string.IsNullOrWhiteSpace(ev.Text) ? ev.Text : "(Tin nhắn Zalo)";
+                    var msgTime = ev.Timestamp.HasValue ? DateTimeOffset.FromUnixTimeMilliseconds(ev.Timestamp.Value) : DateTimeOffset.UtcNow;
+                    var messageType = (ev.Attachments != null && ev.Attachments.Count > 0) ? ev.Attachments[0].Type : "text";
+                    var attachmentsJson = (ev.Attachments != null && ev.Attachments.Count > 0) ? JsonSerializer.Serialize(ev.Attachments) : "[]";
+
+                    await IngestSocialMessageAsync(
+                        db,
+                        oaId,
+                        custId,
+                        senderName,
+                        convId,
+                        mid,
+                        senderId,
+                        senderName,
+                        "customer",
+                        msgText,
+                        msgTime,
+                        cancellationToken,
+                        messageType,
+                        attachmentsJson);
+
+                    await leads.IntakePlatformWebhookAsync(
+                        "zalo",
+                        mid,
+                        senderName,
+                        null,
+                        null,
+                        null,
+                        rawBody,
+                        cancellationToken);
+
+                    logger.LogInformation("Processed Zalo message from {Sender}: {Text}", senderName, msgText);
+                }
+
+                return Results.Ok(new { error = 0, message = "SUCCESS" });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error processing Zalo webhook");
+                return Results.Ok(new { error = 0, message = "SUCCESS" });
+            }
+        });
+
         // ── Social CRM REST Endpoints for Admin UI ──
-        app.MapGet("/pages", async (BootstrapDbContext db, CancellationToken ct) =>
+        app.MapGet("/pages", async (BootstrapDbContext db, IConfiguration config, CancellationToken ct) =>
         {
             var list = await db.SocialPages.AsNoTracking().ToListAsync(ct);
             if (list.Count == 0)
             {
-                return Results.Ok(new[]
+                var fbPageId = config["FACEBOOK_PAGE_ID"] ?? "988656934325292";
+                var zaloOaId = config["ZALO_OA_ID"] ?? "zalo_oa";
+                return Results.Ok(new object[]
                 {
-                    new { id = "988656934325292", name = "Royce Shop", type = "facebook", is_active = true, total_conversations = 0, total_messages = 0 }
+                    new { id = fbPageId, name = "Royce Shop", type = "facebook", is_active = true, total_conversations = 0, total_messages = 0 },
+                    new { id = zaloOaId, name = "Royce Shop", type = "zalo_oa", is_active = true, total_conversations = 0, total_messages = 0 }
                 });
             }
             return Results.Ok(list);
@@ -576,6 +700,7 @@ internal static class MarketingEndpoints
             SendSocialMessageRequest request,
             BootstrapDbContext db,
             IHttpClientFactory httpFactory,
+            ZaloOaClient zaloClient,
             IConfiguration config,
             ILoggerFactory loggerFactory,
             CancellationToken cancellationToken) =>
@@ -589,6 +714,71 @@ internal static class MarketingEndpoints
             if (conv is null)
             {
                 return Results.NotFound(new { error = "Conversation not found" });
+            }
+
+            // ── Zalo Conversation Reply ──
+            if (conv.Id.StartsWith("zalo_"))
+            {
+                var oaAccessToken = config["ZALO_OA_ACCESS_TOKEN"] ?? config["Zalo:OaAccessToken"];
+                var zaloMode = config["ZALO_MODE"] ?? config["Zalo:Mode"] ?? "mock";
+                var oaId = conv.PageId ?? config["ZALO_OA_ID"] ?? "zalo_oa";
+
+                string? customerUserId = null;
+                var parts = conv.Id.Split('_');
+                if (parts.Length >= 3)
+                {
+                    customerUserId = parts[2];
+                }
+                if (string.IsNullOrWhiteSpace(customerUserId) && !string.IsNullOrWhiteSpace(conv.CustomerId))
+                {
+                    customerUserId = conv.CustomerId.Replace("zalo_user_", "");
+                }
+
+                if (!string.IsNullOrWhiteSpace(oaAccessToken) && !string.IsNullOrWhiteSpace(customerUserId) && !string.Equals(zaloMode, "mock", StringComparison.OrdinalIgnoreCase))
+                {
+                    try
+                    {
+                        var sendResult = await zaloClient.SendMessageAsync(customerUserId, request.Content, oaAccessToken, cancellationToken);
+                        if (!sendResult.Success)
+                        {
+                            var logger = loggerFactory.CreateLogger("DXOS.ZaloSend");
+                            logger.LogWarning("Zalo Send API warning: {Error} - {Message}", sendResult.ErrorCode, sendResult.Message);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        var logger = loggerFactory.CreateLogger("DXOS.ZaloSend");
+                        logger.LogError(ex, "Failed to send Zalo message via OpenAPI");
+                    }
+                }
+
+                var msgId = $"agent_msg_{Guid.NewGuid():N}";
+                var now = DateTimeOffset.UtcNow;
+
+                await IngestSocialMessageAsync(
+                    db,
+                    oaId,
+                    conv.CustomerId ?? $"zalo_user_{customerUserId ?? "unknown"}",
+                    conv.CustomerName ?? "Khách hàng",
+                    conv.Id,
+                    msgId,
+                    oaId,
+                    "Royce Shop",
+                    "agent",
+                    request.Content,
+                    now,
+                    cancellationToken);
+
+                return Results.Ok(new
+                {
+                    success = true,
+                    id = msgId,
+                    conversation_id = conv.Id,
+                    sender_type = "agent",
+                    sender_name = "Royce Shop",
+                    content = request.Content,
+                    created_time = now
+                });
             }
 
             var pageToken = config["FACEBOOK_PAGE_ACCESS_TOKEN"] ?? config["Facebook:PageAccessToken"];
@@ -639,8 +829,8 @@ internal static class MarketingEndpoints
                 }
             }
 
-            var msgId = $"agent_msg_{Guid.NewGuid():N}";
-            var now = DateTimeOffset.UtcNow;
+            var fbMsgId = $"agent_msg_{Guid.NewGuid():N}";
+            var fbNow = DateTimeOffset.UtcNow;
 
             await IngestSocialMessageAsync(
                 db,
@@ -648,23 +838,23 @@ internal static class MarketingEndpoints
                 conv.CustomerId ?? $"fb_user_{customerPsid ?? "unknown"}",
                 conv.CustomerName ?? "Khách hàng",
                 conv.Id,
-                msgId,
+                fbMsgId,
                 pageId,
                 "Royce Shop",
                 "agent",
                 request.Content,
-                now,
+                fbNow,
                 cancellationToken);
 
             return Results.Ok(new
             {
                 success = true,
-                id = msgId,
+                id = fbMsgId,
                 conversation_id = conv.Id,
                 sender_type = "agent",
                 sender_name = "Royce Shop",
                 content = request.Content,
-                created_time = now
+                created_time = fbNow
             });
         });
 
@@ -1187,6 +1377,7 @@ internal static class MarketingEndpoints
         try
         {
             // 1. Page
+            var pageType = conversationId.StartsWith("zalo_") ? "zalo_oa" : "facebook";
             var page = await db.SocialPages.FirstOrDefaultAsync(p => p.Id == pageId, cancellationToken);
             if (page is null)
             {
@@ -1194,7 +1385,7 @@ internal static class MarketingEndpoints
                 {
                     Id = pageId,
                     Name = "Royce Shop",
-                    Type = "facebook",
+                    Type = pageType,
                     IsActive = true,
                     TotalConversations = 1,
                     TotalMessages = 1,
@@ -1206,6 +1397,10 @@ internal static class MarketingEndpoints
             }
             else
             {
+                if (conversationId.StartsWith("zalo_") && page.Type == "facebook")
+                {
+                    page.Type = "zalo_oa";
+                }
                 page.TotalMessages += 1;
                 page.LastSyncAt = createdTime;
                 page.UpdatedAt = DateTimeOffset.UtcNow;

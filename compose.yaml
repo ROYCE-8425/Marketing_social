@@ -29,6 +29,12 @@ services:
       FACEBOOK_PAGE_ACCESS_TOKEN: ${FACEBOOK_PAGE_ACCESS_TOKEN:-}
       FACEBOOK_VERIFY_TOKEN: ${FACEBOOK_VERIFY_TOKEN:-dxos_marketing_verify_token_2026}
       FACEBOOK_MODE: ${FACEBOOK_MODE:-mock}
+      ZALO_APP_ID: ${ZALO_APP_ID:-}
+      ZALO_APP_SECRET: ${ZALO_APP_SECRET:-}
+      ZALO_OA_ID: ${ZALO_OA_ID:-}
+      ZALO_OA_ACCESS_TOKEN: ${ZALO_OA_ACCESS_TOKEN:-}
+      ZALO_OA_SECRET: ${ZALO_OA_SECRET:-}
+      ZALO_MODE: ${ZALO_MODE:-mock}
     ports:
       - "${API_PORT:-8080}:8080"
     depends_on:

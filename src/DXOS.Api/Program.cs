@@ -40,6 +40,7 @@ builder.Services.AddScoped<SpendProposalService>();
 builder.Services.AddScoped<McpService>();
 builder.Services.AddHttpClient();
 builder.Services.AddSingleton<FacebookLeadAdsClient>();
+builder.Services.AddSingleton<ZaloOaClient>();
 
 // Health Checks
 builder.Services.AddHealthChecks()
