@@ -623,6 +623,129 @@ internal static class MarketingEndpoints
             }
         });
 
+        // ── Extension / Ingest Sync Endpoints (/api/status & /api/sync) ──
+        app.MapGet("/api/status", () => Results.Ok(new
+        {
+            status = "online",
+            version = "1.6.0",
+            sync_interval_minutes = 5
+        }));
+
+        app.MapPost("/api/sync", async (
+            JsonElement body,
+            BootstrapDbContext db,
+            LeadService leads,
+            ILoggerFactory loggerFactory,
+            CancellationToken cancellationToken) =>
+        {
+            var logger = loggerFactory.CreateLogger("DXOS.SyncReceiver");
+            try
+            {
+                // BATCH format: { page_name, channel, ten_khach, url, thread_id, messages: [...] }
+                if (body.TryGetProperty("messages", out var messagesProp) && messagesProp.ValueKind == JsonValueKind.Array)
+                {
+                    var pageName = body.TryGetProperty("page_name", out var pn) ? pn.GetString() : "Royce Shop";
+                    var channel = body.TryGetProperty("channel", out var ch) ? ch.GetString() : "zalo";
+                    var tenKhach = body.TryGetProperty("ten_khach", out var tk) ? tk.GetString() : "Khách hàng";
+                    var url = body.TryGetProperty("url", out var u) ? u.GetString() : null;
+                    var threadId = body.TryGetProperty("thread_id", out var tid) ? tid.GetString() : null;
+
+                    var isZalo = (channel != null && channel.Contains("zalo", StringComparison.OrdinalIgnoreCase)) || (url != null && url.Contains("zalo", StringComparison.OrdinalIgnoreCase));
+                    var pageId = isZalo ? (body.TryGetProperty("page_id", out var pi) ? pi.GetString() ?? "zalo_personal" : "zalo_personal") : "988656934325292";
+
+                    int inserted = 0;
+                    foreach (var msgEl in messagesProp.EnumerateArray())
+                    {
+                        var content = msgEl.TryGetProperty("content", out var c) ? c.GetString() : (msgEl.TryGetProperty("tin_nhan", out var tn) ? tn.GetString() : "");
+                        if (string.IsNullOrWhiteSpace(content)) continue;
+
+                        var senderType = msgEl.TryGetProperty("sender_type", out var st) ? st.GetString() ?? "customer" : "customer";
+                        var senderName = msgEl.TryGetProperty("sender_name", out var sn) ? sn.GetString() ?? tenKhach : tenKhach;
+                        var msgId = msgEl.TryGetProperty("pancake_msg_id", out var pmid) ? $"pm_{pmid.GetString()}" : (msgEl.TryGetProperty("msg_id", out var mid) ? mid.GetString() : $"sync_{Guid.NewGuid():N}");
+
+                        var convId = !string.IsNullOrWhiteSpace(threadId) 
+                            ? (threadId.StartsWith("zalo_") || threadId.StartsWith("fb_") ? threadId : $"{(isZalo ? "zalo_" : "fb_")}{threadId}")
+                            : $"{(isZalo ? "zalo_" : "fb_")}{pageId}_{tenKhach?.Replace(" ", "_") ?? "khach"}";
+
+                        var custId = $"{(isZalo ? "zalo_user_" : "fb_user_")}{tenKhach?.Replace(" ", "_") ?? "unknown"}";
+                        var createdTime = DateTimeOffset.UtcNow;
+                        if (msgEl.TryGetProperty("timestamp", out var tsEl))
+                        {
+                            if (tsEl.ValueKind == JsonValueKind.Number && tsEl.TryGetInt64(out var tsNum))
+                            {
+                                createdTime = DateTimeOffset.FromUnixTimeMilliseconds(tsNum);
+                            }
+                            else if (tsEl.ValueKind == JsonValueKind.String && DateTimeOffset.TryParse(tsEl.GetString(), out var parsedTs))
+                            {
+                                createdTime = parsedTs;
+                            }
+                        }
+
+                        await IngestSocialMessageAsync(
+                            db,
+                            pageId,
+                            custId,
+                            tenKhach ?? "Khách hàng",
+                            convId,
+                            msgId ?? $"sync_msg_{Guid.NewGuid():N}",
+                            senderType == "agent" ? pageId : custId,
+                            senderName ?? tenKhach ?? "Khách hàng",
+                            senderType,
+                            content,
+                            createdTime,
+                            cancellationToken);
+
+                        inserted++;
+                    }
+
+                    return Results.Ok(new { success = true, total = messagesProp.GetArrayLength(), inserted, deduped = 0, failed = 0 });
+                }
+
+                // SINGLE format: { page_name, channel, ten_khach, url, thread_id, tin_nhan / content, ... }
+                var singleContent = body.TryGetProperty("content", out var singleC) ? singleC.GetString() : (body.TryGetProperty("tin_nhan", out var singleTn) ? singleTn.GetString() : "");
+                if (!string.IsNullOrWhiteSpace(singleContent))
+                {
+                    var pageName = body.TryGetProperty("page_name", out var pn) ? pn.GetString() : "Royce Shop";
+                    var channel = body.TryGetProperty("channel", out var ch) ? ch.GetString() : "zalo";
+                    var tenKhach = body.TryGetProperty("ten_khach", out var tk) ? tk.GetString() : "Khách hàng";
+                    var threadId = body.TryGetProperty("thread_id", out var tid) ? tid.GetString() : null;
+                    var senderType = body.TryGetProperty("sender_type", out var st) ? st.GetString() ?? "customer" : "customer";
+                    var senderName = body.TryGetProperty("sender_name", out var sn) ? sn.GetString() ?? tenKhach : tenKhach;
+
+                    var isZalo = (channel != null && channel.Contains("zalo", StringComparison.OrdinalIgnoreCase));
+                    var pageId = isZalo ? "zalo_personal" : "988656934325292";
+                    var convId = !string.IsNullOrWhiteSpace(threadId)
+                        ? (threadId.StartsWith("zalo_") || threadId.StartsWith("fb_") ? threadId : $"{(isZalo ? "zalo_" : "fb_")}{threadId}")
+                        : $"{(isZalo ? "zalo_" : "fb_")}{pageId}_{tenKhach?.Replace(" ", "_") ?? "khach"}";
+                    var custId = $"{(isZalo ? "zalo_user_" : "fb_user_")}{tenKhach?.Replace(" ", "_") ?? "unknown"}";
+                    var msgId = body.TryGetProperty("pancake_msg_id", out var pmid) ? $"pm_{pmid.GetString()}" : $"sync_{Guid.NewGuid():N}";
+
+                    await IngestSocialMessageAsync(
+                        db,
+                        pageId,
+                        custId,
+                        tenKhach ?? "Khách hàng",
+                        convId,
+                        msgId,
+                        senderType == "agent" ? pageId : custId,
+                        senderName ?? tenKhach ?? "Khách hàng",
+                        senderType,
+                        singleContent,
+                        DateTimeOffset.UtcNow,
+                        cancellationToken);
+
+                    return Results.Ok(new { success = true, inserted = 1, deduped = 0 });
+                }
+
+                return Results.BadRequest(new { error = "Invalid payload: missing messages[] or content/tin_nhan" });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error processing /api/sync");
+                return Results.Json(new { error = ex.Message }, statusCode: 500);
+            }
+        });
+
         // ── Social CRM REST Endpoints for Admin UI ──
         app.MapGet("/pages", async (BootstrapDbContext db, IConfiguration config, CancellationToken ct) =>
         {
