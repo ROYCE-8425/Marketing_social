@@ -1578,7 +1578,8 @@ async function sendReply() {
   renderInbox();
 
   try {
-    const res = await fetch(`${API_BASE}/conversations/${encodeURIComponent(_selectedConv)}/messages`, {
+    const base = (CFG.url || window.location.origin).replace(/\/+$/, '');
+    const res = await fetch(`${base}/conversations/${encodeURIComponent(_selectedConv)}/messages`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ content: text })
@@ -1605,7 +1606,8 @@ async function changeConvStatus(convId, status) {
   renderInbox();
   renderInboxDetail();
   try {
-    const res = await fetch(`${API_BASE}/conversations/${encodeURIComponent(convId)}/status`, {
+    const base = (CFG.url || window.location.origin).replace(/\/+$/, '');
+    const res = await fetch(`${base}/conversations/${encodeURIComponent(convId)}/status`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status: status })
