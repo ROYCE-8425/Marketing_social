@@ -1,6 +1,7 @@
 using System.Text.Json;
 using DXOS.Application;
 using DXOS.Domain;
+using DXOS.Infrastructure.Integrations;
 using Elsa.Workflows;
 
 namespace DXOS.Api;
@@ -208,17 +209,144 @@ internal static class MarketingEndpoints
             }
         });
 
-        app.MapGet("/platform-connections", (HttpContext http) =>
+        app.MapGet("/platform-connections", (IConfiguration config, HttpContext http) =>
         {
             ReadActor(http);
+            var fbToken = config["FACEBOOK_PAGE_ACCESS_TOKEN"] ?? config["Facebook:PageAccessToken"];
+            var fbMode = config["FACEBOOK_MODE"] ?? config["Facebook:Mode"];
+            var isFbLive = !string.IsNullOrWhiteSpace(fbToken) || string.Equals(fbMode, "live", StringComparison.OrdinalIgnoreCase);
+
             return Results.Ok(PlatformCatalog.MockConnections.Select(c => new
             {
                 provider = c.Provider,
                 displayName = c.DisplayName,
-                capabilities = c.Capabilities,
-                mode = c.Mode,
+                capabilities = (c.Provider == "facebook" && isFbLive)
+                    ? ["READ_LEADS", "WEBHOOK", "GRAPH_API_LEAD_ADS"]
+                    : c.Capabilities,
+                mode = (c.Provider == "facebook" && isFbLive) ? "development-live" : c.Mode,
+                adsLive = false,
                 token = (string?)null
             }));
+        });
+
+        // Official Meta Graph API Webhook for Facebook Lead Ads
+        app.MapGet("/integrations/facebook/webhook", (
+            HttpContext http,
+            IConfiguration config) =>
+        {
+            var mode = http.Request.Query["hub.mode"].ToString();
+            var verifyToken = http.Request.Query["hub.verify_token"].ToString();
+            var challenge = http.Request.Query["hub.challenge"].ToString();
+
+            var expectedVerifyToken = config["FACEBOOK_VERIFY_TOKEN"]
+                ?? config["Facebook:VerifyToken"]
+                ?? "dxos_marketing_verify_token_2026";
+
+            if (string.Equals(mode, "subscribe", StringComparison.Ordinal) &&
+                string.Equals(verifyToken, expectedVerifyToken, StringComparison.Ordinal))
+            {
+                return Results.Content(challenge, "text/plain");
+            }
+
+            return Results.Unauthorized();
+        });
+
+        app.MapPost("/integrations/facebook/webhook", async (
+            HttpContext http,
+            LeadService leads,
+            FacebookLeadAdsClient facebookClient,
+            IConfiguration config,
+            ILoggerFactory loggerFactory,
+            CancellationToken cancellationToken) =>
+        {
+            var logger = loggerFactory.CreateLogger("DXOS.FacebookWebhooks");
+            http.Request.EnableBuffering();
+            using var reader = new StreamReader(http.Request.Body, System.Text.Encoding.UTF8, leaveOpen: true);
+            var rawBody = await reader.ReadToEndAsync(cancellationToken);
+            http.Request.Body.Position = 0;
+
+            var appSecret = config["FACEBOOK_APP_SECRET"] ?? config["Facebook:AppSecret"];
+            var signature = http.Request.Headers["X-Hub-Signature-256"].ToString();
+
+            if (!FacebookLeadAdsClient.VerifySignature(rawBody, signature, appSecret))
+            {
+                logger.LogWarning("Facebook webhook signature verification failed.");
+                return Results.Unauthorized();
+            }
+
+            if (string.IsNullOrWhiteSpace(rawBody))
+            {
+                return Results.Ok("EVENT_RECEIVED");
+            }
+
+            try
+            {
+                using var doc = JsonDocument.Parse(rawBody);
+                var root = doc.RootElement;
+                if (root.TryGetProperty("entry", out var entries) && entries.ValueKind == JsonValueKind.Array)
+                {
+                    var pageToken = config["FACEBOOK_PAGE_ACCESS_TOKEN"] ?? config["Facebook:PageAccessToken"];
+                    var fbMode = config["FACEBOOK_MODE"] ?? config["Facebook:Mode"] ?? "mock";
+
+                    foreach (var entry in entries.EnumerateArray())
+                    {
+                        if (entry.TryGetProperty("changes", out var changes) && changes.ValueKind == JsonValueKind.Array)
+                        {
+                            foreach (var change in changes.EnumerateArray())
+                            {
+                                var field = change.TryGetProperty("field", out var f) ? f.GetString() : null;
+                                if (field == "leadgen" && change.TryGetProperty("value", out var val))
+                                {
+                                    var leadgenId = val.TryGetProperty("leadgen_id", out var lgId) ? lgId.GetString() : null;
+                                    if (string.IsNullOrWhiteSpace(leadgenId)) continue;
+
+                                    string name = "Khách hàng Facebook";
+                                    string? phone = null;
+                                    string? email = null;
+
+                                    if (!string.IsNullOrWhiteSpace(pageToken) && !string.Equals(fbMode, "mock", StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        var leadPayload = await facebookClient.FetchLeadAsync(leadgenId, pageToken, cancellationToken: cancellationToken);
+                                        if (leadPayload is not null)
+                                        {
+                                            var extracted = FacebookLeadAdsClient.ExtractLeadFields(leadPayload.FieldData, name);
+                                            name = extracted.Name;
+                                            phone = extracted.Phone;
+                                            email = extracted.Email;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        // Mock / Test Payload fallback
+                                        if (val.TryGetProperty("name", out var nVal)) name = nVal.GetString() ?? name;
+                                        if (val.TryGetProperty("phone", out var pVal)) phone = pVal.GetString();
+                                        if (val.TryGetProperty("email", out var eVal)) email = eVal.GetString();
+                                    }
+
+                                    await leads.IntakePlatformWebhookAsync(
+                                        "facebook",
+                                        leadgenId,
+                                        name,
+                                        phone,
+                                        email,
+                                        campaignId: null,
+                                        rawPayload: rawBody,
+                                        cancellationToken: cancellationToken);
+
+                                    logger.LogInformation("Processed Facebook leadgen event {LeadgenId} for {Name}", leadgenId, name);
+                                }
+                            }
+                        }
+                    }
+                }
+
+                return Results.Ok("EVENT_RECEIVED");
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error processing Facebook webhook");
+                return Results.Ok("EVENT_RECEIVED");
+            }
         });
 
         app.MapGet("/analytics/leads-by-platform", async (LeadService leads, HttpContext http, CancellationToken cancellationToken) =>

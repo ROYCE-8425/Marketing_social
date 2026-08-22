@@ -1,5 +1,6 @@
 using DXOS.Api;
 using DXOS.Application;
+using DXOS.Infrastructure.Integrations;
 using DXOS.Infrastructure.Persistence;
 using DXOS.Workflows.Smoke;
 using Elsa.Extensions;
@@ -36,6 +37,8 @@ builder.Services.AddScoped<DemoSeedService>();
 builder.Services.AddScoped<TrafficService>();
 builder.Services.AddScoped<SpendProposalService>();
 builder.Services.AddScoped<McpService>();
+builder.Services.AddHttpClient();
+builder.Services.AddSingleton<FacebookLeadAdsClient>();
 
 // Health Checks
 builder.Services.AddHealthChecks()
