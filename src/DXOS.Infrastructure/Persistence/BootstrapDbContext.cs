@@ -21,6 +21,20 @@ public sealed class BootstrapDbContext : DbContext
     public DbSet<SocialCustomerRecord> SocialCustomers => Set<SocialCustomerRecord>();
     public DbSet<SocialConversationRecord> SocialConversations => Set<SocialConversationRecord>();
     public DbSet<SocialMessageRecord> SocialMessages => Set<SocialMessageRecord>();
+    public DbSet<AppUserRecord> AppUsers => Set<AppUserRecord>();
+    public DbSet<AppRoleRecord> AppRoles => Set<AppRoleRecord>();
+    public DbSet<AppRolePermissionRecord> AppRolePermissions => Set<AppRolePermissionRecord>();
+    public DbSet<AppUserRoleRecord> AppUserRoles => Set<AppUserRoleRecord>();
+    public DbSet<AppAuditLogRecord> AppAuditLogs => Set<AppAuditLogRecord>();
+    public DbSet<SocialPostRecord> SocialPosts => Set<SocialPostRecord>();
+    public DbSet<SocialCommentRecord> SocialComments => Set<SocialCommentRecord>();
+    public DbSet<SocialPostMetricRecord> SocialPostMetrics => Set<SocialPostMetricRecord>();
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        base.OnConfiguring(optionsBuilder);
+        optionsBuilder.ConfigureWarnings(w => w.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning));
+    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -170,10 +184,14 @@ public sealed class BootstrapDbContext : DbContext
             entity.Property(e => e.PageId).HasColumnName("page_id");
             entity.Property(e => e.CustomerId).HasColumnName("customer_id");
             entity.Property(e => e.CustomerName).HasColumnName("customer_name");
+            entity.Property(e => e.CustomerPhone).HasColumnName("customer_phone");
             entity.Property(e => e.Snippet).HasColumnName("snippet");
             entity.Property(e => e.MessageCount).HasColumnName("message_count");
             entity.Property(e => e.HasPhone).HasColumnName("has_phone");
             entity.Property(e => e.IsReplied).HasColumnName("is_replied");
+            entity.Property(e => e.Status).HasColumnName("status");
+            entity.Property(e => e.AssignedToActor).HasColumnName("assigned_to_actor");
+            entity.Property(e => e.InternalNote).HasColumnName("internal_note");
             entity.Property(e => e.TagsJson).HasColumnName("tags").HasColumnType("jsonb");
             entity.Property(e => e.InsertedAt).HasColumnName("inserted_at");
             entity.Property(e => e.UpdatedAt).HasColumnName("updated_at");
@@ -199,6 +217,115 @@ public sealed class BootstrapDbContext : DbContext
             entity.Property(e => e.CreatedTime).HasColumnName("created_time");
             entity.Property(e => e.SyncedAt).HasColumnName("synced_at");
             entity.Property(e => e.CreatedAt).HasColumnName("created_at");
+        });
+
+        // ── RBAC Entity Configurations ──
+        modelBuilder.Entity<AppUserRecord>(entity =>
+        {
+            entity.ToTable("app_users");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.ActorId).IsRequired().HasMaxLength(128);
+            entity.Property(e => e.DisplayName).IsRequired().HasMaxLength(256);
+            entity.Property(e => e.CreatedAtUtc).IsRequired();
+            entity.Property(e => e.UpdatedAtUtc).IsRequired();
+            entity.HasIndex(e => e.ActorId).IsUnique();
+        });
+
+        modelBuilder.Entity<AppRoleRecord>(entity =>
+        {
+            entity.ToTable("app_roles");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Name).IsRequired().HasMaxLength(64);
+            entity.Property(e => e.Description).IsRequired().HasMaxLength(256);
+            entity.Property(e => e.IsSystem).IsRequired();
+            entity.Property(e => e.CreatedAtUtc).IsRequired();
+            entity.HasIndex(e => e.Name).IsUnique();
+        });
+
+        modelBuilder.Entity<AppRolePermissionRecord>(entity =>
+        {
+            entity.ToTable("app_role_permissions");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.RoleId).IsRequired();
+            entity.Property(e => e.Permission).IsRequired().HasMaxLength(128);
+            entity.HasIndex(e => new { e.RoleId, e.Permission }).IsUnique();
+        });
+
+        modelBuilder.Entity<AppUserRoleRecord>(entity =>
+        {
+            entity.ToTable("app_user_roles");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.UserId).IsRequired();
+            entity.Property(e => e.RoleId).IsRequired();
+            entity.HasIndex(e => new { e.UserId, e.RoleId }).IsUnique();
+        });
+
+        modelBuilder.Entity<AppAuditLogRecord>(entity =>
+        {
+            entity.ToTable("app_audit_logs");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.ActorId).IsRequired().HasMaxLength(128);
+            entity.Property(e => e.Permission).IsRequired().HasMaxLength(128);
+            entity.Property(e => e.Action).IsRequired().HasMaxLength(64);
+            entity.Property(e => e.EntityId).IsRequired().HasMaxLength(128);
+            entity.Property(e => e.Details).HasMaxLength(2048);
+            entity.Property(e => e.TimestampUtc).IsRequired();
+        });
+
+        // ── Social Content Entity Configurations ──
+        modelBuilder.Entity<SocialPostRecord>(entity =>
+        {
+            entity.ToTable("social_posts");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.PostId).IsRequired().HasMaxLength(128);
+            entity.Property(e => e.PageId).IsRequired().HasMaxLength(128);
+            entity.Property(e => e.Message).HasMaxLength(4000);
+            entity.Property(e => e.PermalinkUrl).HasMaxLength(1024);
+            entity.Property(e => e.FullPicture).HasMaxLength(2048);
+            entity.Property(e => e.MediaType).HasMaxLength(32);
+            entity.Property(e => e.MediaUrl).HasMaxLength(2048);
+            entity.Property(e => e.ThumbnailUrl).HasMaxLength(2048);
+            entity.Property(e => e.Status).IsRequired().HasMaxLength(32);
+            entity.Property(e => e.ScheduledAtUtc);
+            entity.Property(e => e.GraphScheduled).IsRequired();
+            entity.Property(e => e.ReactionCount);
+            entity.Property(e => e.CommentCount);
+            entity.Property(e => e.ShareCount);
+            entity.Property(e => e.CreatedTimeUtc);
+            entity.Property(e => e.CreatedAtUtc).IsRequired();
+            entity.HasIndex(e => e.PostId).IsUnique();
+            entity.HasIndex(e => e.Status);
+        });
+
+        modelBuilder.Entity<SocialCommentRecord>(entity =>
+        {
+            entity.ToTable("social_comments");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.CommentId).IsRequired().HasMaxLength(128);
+            entity.Property(e => e.PostId).IsRequired().HasMaxLength(128);
+            entity.Property(e => e.FromId).HasMaxLength(128);
+            entity.Property(e => e.FromName).HasMaxLength(256);
+            entity.Property(e => e.Message).HasMaxLength(4000);
+            entity.Property(e => e.ParentCommentId).HasMaxLength(128);
+            entity.Property(e => e.IsHidden).IsRequired();
+            entity.Property(e => e.CreatedTimeUtc);
+            entity.Property(e => e.CreatedAtUtc).IsRequired();
+            entity.HasIndex(e => e.CommentId).IsUnique();
+            entity.HasIndex(e => e.PostId);
+        });
+
+        modelBuilder.Entity<SocialPostMetricRecord>(entity =>
+        {
+            entity.ToTable("social_post_metrics");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.PostId).IsRequired().HasMaxLength(128);
+            entity.Property(e => e.Impressions).IsRequired();
+            entity.Property(e => e.EngagedUsers).IsRequired();
+            entity.Property(e => e.Clicks).IsRequired();
+            entity.Property(e => e.Source).IsRequired().HasMaxLength(32);
+            entity.Property(e => e.DataFreshness).IsRequired().HasMaxLength(32);
+            entity.Property(e => e.FetchedAtUtc).IsRequired();
+            entity.HasIndex(e => e.PostId).IsUnique();
         });
     }
 }

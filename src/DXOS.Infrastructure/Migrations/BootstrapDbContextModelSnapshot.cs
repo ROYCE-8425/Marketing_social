@@ -22,6 +22,146 @@ namespace DXOS.Infrastructure.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("DXOS.Infrastructure.Persistence.Entities.AppAuditLogRecord", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Action")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("ActorId")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<string>("Details")
+                        .HasMaxLength(2048)
+                        .HasColumnType("character varying(2048)");
+
+                    b.Property<string>("EntityId")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<string>("Permission")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<DateTimeOffset>("TimestampUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("app_audit_logs", (string)null);
+                });
+
+            modelBuilder.Entity("DXOS.Infrastructure.Persistence.Entities.AppRolePermissionRecord", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Permission")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<Guid>("RoleId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RoleId", "Permission")
+                        .IsUnique();
+
+                    b.ToTable("app_role_permissions", (string)null);
+                });
+
+            modelBuilder.Entity("DXOS.Infrastructure.Persistence.Entities.AppRoleRecord", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<bool>("IsSystem")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("app_roles", (string)null);
+                });
+
+            modelBuilder.Entity("DXOS.Infrastructure.Persistence.Entities.AppUserRecord", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ActorId")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DisplayName")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<DateTimeOffset>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ActorId")
+                        .IsUnique();
+
+                    b.ToTable("app_users", (string)null);
+                });
+
+            modelBuilder.Entity("DXOS.Infrastructure.Persistence.Entities.AppUserRoleRecord", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("RoleId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId", "RoleId")
+                        .IsUnique();
+
+                    b.ToTable("app_user_roles", (string)null);
+                });
+
             modelBuilder.Entity("DXOS.Infrastructure.Persistence.Entities.CampaignRecord", b =>
                 {
                     b.Property<Guid>("Id")
@@ -204,6 +344,386 @@ namespace DXOS.Infrastructure.Migrations
                     b.ToTable("sales_assignment_state", (string)null);
                 });
 
+            modelBuilder.Entity("DXOS.Infrastructure.Persistence.Entities.SocialCommentRecord", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("text");
+
+                    b.Property<string>("CommentId")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset?>("CreatedTimeUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("FromId")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<string>("FromName")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<bool>("IsHidden")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Message")
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)");
+
+                    b.Property<string>("ParentCommentId")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<string>("PostId")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CommentId")
+                        .IsUnique();
+
+                    b.HasIndex("PostId");
+
+                    b.ToTable("social_comments", (string)null);
+                });
+
+            modelBuilder.Entity("DXOS.Infrastructure.Persistence.Entities.SocialConversationRecord", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("text")
+                        .HasColumnName("id");
+
+                    b.Property<string>("AssignedToActor")
+                        .HasColumnType("text")
+                        .HasColumnName("assigned_to_actor");
+
+                    b.Property<string>("CustomerId")
+                        .HasColumnType("text")
+                        .HasColumnName("customer_id");
+
+                    b.Property<string>("CustomerName")
+                        .HasColumnType("text")
+                        .HasColumnName("customer_name");
+
+                    b.Property<string>("CustomerPhone")
+                        .HasColumnType("text")
+                        .HasColumnName("customer_phone");
+
+                    b.Property<bool>("HasPhone")
+                        .HasColumnType("boolean")
+                        .HasColumnName("has_phone");
+
+                    b.Property<DateTimeOffset?>("InsertedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("inserted_at");
+
+                    b.Property<string>("InternalNote")
+                        .HasColumnType("text")
+                        .HasColumnName("internal_note");
+
+                    b.Property<bool>("IsReplied")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_replied");
+
+                    b.Property<int>("MessageCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("message_count");
+
+                    b.Property<string>("PageId")
+                        .HasColumnType("text")
+                        .HasColumnName("page_id");
+
+                    b.Property<string>("Snippet")
+                        .HasColumnType("text")
+                        .HasColumnName("snippet");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("text")
+                        .HasDefaultValue("open")
+                        .HasColumnName("status");
+
+                    b.Property<DateTimeOffset?>("SyncedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("synced_at");
+
+                    b.Property<string>("TagsJson")
+                        .HasColumnType("jsonb")
+                        .HasColumnName("tags");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("conversations", "aiecos_social");
+                });
+
+            modelBuilder.Entity("DXOS.Infrastructure.Persistence.Entities.SocialCustomerRecord", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("text")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset?>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("EmailsJson")
+                        .HasColumnType("jsonb")
+                        .HasColumnName("emails");
+
+                    b.Property<DateTimeOffset?>("FirstSeenAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("first_seen_at");
+
+                    b.Property<DateTimeOffset?>("LastSeenAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_seen_at");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("text")
+                        .HasColumnName("name");
+
+                    b.Property<int>("OrderCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("order_count");
+
+                    b.Property<string>("PageId")
+                        .HasColumnType("text")
+                        .HasColumnName("page_id");
+
+                    b.Property<string>("PhoneNumbersJson")
+                        .HasColumnType("jsonb")
+                        .HasColumnName("phone_numbers");
+
+                    b.Property<decimal>("PurchasedAmount")
+                        .HasColumnType("numeric")
+                        .HasColumnName("purchased_amount");
+
+                    b.Property<string>("TagsJson")
+                        .HasColumnType("jsonb")
+                        .HasColumnName("tags");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("customers", "aiecos_social");
+                });
+
+            modelBuilder.Entity("DXOS.Infrastructure.Persistence.Entities.SocialMessageRecord", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("text")
+                        .HasColumnName("id");
+
+                    b.Property<string>("AttachmentsJson")
+                        .HasColumnType("jsonb")
+                        .HasColumnName("attachments");
+
+                    b.Property<string>("Content")
+                        .HasColumnType("text")
+                        .HasColumnName("content");
+
+                    b.Property<string>("ContentHtml")
+                        .HasColumnType("text")
+                        .HasColumnName("content_html");
+
+                    b.Property<string>("ConversationId")
+                        .HasColumnType("text")
+                        .HasColumnName("conversation_id");
+
+                    b.Property<DateTimeOffset?>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<DateTimeOffset?>("CreatedTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_time");
+
+                    b.Property<bool>("IsUnsent")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_unsent");
+
+                    b.Property<string>("MessageType")
+                        .HasColumnType("text")
+                        .HasColumnName("message_type");
+
+                    b.Property<string>("PageId")
+                        .HasColumnType("text")
+                        .HasColumnName("page_id");
+
+                    b.Property<string>("ReactionsJson")
+                        .HasColumnType("jsonb")
+                        .HasColumnName("reactions");
+
+                    b.Property<string>("SenderId")
+                        .HasColumnType("text")
+                        .HasColumnName("sender_id");
+
+                    b.Property<string>("SenderName")
+                        .HasColumnType("text")
+                        .HasColumnName("sender_name");
+
+                    b.Property<string>("SenderType")
+                        .HasColumnType("text")
+                        .HasColumnName("sender_type");
+
+                    b.Property<DateTimeOffset?>("SyncedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("synced_at");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("messages", "aiecos_social");
+                });
+
+            modelBuilder.Entity("DXOS.Infrastructure.Persistence.Entities.SocialPageRecord", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("text")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset?>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_active");
+
+                    b.Property<DateTimeOffset?>("LastSyncAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_sync_at");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("text")
+                        .HasColumnName("name");
+
+                    b.Property<int>("TotalConversations")
+                        .HasColumnType("integer")
+                        .HasColumnName("total_conversations");
+
+                    b.Property<int>("TotalMessages")
+                        .HasColumnType("integer")
+                        .HasColumnName("total_messages");
+
+                    b.Property<string>("Type")
+                        .HasColumnType("text")
+                        .HasColumnName("type");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("pages", "aiecos_social");
+                });
+
+            modelBuilder.Entity("DXOS.Infrastructure.Persistence.Entities.SocialPostMetricRecord", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("text");
+
+                    b.Property<long>("Clicks")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("DataFreshness")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<long>("EngagedUsers")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTimeOffset>("FetchedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long>("Impressions")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("PostId")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<string>("Source")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PostId")
+                        .IsUnique();
+
+                    b.ToTable("social_post_metrics", (string)null);
+                });
+
+            modelBuilder.Entity("DXOS.Infrastructure.Persistence.Entities.SocialPostRecord", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset?>("CreatedTimeUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Message")
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)");
+
+                    b.Property<string>("PageId")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<string>("PermalinkUrl")
+                        .HasMaxLength(1024)
+                        .HasColumnType("character varying(1024)");
+
+                    b.Property<string>("PostId")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<long>("CommentCount")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("ReactionCount")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("ShareCount")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PostId")
+                        .IsUnique();
+
+                    b.ToTable("social_posts", (string)null);
+                });
+
             modelBuilder.Entity("DXOS.Infrastructure.Persistence.Entities.SpendProposalRecord", b =>
                 {
                     b.Property<Guid>("Id")
@@ -262,6 +782,48 @@ namespace DXOS.Infrastructure.Migrations
                     b.ToTable("spend_proposals", (string)null);
                 });
 
+            modelBuilder.Entity("DXOS.Infrastructure.Persistence.Entities.TrafficSnapshotRecord", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("CampaignId")
+                        .HasColumnType("uuid");
+
+                    b.Property<long>("Clicks")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long>("Impressions")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateOnly>("PeriodDate")
+                        .HasColumnType("date");
+
+                    b.Property<string>("RecordedByActor")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<string>("Source")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<decimal>("SpendVnd")
+                        .HasColumnType("numeric(18,0)");
+
+                    b.Property<long>("Visits")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("traffic_snapshots", (string)null);
+                });
+
             modelBuilder.Entity("DXOS.Infrastructure.Persistence.Entities.WebhookEventRecord", b =>
                 {
                     b.Property<Guid>("Id")
@@ -303,48 +865,6 @@ namespace DXOS.Infrastructure.Migrations
                         .IsUnique();
 
                     b.ToTable("webhook_events", (string)null);
-                });
-
-            modelBuilder.Entity("DXOS.Infrastructure.Persistence.Entities.TrafficSnapshotRecord", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("CampaignId")
-                        .HasColumnType("uuid");
-
-                    b.Property<long>("Clicks")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTimeOffset>("CreatedAtUtc")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<long>("Impressions")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateOnly>("PeriodDate")
-                        .HasColumnType("date");
-
-                    b.Property<string>("RecordedByActor")
-                        .IsRequired()
-                        .HasMaxLength(128)
-                        .HasColumnType("character varying(128)");
-
-                    b.Property<string>("Source")
-                        .IsRequired()
-                        .HasMaxLength(32)
-                        .HasColumnType("character varying(32)");
-
-                    b.Property<decimal>("SpendVnd")
-                        .HasColumnType("numeric(18,0)");
-
-                    b.Property<long>("Visits")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("traffic_snapshots", (string)null);
                 });
 #pragma warning restore 612, 618
         }

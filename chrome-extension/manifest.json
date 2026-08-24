@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "AIECOS Pancake Connector",
+  "name": "SEO Trùm Pancake Connector",
   "version": "4.6.0",
-  "description": "Sync Pancake (Zalo/Facebook) data → AIECOS Social CRM. Pancake-specific selectors + msgID dedup.",
+  "description": "Sync Pancake (Zalo/Facebook) data → SEO Trùm Social CRM. Pancake-specific selectors + msgID dedup.",
   "permissions": ["storage", "activeTab", "scripting", "alarms", "tabs"],
   "host_permissions": [
     "http://localhost:*/*",

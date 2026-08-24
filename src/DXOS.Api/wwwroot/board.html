@@ -1351,7 +1351,7 @@
                         if (remainSec > 0) {
                             const min = Math.floor(remainSec / 60);
                             const sec = remainSec % 60;
-                            actions += `<button class="btn-sm btn-warning" onclick="undoCampaign('${c.id}')" title="Hoàn tác phê duyệt về Chờ duyệt">Hoàn tác <span class="undo-timer">(${min}p ${sec}s)</span></button>`;
+                            actions += `<button class="btn-sm btn-warning" onclick="undoCampaign('${c.id}')" title="Hoàn tác phê duyệt về Chờ duyệt">Hoàn tác <span class="undo-timer-span" data-approved-at="${c.approvedAtUtc}">(${min}p ${sec}s)</span></button>`;
                         }
                     }
                 }
@@ -1445,7 +1445,7 @@
                     const min = Math.floor(remainSec / 60);
                     const sec = remainSec % 60;
                     const isUrgent = remainSec < 120;
-                    slaHtml = `<span class="sla-badge ${isUrgent ? "urgent" : ""}">⏱ Còn ${min}p ${sec}s (${lead.label === "Hot" ? "5p" : "30p"})</span>`;
+                    slaHtml = `<span class="sla-badge sla-timer-badge ${isUrgent ? "urgent" : ""}" data-assigned-at="${lead.assignedAtUtc}" data-label="${lead.label}">⏱ Còn ${min}p ${sec}s (${lead.label === "Hot" ? "5p" : "30p"})</span>`;
                 } else {
                     slaHtml = `<span style="font-size:12px; color:var(--text-subtle);">Không gán Sales</span>`;
                 }
@@ -1953,15 +1953,64 @@
             await loadCpl(spend, daily, budget);
         });
 
-        // Default Date
-        document.getElementById("traffic-date").value = new Date().toISOString().split("T")[0];
+        // ── Targeted Live Timers (updates text only, zero table re-render) ──
+        function updateLiveTimers() {
+            const now = new Date();
+
+            // 1. Update SLA countdown text
+            document.querySelectorAll(".sla-timer-badge").forEach(el => {
+                const assignedAt = el.getAttribute("data-assigned-at");
+                const label = el.getAttribute("data-label");
+                if (!assignedAt) return;
+                const assignedDate = new Date(assignedAt);
+                const slaMaxSec = label === "Hot" ? 300 : 1800;
+                const elapsedSec = Math.floor((now - assignedDate) / 1000);
+                const remainSec = Math.max(0, slaMaxSec - elapsedSec);
+                const min = Math.floor(remainSec / 60);
+                const sec = remainSec % 60;
+                const isUrgent = remainSec < 120;
+                el.textContent = `⏱ Còn ${min}p ${sec}s (${label === "Hot" ? "5p" : "30p"})`;
+                if (isUrgent) el.classList.add("urgent");
+                else el.classList.remove("urgent");
+            });
+
+            // 2. Update Undo countdown text
+            document.querySelectorAll(".undo-timer-span").forEach(el => {
+                const approvedAt = el.getAttribute("data-approved-at");
+                if (!approvedAt) return;
+                const approvedDate = new Date(approvedAt);
+                const elapsedSec = Math.floor((now - approvedDate) / 1000);
+                const remainSec = Math.max(0, 900 - elapsedSec);
+                const min = Math.floor(remainSec / 60);
+                const sec = remainSec % 60;
+                if (remainSec > 0) {
+                    el.textContent = `(${min}p ${sec}s)`;
+                } else {
+                    const btn = el.closest("button");
+                    if (btn) btn.style.display = "none";
+                }
+            });
+        }
 
         // Init
         refreshAll();
-        state.slaInterval = setInterval(() => {
-            renderCampaigns();
-            renderLeads();
-        }, 1000);
+
+        // 1. Update timer texts every 1s (cheap text update, no DOM reconstruction)
+        state.slaInterval = setInterval(updateLiveTimers, 1000);
+
+        // 2. Poll new data from server every 10s only when tab is visible
+        state.dataPollInterval = setInterval(() => {
+            if (!document.hidden) {
+                refreshAll();
+            }
+        }, 10000);
+
+        // 3. Immediately refresh when user switches back to this tab
+        document.addEventListener("visibilitychange", () => {
+            if (!document.hidden) {
+                refreshAll();
+            }
+        });
     </script>
 </body>
 </html>

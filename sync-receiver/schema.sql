@@ -42,15 +42,25 @@ CREATE TABLE IF NOT EXISTS conversations (
   page_id               text REFERENCES pages(id),
   customer_id           text REFERENCES customers(id),
   customer_name         text,
+  customer_phone        text,
   snippet               text,
   message_count         integer DEFAULT 0,
   has_phone             boolean DEFAULT false,
   is_replied            boolean DEFAULT false,
+  status                text NOT NULL DEFAULT 'open',
+  assigned_to_actor     text,
+  internal_note         text,
   tags                  jsonb DEFAULT '[]'::jsonb,
   inserted_at           timestamptz DEFAULT now(),
   updated_at            timestamptz DEFAULT now(),
   synced_at             timestamptz DEFAULT now()
 );
+
+-- Backward compatibility column migrations
+ALTER TABLE conversations ADD COLUMN IF NOT EXISTS status text NOT NULL DEFAULT 'open';
+ALTER TABLE conversations ADD COLUMN IF NOT EXISTS assigned_to_actor text;
+ALTER TABLE conversations ADD COLUMN IF NOT EXISTS internal_note text;
+ALTER TABLE conversations ADD COLUMN IF NOT EXISTS customer_phone text;
 
 -- 5. Messages (individual chat messages)
 CREATE TABLE IF NOT EXISTS messages (

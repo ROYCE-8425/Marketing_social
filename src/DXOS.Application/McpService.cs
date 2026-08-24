@@ -18,18 +18,21 @@ public sealed class McpService
     private readonly LeadService _leadService;
     private readonly TrafficService? _trafficService;
     private readonly IWebhookEventStore? _webhookStore;
+    private readonly PageHealthService? _pageHealthService;
     private readonly IClock _clock;
 
     public McpService(
         LeadService leadService,
         IClock clock,
         TrafficService? trafficService = null,
-        IWebhookEventStore? webhookStore = null)
+        IWebhookEventStore? webhookStore = null,
+        PageHealthService? pageHealthService = null)
     {
         _leadService = leadService;
         _clock = clock;
         _trafficService = trafficService;
         _webhookStore = webhookStore;
+        _pageHealthService = pageHealthService;
     }
 
     public static IReadOnlyList<McpToolDefinition> GetToolDefinitions() =>
@@ -73,20 +76,20 @@ public sealed class McpService
             }),
         new(
             "analytics_summary",
-            "Lấy báo cáo tổng hợp hiệu quả Marketing & Sales: số lượng Lead theo kênh, tỷ lệ Hot/Warm/Cold, số chốt đơn, doanh thu và chỉ số CPL.",
+            "Xem báo cáo tổng hợp chi phí chuyển đổi (CPL), số lượng Lead theo nguồn kênh (Facebook/TikTok/Form/Zalo) và ngân sách.",
             new
             {
                 type = "object",
                 properties = new
                 {
-                    spendOverride = new { type = "number", description = "Chi phí tùy chỉnh mô phỏng (VND)." },
-                    dailySpend = new { type = "number", description = "Tốc độ chi tiêu mỗi ngày (VND)." },
-                    budget = new { type = "number", description = "Tổng ngân sách khả dụng (VND)." }
+                    spendOverride = new { type = "number", description = "Ngân sách chi tiêu thủ công nếu muốn ghi đè." },
+                    dailySpend = new { type = "number", description = "Chi tiêu hàng ngày ước tính." },
+                    budget = new { type = "number", description = "Tổng ngân sách chiến dịch." }
                 }
             }),
         new(
             "platform_connections",
-            "Danh sách các kênh quảng cáo / mạng xã hội đang kết nối (Facebook, TikTok, Zalo). Tuyệt đối không chứa secret hay token.",
+            "Liệt kê danh sách các kênh mạng xã hội/quảng cáo đã tích hợp (Facebook, TikTok, Zalo).",
             new
             {
                 type = "object",
@@ -99,6 +102,17 @@ public sealed class McpService
             {
                 type = "object",
                 properties = new { }
+            }),
+        new(
+            "page_health",
+            "Đánh giá sức khỏe và hiệu quả vận hành Fanpage Facebook (Nội dung, Hộp thư, Lead, Tương tác) bằng thuật toán chuẩn hóa.",
+            new
+            {
+                type = "object",
+                properties = new
+                {
+                    pageId = new { type = "string", description = "Mã Fanpage cần đánh giá (mặc định: trang chính của hệ thống)." }
+                }
             })
     ];
 
@@ -123,6 +137,7 @@ public sealed class McpService
                 "analytics_summary" => await HandleAnalyticsSummaryAsync(arguments, cancellationToken),
                 "platform_connections" => HandlePlatformConnections(),
                 "sync_status" => await HandleSyncStatusAsync(cancellationToken),
+                "page_health" => await HandlePageHealthAsync(arguments, cancellationToken),
                 _ => new McpToolResult(true, null, $"Unknown tool '{toolName}'.")
             };
         }
@@ -291,6 +306,28 @@ public sealed class McpService
             mockPlatforms = new[] { "facebook", "tiktok", "zalo" },
             lastEventReceivedAtUtc = lastReceivedAt
         });
+    }
+
+    private async Task<McpToolResult> HandlePageHealthAsync(
+        JsonElement? arguments,
+        CancellationToken cancellationToken)
+    {
+        if (_pageHealthService is null)
+        {
+            return new McpToolResult(true, null, "PageHealthService is not available.");
+        }
+
+        string? pageId = null;
+        if (arguments.HasValue && arguments.Value.ValueKind == JsonValueKind.Object)
+        {
+            if (arguments.Value.TryGetProperty("pageId", out var pProp) && pProp.ValueKind == JsonValueKind.String)
+            {
+                pageId = pProp.GetString();
+            }
+        }
+
+        var evaluation = await _pageHealthService.EvaluatePageHealthAsync(pageId ?? "988656934325292", cancellationToken);
+        return new McpToolResult(false, evaluation);
     }
 
     public async Task<object> HandleJsonRpcAsync(

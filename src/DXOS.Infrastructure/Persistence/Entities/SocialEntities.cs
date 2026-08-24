@@ -35,10 +35,14 @@ public sealed class SocialConversationRecord
     public string? PageId { get; set; }
     public string? CustomerId { get; set; }
     public string? CustomerName { get; set; }
+    public string? CustomerPhone { get; set; }
     public string? Snippet { get; set; }
     public int MessageCount { get; set; }
     public bool HasPhone { get; set; }
     public bool IsReplied { get; set; }
+    public string Status { get; set; } = "open"; // "open", "pending", "done", "spam"
+    public string? AssignedToActor { get; set; }
+    public string? InternalNote { get; set; }
     public string TagsJson { get; set; } = "[]";
     public DateTimeOffset InsertedAt { get; set; } = DateTimeOffset.UtcNow;
     public DateTimeOffset UpdatedAt { get; set; } = DateTimeOffset.UtcNow;

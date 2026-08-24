@@ -76,4 +76,33 @@ public sealed class BootstrapDbContextModelTests
         Assert.NotNull(property);
         Assert.False(property.IsNullable);
     }
+
+    [Fact]
+    public void Model_MapsRbacAndSocialContentEntities()
+    {
+        using var context = CreateContext();
+
+        var appRoleType = context.Model.FindEntityType(typeof(AppRoleRecord));
+        Assert.NotNull(appRoleType);
+        Assert.Equal("app_roles", appRoleType.GetTableName());
+
+        var appUserType = context.Model.FindEntityType(typeof(AppUserRecord));
+        Assert.NotNull(appUserType);
+        Assert.Equal("app_users", appUserType.GetTableName());
+
+        var postType = context.Model.FindEntityType(typeof(SocialPostRecord));
+        Assert.NotNull(postType);
+        Assert.Equal("social_posts", postType.GetTableName());
+
+        var commentType = context.Model.FindEntityType(typeof(SocialCommentRecord));
+        Assert.NotNull(commentType);
+        Assert.Equal("social_comments", commentType.GetTableName());
+
+        var convType = context.Model.FindEntityType(typeof(SocialConversationRecord));
+        Assert.NotNull(convType);
+        Assert.NotNull(convType.FindProperty(nameof(SocialConversationRecord.Status)));
+        Assert.NotNull(convType.FindProperty(nameof(SocialConversationRecord.AssignedToActor)));
+        Assert.NotNull(convType.FindProperty(nameof(SocialConversationRecord.InternalNote)));
+        Assert.NotNull(convType.FindProperty(nameof(SocialConversationRecord.CustomerPhone)));
+    }
 }

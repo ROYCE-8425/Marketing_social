@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="referrer" content="no-referrer">
-<title>AIECOS Social CRM — Open-source Pancake → Supabase</title>
+<title>SEO Trùm Social CRM — Bảng điều hành Marketing & Social CRM</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="Open-source social CRM template — Pancake (Zalo/Facebook) → Supabase with admin UI + MCP server for AI agents. 5-stage B2B partner classification.">
+<meta name="description" content="Hệ thống SEO Trùm Social CRM — Quản lý hội thoại Pancake (Zalo/Facebook), phân loại khách hàng B2B và điều phối marketing.">
 <meta name="theme-color" content="#0f172a">
-<meta property="og:title" content="AIECOS Social CRM">
-<meta property="og:description" content="Sync Pancake (Zalo OA / Facebook Messenger / Instagram) → Supabase. Built-in admin UI + MCP server.">
+<meta property="og:title" content="SEO Trùm Social CRM">
+<meta property="og:description" content="Đồng bộ Pancake (Zalo OA / Facebook Messenger / Instagram) → Social CRM. Built-in admin UI + MCP server.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://github.com/aiecosvietnam/aiecos-social-crm">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%233b82f6'/%3E%3Cstop offset='1' stop-color='%23a78bfa'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' rx='22' fill='url(%23g)'/%3E%3Cpath d='M50 22 L60 42 L80 46 L65 60 L70 80 L50 70 L30 80 L35 60 L20 46 L40 42 Z' fill='white'/%3E%3C/svg%3E">
@@ -193,6 +193,94 @@
   .pill-dormant { background:rgba(236,72,153,.12); color:var(--pink); }
   .pill-churned { background:rgba(239,68,68,.12); color:var(--red); }
 
+  /* ── Authentic Facebook Post Card & Accordion Design ── */
+  .fb-feed-item { border-bottom:1px solid var(--border); transition:background var(--transition); }
+  .fb-feed-item:last-child { border-bottom:none; }
+  .fb-feed-summary { display:flex; justify-content:space-between; align-items:center; padding:14px 18px; cursor:pointer; gap:12px; transition:background var(--transition); user-select:none; }
+  .fb-feed-summary:hover { background:var(--bg-hover); }
+  .fb-feed-summary-left { display:flex; align-items:center; gap:12px; flex:1; min-width:0; }
+  .fb-feed-mini-thumb { width:46px; height:46px; border-radius:8px; object-fit:cover; flex-shrink:0; background:var(--bg-subtle); display:flex; align-items:center; justify-content:center; overflow:hidden; position:relative; border:1px solid var(--border); }
+  .fb-feed-summary-meta { flex:1; min-width:0; }
+  .fb-feed-summary-title { font-size:13px; font-weight:600; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .fb-feed-summary-sub { font-size:11px; color:var(--text-muted); margin-top:2px; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  .fb-feed-summary-right { display:flex; align-items:center; gap:10px; flex-shrink:0; }
+  .fb-expand-badge { display:inline-flex; align-items:center; gap:4px; padding:4px 10px; border-radius:16px; font-size:11px; font-weight:600; color:var(--accent); background:rgba(59,130,246,0.08); border:1px solid rgba(59,130,246,0.2); cursor:pointer; }
+  .fb-expand-badge:hover { background:rgba(59,130,246,0.15); }
+
+  /* Expanded Native Facebook Card Container */
+  .fb-feed-expanded-body { padding:6px 18px 20px 18px; display:none; }
+  .fb-feed-expanded-body.open { display:block; animation:fbFadeIn 0.22s ease-out; }
+  @keyframes fbFadeIn { from { opacity:0; transform:translateY(-6px); } to { opacity:1; transform:translateY(0); } }
+
+  .fb-native-card { max-width:680px; margin:0 auto; background:var(--bg-card); border:1px solid var(--border); border-radius:10px; box-shadow:0 1px 3px rgba(0,0,0,0.08); overflow:hidden; }
+  .fb-post-header { display:flex; justify-content:space-between; align-items:flex-start; padding:12px 16px 8px 16px; gap:10px; }
+  .fb-avatar-group { display:flex; align-items:center; gap:10px; }
+  .fb-page-avatar-img { width:40px; height:40px; border-radius:50%; object-fit:cover; border:1px solid rgba(0,0,0,0.1); flex-shrink:0; }
+  .fb-page-avatar-fallback { width:40px; height:40px; border-radius:50%; background:linear-gradient(135deg, #1877f2, #0b5ed7); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px; flex-shrink:0; }
+  .fb-page-title-row { display:flex; align-items:center; gap:5px; font-weight:700; font-size:15px; color:var(--text); line-height:1.2; }
+  .fb-verified-check { width:15px; height:15px; fill:#1877f2; flex-shrink:0; }
+  .fb-post-subtext { font-size:13px; color:var(--text-muted); display:flex; align-items:center; gap:5px; margin-top:2px; }
+  .fb-header-actions { display:flex; align-items:center; gap:6px; }
+
+  .fb-post-caption { padding:6px 16px 12px 16px; font-size:15px; line-height:1.36; color:var(--text); word-break:break-word; }
+  .fb-caption-text.clamped { display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+  .fb-caption-more-btn { color:var(--text); font-weight:700; cursor:pointer; font-size:14px; margin-left:4px; }
+  .fb-caption-more-btn:hover { text-decoration:underline; }
+
+  .fb-post-media-container { width:100%; background:#000; position:relative; overflow:hidden; display:flex; align-items:center; justify-content:center; }
+  .fb-post-media-img { width:100%; height:auto; max-height:640px; object-fit:contain; display:block; cursor:pointer; }
+  .fb-media-audio-badge { position:absolute; bottom:12px; right:12px; background:rgba(0,0,0,0.7); color:#fff; width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; }
+
+  .fb-messenger-cta-bar { display:flex; justify-content:space-between; align-items:center; padding:10px 16px; background:var(--bg-subtle); border-top:1px solid var(--border); border-bottom:1px solid var(--border); }
+  .fb-messenger-cta-label { font-size:12px; font-weight:700; text-transform:uppercase; color:var(--text-muted); letter-spacing:0.5px; }
+  .fb-messenger-cta-btn { display:inline-flex; align-items:center; gap:6px; padding:7px 14px; background:#e4e6eb; color:#050505; font-size:13px; font-weight:700; border-radius:6px; border:none; cursor:pointer; transition:background var(--transition); }
+  .fb-messenger-cta-btn:hover { background:#d8dadf; }
+  [data-theme="dark"] .fb-messenger-cta-btn { background:#3a3b3c; color:#e4e6eb; }
+  [data-theme="dark"] .fb-messenger-cta-btn:hover { background:#4e4f50; }
+
+  .fb-boost-banner { display:flex; justify-content:space-between; align-items:center; padding:10px 16px; background:var(--bg); border-bottom:1px solid var(--border); gap:12px; font-size:13px; }
+  .fb-boost-left { display:flex; align-items:center; gap:8px; color:var(--text); font-size:13px; }
+  .fb-boost-btn { padding:7px 14px; background:#0866ff; color:#fff; font-size:13px; font-weight:700; border-radius:6px; border:none; cursor:pointer; white-space:nowrap; transition:background var(--transition); }
+  .fb-boost-btn:hover { background:#0756d6; }
+
+  .fb-engagement-bar { display:flex; justify-content:space-between; align-items:center; padding:10px 16px; font-size:14px; color:var(--text-muted); border-bottom:1px solid var(--border); }
+  .fb-engagement-left { display:flex; align-items:center; gap:14px; }
+  .fb-stat-pill { display:inline-flex; align-items:center; gap:5px; font-weight:600; color:var(--text-muted); }
+  .fb-reaction-bubbles { display:inline-flex; align-items:center; }
+  .fb-reaction-bubble { width:20px; height:20px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-size:11px; border:2px solid var(--bg-card); }
+  .fb-bubble-like { background:#1877f2; color:#fff; z-index:3; }
+  .fb-bubble-heart { background:#fa383e; color:#fff; margin-left:-6px; z-index:2; }
+  .fb-bubble-haha { background:#f7b125; color:#fff; margin-left:-6px; z-index:1; }
+
+  .fb-action-row { display:grid; grid-template-columns:repeat(3, 1fr); padding:4px 6px; border-bottom:1px solid var(--border); }
+  .fb-feed-action-btn { background:none; border:none; padding:8px 0; border-radius:6px; font-size:14px; font-weight:600; color:var(--text-muted); display:flex; align-items:center; justify-content:center; gap:8px; cursor:pointer; transition:background var(--transition), color var(--transition); font-family:inherit; }
+  .fb-feed-action-btn:hover { background:var(--bg-subtle); color:var(--text); }
+  .fb-feed-action-btn.active-liked { color:#1877f2 !important; font-weight:700 !important; }
+
+  .fb-comments-section { padding:12px 16px; background:var(--bg); border-top:1px solid var(--border); }
+  .fb-comments-list { display:flex; flex-direction:column; gap:10px; margin-bottom:12px; max-height:280px; overflow-y:auto; }
+  .fb-comment-item { display:flex; gap:10px; align-items:flex-start; font-size:13px; }
+  .fb-comment-avatar { width:32px; height:32px; border-radius:50%; background:#1877f2; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:11px; flex-shrink:0; }
+  .fb-comment-bubble { background:var(--bg-card); border:1px solid var(--border); border-radius:14px; padding:8px 12px; max-width:88%; line-height:1.4; }
+  .fb-comment-author { font-weight:700; color:var(--text); font-size:12px; margin-bottom:2px; display:flex; align-items:center; gap:4px; }
+  .fb-comment-text { color:var(--text); word-break:break-word; font-size:13px; }
+  .fb-comment-time { font-size:11px; color:var(--text-muted); margin-top:3px; }
+  .fb-comment-input-row { display:flex; gap:10px; align-items:center; margin-top:8px; }
+  .fb-comment-input-wrap { flex:1; display:flex; align-items:center; background:var(--bg-card); border:1px solid var(--border); border-radius:20px; padding:4px 8px 4px 14px; gap:8px; }
+  .fb-comment-input { flex:1; border:none; background:transparent; font-size:13px; color:var(--text); outline:none; font-family:inherit; }
+  .fb-comment-send-btn { background:var(--accent); color:#fff; border:none; border-radius:50%; width:28px; height:28px; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:opacity var(--transition); flex-shrink:0; }
+  .fb-comment-send-btn:hover { opacity:0.9; }
+
+  .fb-insights-footer { padding:10px 16px; background:var(--bg-subtle); display:flex; flex-direction:column; gap:4px; font-size:12px; }
+  .post-caption { font-size:13px; line-height:1.5; color:var(--text); }
+  .post-caption.clamped { display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+  .post-card-row { display:flex; gap:16px; padding:16px 20px; border-bottom:1px solid var(--border); transition:background var(--transition); }
+  .post-card-row:hover { background:var(--bg-hover); }
+  .post-thumb-wrap { width:96px; height:96px; border-radius:8px; overflow:hidden; flex-shrink:0; position:relative; background:var(--bg-subtle); display:flex; align-items:center; justify-content:center; }
+  .post-thumb-img { width:100%; height:100%; object-fit:cover; display:block; }
+  .post-thumb-badge { position:absolute; bottom:4px; right:4px; background:rgba(0,0,0,.75); color:#fff; font-size:10px; font-weight:600; padding:2px 5px; border-radius:4px; display:flex; align-items:center; gap:3px; }
+  .metric-badge-item { display:inline-flex; align-items:center; gap:5px; background:var(--bg-subtle); padding:4px 10px; border-radius:6px; font-size:12px; font-weight:600; color:var(--text); }
+
   /* ── Improved table rows ── */
   tbody tr { cursor:pointer; }
   tbody tr:hover { background:var(--bg-hover); }
@@ -216,6 +304,7 @@
   .platform-badge.facebook { background:#1877F2; color:#fff; }
   .platform-badge.lead { background:#f59e0b; color:#fff; }
   .platform-badge.zalo { background:#0068FF; color:#fff; }
+  .platform-badge.tiktok { background:#000000; color:#25F4EE; }
   .platform-badge.instagram { background:linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); color:#fff; }
   .platform-badge svg, .platform-badge i { width:9px !important; height:9px !important; stroke-width:2.5px; }
 
@@ -356,8 +445,8 @@
     <div class="ws">
       <div class="avatar"><i data-lucide="sparkles" style="color:#fff; width:18px; height:18px;"></i></div>
       <div class="info">
-        <div class="name">AIECOS Demo</div>
-        <div class="sub">Social CRM</div>
+        <div class="name">SEO Trùm</div>
+        <div class="sub">Social CRM & Marketing</div>
       </div>
     </div>
 
@@ -367,6 +456,7 @@
     <div class="nav-item active" data-sec="dashboard"><i data-lucide="layout-dashboard"></i>Bảng điều khiển</div>
     <div class="nav-item" data-sec="triage"><i data-lucide="zap"></i>Cần chăm sóc</div>
     <div class="nav-item" data-sec="inbox"><i data-lucide="message-circle"></i>Hộp thư</div>
+    <div class="nav-item" data-sec="facebook-page"><i data-lucide="facebook"></i>Facebook Fanpage</div>
     <div class="nav-item" data-sec="pipeline"><i data-lucide="target"></i>Pipeline</div>
 
     <div class="nav-group">Khách hàng</div>
@@ -377,6 +467,7 @@
     <div class="nav-item" data-sec="reports"><i data-lucide="file-text"></i>Báo cáo</div>
 
     <div class="nav-group">Hệ thống</div>
+    <div class="nav-item" data-sec="rbac"><i data-lucide="shield-check"></i>Phân quyền RBAC</div>
     <div class="nav-item" data-sec="help"><i data-lucide="book-open"></i>Hướng dẫn & MCP</div>
     <div class="nav-item" data-sec="settings"><i data-lucide="settings"></i>Cài đặt</div>
   </aside>
@@ -386,8 +477,21 @@
     <!-- ═══ DASHBOARD ═══ -->
     <section class="section active" id="sec-dashboard">
       <div class="page-header">
-        <div><h1>Bảng điều khiển</h1><p>Tổng quan vận hành AIECOS Social CRM</p></div>
+        <div><h1>Bảng điều khiển</h1><p>Tổng quan vận hành SEO Trùm Social CRM & Phân quyền RBAC</p></div>
         <div class="header-actions">
+          <div style="display:flex; align-items:center; gap:6px; background:var(--bg-subtle); padding:4px 8px; border-radius:8px; border:1px solid var(--border);">
+            <i data-lucide="user-check" class="icon-sm" style="color:var(--accent);"></i>
+            <span style="font-size:11px; font-weight:600; color:var(--text-muted);">Actor:</span>
+            <select id="actorSwitcher" style="border:none; background:transparent; font-size:12px; font-weight:600; color:var(--text); outline:none; cursor:pointer;" onchange="changeActor(this.value)">
+              <option value="royce:Owner">royce (Chủ Doanh Nghiệp - Owner)</option>
+              <option value="admin_user:Admin">admin_user (Quản trị viên - Admin)</option>
+              <option value="marketer_bob:Marketer">marketer_bob (Marketing)</option>
+              <option value="content_carol:Content">content_carol (Nội dung Fanpage)</option>
+              <option value="sales_alice:Sales">sales_alice (Nhân viên Sales)</option>
+              <option value="viewer_dan:Viewer">viewer_dan (Chỉ xem - Viewer)</option>
+            </select>
+            <span id="actorPermCount" class="pill pill-active" style="font-size:9px; padding:1px 5px;" title="Số quyền hạn khả dụng">14 perms</span>
+          </div>
           <button class="btn sidebar-toggle" onclick="toggleSidebar()" title="Menu" aria-label="Toggle sidebar"><i data-lucide="menu" class="icon-sm"></i></button>
           <button class="btn" onclick="openCmdK()" title="Tìm kiếm (⌘K)" style="display:flex; align-items:center; gap:6px;" aria-label="Tìm kiếm"><i data-lucide="search" class="icon-sm"></i><span style="font-size:11px; color:var(--text-muted);">⌘K</span></button>
           <button class="theme-toggle" onclick="toggleTheme()" title="Đổi giao diện" aria-label="Đổi giao diện"><i data-lucide="sun-moon" class="icon-sm"></i></button>
@@ -463,6 +567,7 @@
       <div class="channel-row">
         <button class="channel-chip active" onclick="setInboxChannel('all', this)"><i data-lucide="globe" class="icon-sm"></i>Tất cả kênh</button>
         <button class="channel-chip" onclick="setInboxChannel('facebook', this)"><i data-lucide="facebook" class="icon-sm"></i>Facebook</button>
+        <button class="channel-chip" onclick="setInboxChannel('tiktok', this)"><i data-lucide="video" class="icon-sm"></i>TikTok</button>
         <button class="channel-chip" onclick="setInboxChannel('zalo_oa', this)"><i data-lucide="message-square" class="icon-sm"></i>Zalo</button>
         <button class="channel-chip" onclick="setInboxChannel('instagram', this)"><i data-lucide="instagram" class="icon-sm"></i>Instagram</button>
       </div>
@@ -476,7 +581,13 @@
         <!-- Middle: Conversations -->
         <div class="inbox-pane">
           <div class="inbox-pane-header"><i data-lucide="messages-square" class="icon-sm"></i>Hội thoại</div>
-          <div class="inbox-search"><input id="inboxSearch" type="text" placeholder="Tìm theo tên hoặc nội dung..." oninput="renderInbox()"></div>
+          <div class="inbox-search"><input id="inboxSearch" type="text" placeholder="Tìm theo tên, SĐT hoặc nội dung..." oninput="renderInbox()"></div>
+          <div class="filter-segs" id="inboxFilterChips" style="padding:6px 12px; margin-bottom:4px; display:flex; gap:4px; flex-wrap:wrap;">
+            <button class="active" onclick="setInboxFilter('all', this)">All</button>
+            <button onclick="setInboxFilter('unreplied', this)">Unreplied</button>
+            <button onclick="setInboxFilter('assigned_to_me', this)">Assigned to Me</button>
+            <button onclick="setInboxFilter('spam', this)">Spam</button>
+          </div>
           <div class="inbox-pane-body" id="inboxList">Đang tải...</div>
         </div>
         <!-- Right: Messages + Customer info (split via tabs) -->
@@ -685,13 +796,13 @@
 
       <div class="tab-content" id="tab-extension">
         <div class="card"><div class="card-body">
-          <h3 style="margin-top:0;">Install AIECOS Pancake Connector</h3>
+          <h3 style="margin-top:0;">Cài đặt SEO Trùm Pancake Connector</h3>
           <ol style="line-height:1.8;">
             <li>Mở <code>chrome://extensions/</code></li>
             <li>Bật <b>Developer mode</b> (góc phải trên)</li>
             <li>Click <b>Load unpacked</b></li>
             <li>Chọn folder <code>chrome-extension/</code></li>
-            <li>Pin icon AIECOS lên toolbar</li>
+            <li>Pin icon SEO Trùm lên toolbar</li>
             <li>Click icon → nhập <b>Server URL</b> (sync receiver) + <b>API Token</b></li>
             <li>Mở <code>app.pancake.vn</code> → extension tự sync mỗi phút</li>
             <li>Bấm <b>SYNC ALL</b> để walk hết history</li>
@@ -719,6 +830,190 @@
   -H "Content-Type: application/json" \
   -d @examples/sample-batch-payload.json</code></pre>
         </div></div>
+      </div>
+    </section>
+
+    <!-- ═══ FACEBOOK PAGE (ROYCE SHOP) ═══ -->
+    <section class="section" id="sec-facebook-page">
+      <div class="page-header">
+        <div>
+          <h1 style="display:flex; align-items:center; gap:8px;">
+            <i data-lucide="facebook" style="color:#1877f2;"></i>
+            Facebook Fanpage — Royce Shop
+          </h1>
+          <p>Quản trị Bài viết, Lên lịch xuất bản & Chỉ số Tương tác qua Official Graph API v22</p>
+        </div>
+        <div class="header-actions">
+          <button class="btn btn-primary" onclick="syncFacebookPosts()" id="btnSyncFbPosts">
+            <i data-lucide="refresh-cw" class="icon-sm"></i> Đồng bộ Bài viết & Insights
+          </button>
+        </div>
+      </div>
+
+      <!-- 1. Compact Health Strip -->
+      <div class="card" style="margin-bottom:18px; border:1px solid var(--border); border-left:4px solid var(--accent); background:var(--bg-card); box-shadow:var(--shadow-lg); border-radius:var(--radius-lg);">
+        <div class="card-body" id="fbPageHealthBody" style="padding:16px 20px;">
+          <div class="empty-state">Đang tải đánh giá sức khỏe Fanpage...</div>
+        </div>
+      </div>
+
+      <!-- 2. Composer Card (Publish & Schedule) -->
+      <div class="card" id="fbComposerCard" style="margin-bottom:18px; border:1px solid var(--border); border-radius:var(--radius-lg); box-shadow:var(--shadow-lg);">
+        <div class="card-header" style="background:var(--bg-subtle); border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center;">
+          <h3 style="margin:0; display:flex; align-items:center; gap:8px; font-size:15px;">
+            <i data-lucide="edit-3" class="icon-sm" style="color:#1877f2;"></i> Soạn Thảo & Lên Lịch Đăng Bài
+          </h3>
+          <span style="font-size:12px; color:var(--text-muted); display:flex; align-items:center; gap:4px;">
+            <i data-lucide="shield" class="icon-sm" style="color:var(--green);"></i> Meta Graph v22 Native Scheduler
+          </span>
+        </div>
+        <div class="card-body" style="padding:18px 20px;">
+          <div style="display:flex; flex-direction:column; gap:12px;">
+            <textarea id="fbPostMessage" rows="3" placeholder="Nhập nội dung bài đăng cho Fanpage Royce Shop..." style="width:100%; padding:12px 14px; border:1px solid var(--border); border-radius:8px; font-family:inherit; font-size:13px; line-height:1.5; background:var(--bg); color:var(--text); resize:vertical;"></textarea>
+
+            <!-- Media URL attachment -->
+            <div style="display:flex; flex-direction:column; gap:4px;">
+              <label style="font-size:12px; font-weight:600; color:var(--text-light); display:flex; align-items:center; gap:6px;">
+                <i data-lucide="image" class="icon-sm" style="color:var(--accent);"></i> Đính kèm Link Ảnh / Video / Bài viết (Tùy chọn):
+              </label>
+              <div style="display:flex; gap:8px; align-items:center;">
+                <input type="url" id="fbPostMediaUrl" placeholder="Dán link ảnh (.jpg/.png/fbcdn/imgur/unsplash) hoặc video (.mp4) hoặc liên kết website..." oninput="previewFbComposerMedia()" style="flex:1; padding:8px 12px; border:1px solid var(--border); border-radius:6px; font-size:13px; background:var(--bg-card); color:var(--text);">
+                <button type="button" class="btn btn-sm" onclick="clearFbComposerMedia()" title="Xóa đính kèm" style="padding:7px 10px;">
+                  <i data-lucide="x" class="icon-sm"></i>
+                </button>
+              </div>
+              <div id="fbPostMediaPreviewContainer" style="display:none; margin-top:8px;">
+                <div style="position:relative; display:inline-block; max-width:320px; max-height:200px; border-radius:8px; overflow:hidden; border:1px solid var(--border); background:var(--bg-subtle);">
+                  <img id="fbPostMediaPreviewImg" src="" style="max-width:100%; max-height:200px; object-fit:cover; display:none;" onerror="handleFbMediaPreviewError()">
+                  <video id="fbPostMediaPreviewVideo" src="" controls style="max-width:100%; max-height:200px; display:none;"></video>
+                  <span id="fbPostMediaPreviewBadge" class="pill pill-lead" style="position:absolute; top:8px; left:8px; font-size:11px; box-shadow:0 2px 4px rgba(0,0,0,0.3);"></span>
+                </div>
+              </div>
+            </div>
+
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:12px; align-items:center;">
+              <div style="display:flex; flex-direction:column; gap:4px;">
+                <label style="font-size:12px; font-weight:600; color:var(--text-light);">Chiến dịch liên kết (Tùy chọn):</label>
+                <select id="fbPostCampaignSelect" style="padding:8px 10px; border:1px solid var(--border); border-radius:6px; font-size:13px; background:var(--bg-card); color:var(--text);"></select>
+              </div>
+
+              <div style="display:flex; flex-direction:column; gap:4px;">
+                <label style="font-size:12px; font-weight:600; color:var(--text-light);">Hẹn giờ đăng bài (GMT+7, 10 phút — 6 tháng):</label>
+                <input type="datetime-local" id="fbPostScheduledAt" style="padding:7px 10px; border:1px solid var(--border); border-radius:6px; font-size:13px; background:var(--bg-card); color:var(--text);">
+              </div>
+            </div>
+
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-top:4px; border-top:1px solid var(--border); padding-top:12px;">
+              <div style="font-size:12px; color:var(--text-muted); line-height:1.4;">
+                <i data-lucide="info" class="icon-sm" style="vertical-align:-2px;"></i> Nếu hẹn giờ, Meta sẽ tự động đăng bài đúng giờ ngay cả khi hệ thống tắt.
+              </div>
+              <div style="display:flex; gap:8px;" id="fbComposerActions">
+                <button class="btn" onclick="publishFacebookPost(true)" id="btnScheduleFbPost" style="display:flex; align-items:center; gap:6px;">
+                  <i data-lucide="clock" class="icon-sm" style="color:var(--accent);"></i> Hẹn giờ đăng
+                </button>
+                <button class="btn btn-primary" onclick="publishFacebookPost(false)" id="btnPublishFbPost" style="display:flex; align-items:center; gap:6px;">
+                  <i data-lucide="send" class="icon-sm"></i> Đăng ngay
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. Posts & Scheduled Queue Filter/Tabs -->
+      <div class="card" style="border:1px solid var(--border); border-radius:var(--radius-lg); box-shadow:var(--shadow-lg);">
+        <div class="card-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; padding:12px 18px;">
+          <div class="tabs" style="margin:0; border:none;">
+            <div class="tab active" onclick="switchFbPostsTab('all', this)" id="tabFbPostsAll">
+              <i data-lucide="newspaper" class="icon-sm"></i> Tất cả bài viết (<span id="fbAllPostsCount">0</span>)
+            </div>
+            <div class="tab" onclick="switchFbPostsTab('scheduled', this)" id="tabFbPostsScheduled">
+              <i data-lucide="calendar-clock" class="icon-sm" style="color:var(--orange);"></i> Hàng đợi đã lên lịch (<span id="fbScheduledCount">0</span>)
+            </div>
+          </div>
+          <span id="fbPostsCountBadge" class="pill pill-active">0 bài viết</span>
+        </div>
+        <div class="card-body" id="fbPostsListContainer" style="padding:0;">
+          <div class="empty-state">Đang tải danh sách bài viết từ hệ thống...</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ RBAC PERMISSIONS & ROLES ═══ -->
+    <section class="section" id="sec-rbac">
+      <div class="page-header">
+        <div>
+          <h1 style="display:flex; align-items:center; gap:8px;">
+            <i data-lucide="shield-check" style="color:var(--green);"></i>
+            Quản Lý Phân Quyền & Vai Trò (RBAC)
+          </h1>
+          <p>Mô hình phân quyền mở: Chủ sở hữu định nghĩa vai trò, mã nguồn kiểm tra chuỗi quyền hạn.</p>
+        </div>
+        <div class="header-actions">
+          <button class="btn btn-primary" onclick="loadRbacData()">
+            <i data-lucide="refresh-cw" class="icon-sm"></i> Làm mới danh sách
+          </button>
+        </div>
+      </div>
+
+      <!-- Current Profile Summary -->
+      <div class="card" style="background:linear-gradient(135deg, rgba(59,130,246,.08), rgba(16,185,129,.08)); border-color:var(--accent);">
+        <div class="card-body" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+          <div>
+            <div style="font-size:12px; color:var(--text-muted);">Phiên làm việc hiện tại (Current Actor):</div>
+            <div style="font-size:18px; font-weight:700; color:var(--text);" id="rbacProfileActor">royce (Chủ Doanh Nghiệp)</div>
+            <div style="font-size:12px; color:var(--text-light); margin-top:4px;" id="rbacProfileRoles">Vai trò: <span class="pill pill-active">Owner</span></div>
+          </div>
+          <div id="rbacProfilePermsBadges" style="display:flex; gap:4px; flex-wrap:wrap; max-width:600px;"></div>
+        </div>
+      </div>
+
+      <!-- Roles & Permissions Matrix -->
+      <div class="card">
+        <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
+          <h3><i data-lucide="key" class="icon-sm"></i> Ma Trận Phân Quyền Theo Vai Trò (Roles & Permissions)</h3>
+          <button class="btn btn-sm" onclick="showCreateRoleModal()"><i data-lucide="plus" class="icon-sm"></i> Tạo vai trò mới</button>
+        </div>
+        <div class="card-body" style="padding:0; overflow-x:auto;">
+          <table id="rbacRolesTable" style="margin:0;">
+            <thead>
+              <tr>
+                <th>Vai trò</th>
+                <th>Mô tả</th>
+                <th>Loại</th>
+                <th>Quyền hạn (14 Permissions)</th>
+                <th style="text-align:right;">Thao tác</th>
+              </tr>
+            </thead>
+            <tbody id="rbacRolesTbody">
+              <tr><td colspan="5" class="empty-state">Đang tải vai trò...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- User Role Assignments -->
+      <div class="card">
+        <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
+          <h3><i data-lucide="users" class="icon-sm"></i> Danh Sách Người Dùng & Gán Quyền (User Assignments)</h3>
+          <button class="btn btn-sm" onclick="showAssignUserModal()"><i data-lucide="user-plus" class="icon-sm"></i> Gán quyền User</button>
+        </div>
+        <div class="card-body" style="padding:0; overflow-x:auto;">
+          <table id="rbacUsersTable" style="margin:0;">
+            <thead>
+              <tr>
+                <th>Mã User (Actor ID)</th>
+                <th>Tên hiển thị</th>
+                <th>Vai trò gán</th>
+                <th>Cập nhật lần cuối</th>
+                <th style="text-align:right;">Thao tác</th>
+              </tr>
+            </thead>
+            <tbody id="rbacUsersTbody">
+              <tr><td colspan="5" class="empty-state">Đang tải người dùng...</td></tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </section>
 
@@ -772,7 +1067,7 @@
 <script>
 // ═══════════════ Config + state ═══════════════
 let CFG = {
-  url: localStorage.getItem('sb_url') || (window.location.origin.includes('8080') || window.location.origin.includes('8081') || window.location.origin.includes('localhost') ? window.location.origin : ''),
+  url: localStorage.getItem('sb_url') || (window.location.port === '8081' ? `${window.location.protocol}//${window.location.hostname}:8080` : (window.location.origin.includes('8080') || window.location.origin.includes('8081') || window.location.origin.includes('localhost') ? window.location.origin : '')),
   key: localStorage.getItem('sb_key') || 'dxos-live',
   schema: localStorage.getItem('sb_schema') || 'aiecos_social',
 };
@@ -910,7 +1205,64 @@ function clearConfig() {
   location.reload();
 }
 
-function hdrs() { return { apikey: CFG.key, Authorization: 'Bearer ' + CFG.key, 'Accept-Profile': CFG.schema }; }
+let CURRENT_ACTOR = localStorage.getItem('dxos_actor') || 'royce';
+let CURRENT_ROLE = localStorage.getItem('dxos_role') || 'Owner';
+let _currentProfile = null;
+
+function changeActor(val) {
+  const parts = val.split(':');
+  CURRENT_ACTOR = parts[0] || 'royce';
+  CURRENT_ROLE = parts[1] || 'Owner';
+  localStorage.setItem('dxos_actor', CURRENT_ACTOR);
+  localStorage.setItem('dxos_role', CURRENT_ROLE);
+  toast(`Đã chuyển sang Actor: ${CURRENT_ACTOR} (${CURRENT_ROLE})`, 'info');
+  fetchActorProfile();
+  loadAll(true);
+  loadRbacData();
+}
+
+async function fetchActorProfile() {
+  try {
+    const base = (CFG.url || window.location.origin).replace(/\/+$/, '');
+    const res = await fetch(`${base}/auth/me`, { headers: hdrs() });
+    if (res.ok) {
+      _currentProfile = await res.json();
+      const badge = document.getElementById('actorPermCount');
+      if (badge) {
+        badge.textContent = `${_currentProfile.permissions.length} perms`;
+        badge.title = `Quyền: ${_currentProfile.permissions.join(', ')}`;
+      }
+      const profActor = document.getElementById('rbacProfileActor');
+      if (profActor) profActor.textContent = `${_currentProfile.displayName || _currentProfile.actorId} (${_currentProfile.actorId})`;
+      const profRoles = document.getElementById('rbacProfileRoles');
+      if (profRoles) profRoles.innerHTML = `Vai trò: ` + _currentProfile.roles.map(r => `<span class="pill pill-active">${esc(r)}</span>`).join(' ');
+      const profBadges = document.getElementById('rbacProfilePermsBadges');
+      if (profBadges) {
+        profBadges.innerHTML = _currentProfile.permissions.map(p => `<span class="pill" style="background:var(--bg-subtle); color:var(--text); font-size:10px;">${esc(p)}</span>`).join('');
+      }
+      const switcher = document.getElementById('actorSwitcher');
+      if (switcher) {
+        const val = `${CURRENT_ACTOR}:${CURRENT_ROLE}`;
+        if (Array.from(switcher.options).some(o => o.value === val)) {
+          switcher.value = val;
+        }
+      }
+    }
+  } catch(e) {
+    console.error('Error fetching actor profile:', e);
+  }
+}
+
+function hdrs() {
+  return {
+    'apikey': CFG.key,
+    'Authorization': 'Bearer ' + CFG.key,
+    'Accept-Profile': CFG.schema,
+    'X-DXOS-Actor': CURRENT_ACTOR,
+    'X-DXOS-Role': CURRENT_ROLE,
+    'Content-Type': 'application/json'
+  };
+}
 async function rest(path) {
   if (!CFG.url) throw new Error('Not configured');
   const base = CFG.url.replace(/\/+$/, '');
@@ -934,7 +1286,11 @@ document.querySelectorAll('.nav-item').forEach(el => {
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
     document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
     el.classList.add('active');
-    document.getElementById('sec-' + el.dataset.sec).classList.add('active');
+    const secId = el.dataset.sec;
+    const targetSec = document.getElementById('sec-' + secId);
+    if (targetSec) targetSec.classList.add('active');
+    if (secId === 'facebook-page') { loadFacebookPosts(); loadFacebookPageHealth(); }
+    if (secId === 'rbac') loadRbacData();
     closeSidebar(); // auto-close on mobile after nav
   };
 });
@@ -962,7 +1318,11 @@ const STAGE_LABEL = { active:'ACTIVE', sleeping:'SLEEPING', at_risk:'AT-RISK', d
 function esc(s) { return String(s ?? '').replace(/[<>&"]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'})[c]); }
 
 // ═══════════════ Data loaders ═══════════════
-async function loadAll() {
+let _lastDataSignature = '';
+
+async function loadAll(force = false) {
+  if (document.hidden && !force) return;
+
   // Decide: demo mode or live?
   if (!CFG.url || !CFG.key) {
     if (window.DEMO_DATA) {
@@ -994,6 +1354,13 @@ async function loadAll() {
         window.DEMO_DATA = window.DEMO_DATA || {};
         window.DEMO_DATA.pages = pages;
       }
+
+      const newSignature = `${cust.length}:${msgs.length}:${msgs[0]?.id || ''}:${convs.length}:${pages.length}`;
+      if (!force && newSignature === _lastDataSignature) {
+        return; // Data has not changed, avoid flickering the DOM
+      }
+      _lastDataSignature = newSignature;
+
       _customers = cust.map(c => ({ ...c, _days: daysSince(c.last_seen_at), _stage: stage(daysSince(c.last_seen_at)) }));
       _messages = msgs;
       _conversations = convs;
@@ -1002,6 +1369,12 @@ async function loadAll() {
       return;
     }
   }
+
+  // Preserve user reply input if active
+  const replyInput = document.getElementById('inboxReplyInput');
+  const userTypedText = replyInput ? replyInput.value : '';
+  const hadFocus = replyInput && document.activeElement === replyInput;
+
   renderDashboard();
   renderTriage();
   renderInbox();
@@ -1009,6 +1382,12 @@ async function loadAll() {
   renderPartner360();
   renderPerformance();
   renderReports();
+
+  const newReplyInput = document.getElementById('inboxReplyInput');
+  if (newReplyInput && userTypedText) {
+    newReplyInput.value = userTypedText;
+    if (hadFocus) newReplyInput.focus();
+  }
 }
 
 // ═══════════════ Dashboard ═══════════════
@@ -1381,6 +1760,7 @@ function renderTriage() {
 // ═══════════════ Inbox (Rocky 3-pane) ═══════════════
 let _inboxChannel = 'all';
 let _inboxPage = null;     // optional page filter (clicked from left pane)
+let _inboxFilter = 'all';  // all | unreplied | assigned_to_me | spam
 let _inboxTab = 'msgs';
 
 function setInboxChannel(ch, btn) {
@@ -1388,6 +1768,12 @@ function setInboxChannel(ch, btn) {
   document.querySelectorAll('#sec-inbox .channel-chip').forEach(b => b.classList.remove('active'));
   if (btn) btn.classList.add('active');
   _inboxPage = null;
+  renderInbox();
+}
+function setInboxFilter(flt, btn) {
+  _inboxFilter = flt;
+  document.querySelectorAll('#inboxFilterChips button').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
   renderInbox();
 }
 function selectInboxPage(pageId) {
@@ -1404,7 +1790,7 @@ function switchInboxTab(tab, btn) {
 
 function renderInbox() {
   // Pages pane (left)
-  const pages = (window.DEMO_DATA?.pages || []).filter(p => _inboxChannel === 'all' || p.type === _inboxChannel || (_inboxChannel === 'facebook' && p.type === 'facebook') || (_inboxChannel === 'zalo_oa' && (p.type === 'zalo_oa' || p.type === 'zalo')));
+  const pages = (window.DEMO_DATA?.pages || []).filter(p => _inboxChannel === 'all' || p.type === _inboxChannel || (_inboxChannel === 'facebook' && p.type === 'facebook') || (_inboxChannel === 'tiktok' && p.type === 'tiktok') || (_inboxChannel === 'zalo_oa' && (p.type === 'zalo_oa' || p.type === 'zalo')));
   const pageCounts = {};
   _conversations.forEach(c => { pageCounts[c.page_id] = (pageCounts[c.page_id] || 0) + 1; });
   document.getElementById('inboxPages').innerHTML = pages.length === 0 ? '<div class="empty-state" style="padding:20px; font-size:12px;">No pages</div>' :
@@ -1414,7 +1800,7 @@ function renderInbox() {
      </div>` +
     pages.map(p => `
       <div class="page-item ${_inboxPage===p.id?'active':''}" onclick="selectInboxPage('${esc(p.id)}')">
-        <i data-lucide="${p.type==='facebook'?'facebook':p.type.startsWith('zalo')?'message-square':'instagram'}" class="icon-sm" style="color:var(--accent);"></i>
+        <i data-lucide="${p.type==='facebook'?'facebook':p.type==='tiktok'?'video':p.type.startsWith('zalo')?'message-square':'instagram'}" class="icon-sm" style="color:var(--accent);"></i>
         <div class="info"><div class="name">${esc(p.name)}</div><div class="meta">${pageCounts[p.id]||0} convs · ${p.type}</div></div>
       </div>`).join('');
 
@@ -1430,6 +1816,7 @@ function renderInbox() {
     const ch = _inboxChannel;
     convs = convs.filter(c => {
       const page = (window.DEMO_DATA?.pages || []).find(p => p.id === c.page_id);
+      if (ch === 'tiktok') return (page && page.type === 'tiktok') || c.platform === 'tiktok' || c.id.startsWith('tiktok_');
       if (!page) return false;
       if (ch === 'facebook') return page.type === 'facebook';
       if (ch === 'zalo_oa') return page.type === 'zalo_oa' || page.type === 'zalo';
@@ -1438,16 +1825,27 @@ function renderInbox() {
     });
   }
   if (_inboxPage) convs = convs.filter(c => c.page_id === _inboxPage);
-  if (search) convs = convs.filter(c => (c.customer_name||'').toLowerCase().includes(search) || (c._latest.content||'').toLowerCase().includes(search));
+  if (search) convs = convs.filter(c => (c.customer_name||'').toLowerCase().includes(search) || (c._latest.content||'').toLowerCase().includes(search) || (c.customer_phone||'').includes(search));
+
+  // Filter chips: All / Unreplied / Assigned to Me / Spam
+  if (_inboxFilter === 'unreplied') {
+    convs = convs.filter(c => !c.is_replied && (c.status || '').toUpperCase() !== 'SPAM' && (c.status || '').toUpperCase() !== 'CLOSED');
+  } else if (_inboxFilter === 'assigned_to_me') {
+    convs = convs.filter(c => c.assigned_to_actor === CURRENT_ACTOR);
+  } else if (_inboxFilter === 'spam') {
+    convs = convs.filter(c => (c.status || '').toUpperCase() === 'SPAM' || (c.tags && c.tags.includes('spam')));
+  }
 
   convs.sort((a,b) => new Date(b._latest.created_time).getTime() - new Date(a._latest.created_time).getTime());
 
   document.getElementById('inboxList').innerHTML = convs.length === 0 ? '<div class="empty-state" style="padding:30px 20px;"><i data-lucide="inbox" style="opacity:.3;"></i><h3>Không có hội thoại</h3></div>' : convs.map(c => {
     const cust = _customers.find(cu => c.id.endsWith((cu.name||'').toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,'')));
-    const platform = c.platform || (c.id.startsWith('fb_') ? (c.id.includes('lead') ? 'lead' : 'facebook') : (c.id.startsWith('zalo_') ? 'zalo' : 'facebook'));
+    const platform = c.platform || (c.id.startsWith('fb_') ? (c.id.includes('lead') ? 'lead' : 'facebook') : (c.id.startsWith('zalo_') ? 'zalo' : (c.id.startsWith('tiktok_') ? 'tiktok' : 'facebook')));
     const stage = c.stage || (c.id.includes('lead') ? 'lead' : c.is_replied ? 'replied' : (cust?._stage || 'active'));
     const initial = (c.customer_name || c.id).charAt(0).toUpperCase();
-    const pIcon = platform === 'facebook' ? '<i data-lucide="facebook"></i>' : platform === 'lead' ? '<i data-lucide="file-text"></i>' : platform === 'zalo' ? '<i data-lucide="message-square"></i>' : '<i data-lucide="instagram"></i>';
+    const pIcon = platform === 'facebook' ? '<i data-lucide="facebook"></i>' : platform === 'lead' ? '<i data-lucide="file-text"></i>' : platform === 'zalo' ? '<i data-lucide="message-square"></i>' : platform === 'tiktok' ? '<i data-lucide="video"></i>' : '<i data-lucide="instagram"></i>';
+    const phone = c.customer_phone || (cust && cust.phone);
+    const phonePill = phone ? `<span class="pill" style="background:rgba(16,185,129,.12); color:#059669; border:1px solid rgba(16,185,129,.25); cursor:pointer; font-size:10px; margin-left:auto;" onclick="event.stopPropagation(); navigator.clipboard.writeText('${esc(phone)}'); toast('Đã copy SĐT: ${esc(phone)}','success');" title="Sao chép SĐT"><i data-lucide="phone" style="width:10px;height:10px;display:inline;"></i> ${esc(phone)}</span>` : '';
 
     return `<div class="conv-item ${_selectedConv === c.id ? 'active' : ''}" onclick="selectConv('${esc(c.id)}')">
       <div class="avatar-wrapper">
@@ -1460,8 +1858,10 @@ function renderInbox() {
           <span class="time">${(c._latest.created_time||'').slice(11,16)}</span>
         </div>
         <div class="snip">${esc((c._latest.content||'').slice(0,60))}</div>
-        <div class="bottom">
+        <div class="bottom" style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
           <span class="pill pill-${stage}">${stage.toUpperCase()}</span>
+          ${c.assigned_to_actor ? `<span class="pill" style="background:var(--bg-subtle); color:var(--text-muted); font-size:9px;">👤 ${esc(c.assigned_to_actor)}</span>` : ''}
+          ${phonePill}
           <span class="count-badge">${c._msgCount}</span>
         </div>
       </div>
@@ -1482,35 +1882,55 @@ function renderInboxDetail() {
   const conv = _conversations.find(c => c.id === _selectedConv);
   if (!conv) return;
   const cust = _customers.find(cu => conv.id.endsWith((cu.name||'').toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,'')));
-  const platform = conv.platform || (conv.id.startsWith('fb_') ? (conv.id.includes('lead') ? 'lead' : 'facebook') : (conv.id.startsWith('zalo_') ? 'zalo' : 'facebook'));
+  const platform = conv.platform || (conv.id.startsWith('fb_') ? (conv.id.includes('lead') ? 'lead' : 'facebook') : (conv.id.startsWith('zalo_') ? 'zalo' : (conv.id.startsWith('tiktok_') ? 'tiktok' : 'facebook')));
   const stage = conv.stage || (conv.id.includes('lead') ? 'lead' : conv.is_replied ? 'replied' : (cust?._stage || 'active'));
   const msgs = _messages.filter(m => m.conversation_id === _selectedConv).slice().reverse(); // chronological
-  const pIcon = platform === 'facebook' ? '<i data-lucide="facebook"></i>' : platform === 'lead' ? '<i data-lucide="file-text"></i>' : platform === 'zalo' ? '<i data-lucide="message-square"></i>' : '<i data-lucide="instagram"></i>';
+  const pIcon = platform === 'facebook' ? '<i data-lucide="facebook"></i>' : platform === 'lead' ? '<i data-lucide="file-text"></i>' : platform === 'zalo' ? '<i data-lucide="message-square"></i>' : platform === 'tiktok' ? '<i data-lucide="video"></i>' : '<i data-lucide="instagram"></i>';
 
-  // Header with Status selector
+  // Header with Status, Assignee, Phone & Note selectors
+  const phoneHtml = (conv.customer_phone || (cust && cust.phone)) ?
+    `<button class="btn btn-sm" style="background:rgba(16,185,129,.15); color:#059669; border-color:rgba(16,185,129,.3);" onclick="navigator.clipboard.writeText('${esc(conv.customer_phone || cust.phone)}'); toast('Đã copy SĐT: ${esc(conv.customer_phone || cust.phone)}','success');" title="Nhấn để sao chép số điện thoại">
+      <i data-lucide="phone-call" class="icon-sm"></i> ${esc(conv.customer_phone || cust.phone)}
+    </button>` : '';
+
   document.getElementById('inboxDetailHeader').innerHTML = `
-    <div style="display:flex; align-items:center; gap:10px; width:100%; justify-content:space-between;">
-      <div style="display:flex; align-items:center; gap:10px;">
-        <div class="avatar-wrapper">
-          <div class="avatar-c sm ${stage}">${esc((conv.customer_name||'?').charAt(0).toUpperCase())}</div>
-          <span class="platform-badge ${platform}" style="width:13px; height:13px; font-size:7px;">${pIcon}</span>
-        </div>
-        <div>
-          <div style="font-weight:600; color:var(--text); font-size:14px;">${esc(conv.customer_name || conv.id)}</div>
-          <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">
-            ${msgs.length} tin nhắn · ${platform.toUpperCase()}
+    <div style="display:flex; flex-direction:column; gap:8px; width:100%;">
+      <div style="display:flex; align-items:center; gap:10px; width:100%; justify-content:space-between; flex-wrap:wrap;">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <div class="avatar-wrapper">
+            <div class="avatar-c sm ${stage}">${esc((conv.customer_name||'?').charAt(0).toUpperCase())}</div>
+            <span class="platform-badge ${platform}" style="width:13px; height:13px; font-size:7px;">${pIcon}</span>
+          </div>
+          <div>
+            <div style="font-weight:600; color:var(--text); font-size:14px; display:flex; align-items:center; gap:6px;">
+              ${esc(conv.customer_name || conv.id)}
+              ${phoneHtml}
+            </div>
+            <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">
+              ${msgs.length} tin nhắn · ${platform.toUpperCase()}
+            </div>
           </div>
         </div>
+        <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+          <!-- Assignee Selector -->
+          <select class="status-select" onchange="changeConvAssignee('${esc(conv.id)}', this.value)" title="Phân công người xử lý">
+            <option value="">👤 Chưa phân công</option>
+            <option value="royce" ${conv.assigned_to_actor==='royce'?'selected':''}>👤 royce (Owner)</option>
+            <option value="sales_alice" ${conv.assigned_to_actor==='sales_alice'?'selected':''}>👤 sales_alice (Sales)</option>
+            <option value="marketer_bob" ${conv.assigned_to_actor==='marketer_bob'?'selected':''}>👤 marketer_bob (Marketer)</option>
+            <option value="content_carol" ${conv.assigned_to_actor==='content_carol'?'selected':''}>👤 content_carol (Content)</option>
+          </select>
+          <!-- Status Selector -->
+          <select class="status-select" onchange="changeConvStatus('${esc(conv.id)}', this.value)" title="Trạng thái hội thoại">
+            <option value="open" ${(conv.status||'open').toLowerCase()==='open'?'selected':''}>🟢 OPEN (Mở)</option>
+            <option value="pending" ${(conv.status||'').toLowerCase()==='pending'?'selected':''}>🟡 PENDING (Chờ)</option>
+            <option value="done" ${(conv.status||'').toLowerCase()==='done'?'selected':''}>🔵 DONE (Xong)</option>
+            <option value="spam" ${(conv.status||'').toLowerCase()==='spam'?'selected':''}>🔴 SPAM</option>
+          </select>
+          <button class="btn btn-sm" onclick="editConvNote('${esc(conv.id)}')" title="Ghi chú nội bộ"><i data-lucide="file-edit" class="icon-sm"></i> Note</button>
+        </div>
       </div>
-      <div style="display:flex; align-items:center; gap:8px;">
-        <select class="status-select" onchange="changeConvStatus('${esc(conv.id)}', this.value)">
-          <option value="active" ${stage==='active'?'selected':''}>🟢 ACTIVE (Mới / Đang chat)</option>
-          <option value="replied" ${stage==='replied'?'selected':''}>🔵 REPLIED (Đã trả lời)</option>
-          <option value="lead" ${stage==='lead'?'selected':''}>🟠 LEAD (Khách để lại form)</option>
-          <option value="waiting" ${stage==='waiting'?'selected':''}>🟣 WAITING (Chờ khách)</option>
-          <option value="closed" ${stage==='closed'?'selected':''}>⚪ CLOSED (Đã chốt / Đóng)</option>
-        </select>
-      </div>
+      ${conv.internal_note ? `<div style="background:#fef3c7; border-left:3px solid #f59e0b; padding:6px 10px; font-size:11px; border-radius:4px; color:#92400e; display:flex; justify-content:space-between; align-items:center;"><span><b>Ghi chú:</b> ${esc(conv.internal_note)}</span><button style="border:none; background:transparent; cursor:pointer; color:#92400e; font-size:10px;" onclick="editConvNote('${esc(conv.id)}')">Sửa</button></div>` : ''}
     </div>`;
 
   // Messages with date separators
@@ -1618,6 +2038,8 @@ function renderInboxDetail() {
         <div style="margin-top:6px;"><span class="pill pill-${stage}">${stage.toUpperCase()}</span></div>
       </div>
       <div class="info-row"><span class="label">Page</span><span class="value">${esc(cust.page_id || '—')}</span></div>
+      <div class="info-row"><span class="label">SĐT Khách</span><span class="value">${esc(conv.customer_phone || cust.phone || 'Chưa có')}</span></div>
+      <div class="info-row"><span class="label">Người phụ trách</span><span class="value">${esc(conv.assigned_to_actor || 'Chưa phân công')}</span></div>
       <div class="info-row"><span class="label">Total messages</span><span class="value">${msgs.length}</span></div>
       <div class="info-row"><span class="label">Days silent</span><span class="value">${cust._days < 9999 ? cust._days + 'd' : '—'}</span></div>
       <div class="info-row"><span class="label">First seen</span><span class="value">${(cust.first_seen_at||'').slice(0,10) || '—'}</span></div>
@@ -1663,11 +2085,14 @@ async function sendReply() {
     const base = (CFG.url || window.location.origin).replace(/\/+$/, '');
     const res = await fetch(`${base}/conversations/${encodeURIComponent(_selectedConv)}/messages`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: hdrs(),
       body: JSON.stringify({ content: text })
     });
     if (res.ok) {
       toast('Đã gửi tin nhắn đến khách hàng!', 'success');
+    } else if (res.status === 403) {
+      const err = await res.json().catch(() => ({}));
+      toast(`Từ chối quyền: ${err.message || 'Thiếu quyền inbox.reply'}`, 'error');
     } else {
       toast('Gửi tin nhắn thất bại', 'error');
     }
@@ -1691,13 +2116,1440 @@ async function changeConvStatus(convId, status) {
     const base = (CFG.url || window.location.origin).replace(/\/+$/, '');
     const res = await fetch(`${base}/conversations/${encodeURIComponent(convId)}/status`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: hdrs(),
       body: JSON.stringify({ status: status })
     });
     if (res.ok) {
       toast(`Đã cập nhật trạng thái: ${status.toUpperCase()}`, 'success');
+    } else if (res.status === 403) {
+      toast('Từ chối: Cần quyền inbox.moderate', 'error');
     }
   } catch (e) {
+    console.error(e);
+  }
+}
+
+async function changeConvAssignee(convId, actorId) {
+  const conv = _conversations.find(c => c.id === convId);
+  if (conv) {
+    conv.assigned_to_actor = actorId;
+  }
+  renderInbox();
+  renderInboxDetail();
+  try {
+    const base = (CFG.url || window.location.origin).replace(/\/+$/, '');
+    const res = await fetch(`${base}/conversations/${encodeURIComponent(convId)}/assign`, {
+      method: 'POST',
+      headers: hdrs(),
+      body: JSON.stringify({ assignedToActor: actorId })
+    });
+    if (res.ok) {
+      toast(`Đã phân công cho: ${actorId || 'Chưa phân công'}`, 'success');
+    } else if (res.status === 403) {
+      toast('Từ chối: Cần quyền inbox.assign', 'error');
+    }
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+async function editConvNote(convId) {
+  const conv = _conversations.find(c => c.id === convId);
+  const currentNote = conv ? (conv.internal_note || '') : '';
+  const newNote = prompt('Nhập ghi chú nội bộ cho hội thoại này:', currentNote);
+  if (newNote === null) return;
+  if (conv) conv.internal_note = newNote;
+  renderInboxDetail();
+  try {
+    const base = (CFG.url || window.location.origin).replace(/\/+$/, '');
+    const res = await fetch(`${base}/conversations/${encodeURIComponent(convId)}/note`, {
+      method: 'POST',
+      headers: hdrs(),
+      body: JSON.stringify({ note: newNote })
+    });
+    if (res.ok) {
+      toast('Đã lưu ghi chú nội bộ', 'success');
+    } else if (res.status === 403) {
+      toast('Từ chối: Cần quyền inbox.moderate', 'error');
+    }
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+// ═══════════════ Facebook Fanpage Operations ═══════════════
+let _fbPosts = [];
+let _fbPageHealth = null;
+let _fbPostsTab = 'all';
+
+function formatVnTime(dateStr) {
+  if (!dateStr) return '—';
+  try {
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return dateStr;
+    return d.toLocaleString('vi-VN', {
+      timeZone: 'Asia/Ho_Chi_Minh',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    });
+  } catch(e) {
+    return dateStr;
+  }
+}
+
+function formatFbDate(dateStr) {
+  if (!dateStr) return '';
+  try {
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return dateStr;
+    const months = ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6', 'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'];
+    const day = d.getDate();
+    const month = months[d.getMonth()];
+    const hours = String(d.getHours()).padStart(2, '0');
+    const mins = String(d.getMinutes()).padStart(2, '0');
+    return `${day} ${month} lúc ${hours}:${mins}`;
+  } catch(e) {
+    return dateStr;
+  }
+}
+
+function switchFbPostsTab(tab, el) {
+  _fbPostsTab = tab;
+  const tabs = document.querySelectorAll('#sec-facebook-page .tabs .tab');
+  tabs.forEach(t => t.classList.remove('active'));
+  if (el) el.classList.add('active');
+  renderFacebookPosts();
+}
+
+function togglePostExpand(id) {
+  const msgEl = document.getElementById(`postMsg_${id}`);
+  const btnEl = document.getElementById(`expandBtn_${id}`);
+  if (!msgEl || !btnEl) return;
+  if (msgEl.classList.contains('clamped')) {
+    msgEl.classList.remove('clamped');
+    btnEl.textContent = 'Thu gọn ▲';
+  } else {
+    msgEl.classList.add('clamped');
+    btnEl.textContent = 'Xem thêm ▼';
+  }
+}
+
+async function syncFacebookPosts() {
+  const btn = document.getElementById('btnSyncFbPosts');
+  if (btn) { btn.disabled = true; btn.innerHTML = `<i data-lucide="loader" class="icon-sm"></i> Đang đồng bộ...`; renderIcons(); }
+  try {
+    const base = (CFG.url || window.location.origin).replace(/\/+$/, '');
+    const res = await fetch(`${base}/facebook/page/sync-posts`, {
+      method: 'POST',
+      headers: hdrs()
+    });
+    if (res.ok) {
+      const data = await res.json();
+      toast(`Đồng bộ thành công ${data.synced_count || 0} bài viết từ Royce Shop Fanpage!`, 'success');
+      await Promise.all([loadFacebookPosts(), loadFacebookPageHealth()]);
+    } else if (res.status === 403) {
+      toast('Từ chối: Bạn không có quyền page.posts.read', 'error');
+    } else {
+      toast('Đồng bộ thất bại', 'error');
+    }
+  } catch(e) {
+    console.error(e);
+    toast('Lỗi kết nối đồng bộ Fanpage', 'error');
+  } finally {
+    if (btn) { btn.disabled = false; btn.innerHTML = `<i data-lucide="refresh-cw" class="icon-sm"></i> Đồng bộ Bài viết & Insights`; renderIcons(); }
+  }
+}
+
+async function loadFacebookPageHealth() {
+  const container = document.getElementById('fbPageHealthBody');
+  if (!container) return;
+  try {
+    const base = (CFG.url || window.location.origin).replace(/\/+$/, '');
+    const res = await fetch(`${base}/facebook/page/health`, { headers: hdrs() });
+    if (res.ok) {
+      _fbPageHealth = await res.json();
+      renderFacebookPageHealth(_fbPageHealth);
+      await loadFacebookInboxActions();
+    } else if (res.status === 403) {
+      container.innerHTML = `<div class="empty-state" style="color:var(--red);"><h3>Từ chối quyền truy cập (403 Forbidden)</h3><p>Actor hiện tại (${CURRENT_ACTOR}) thiếu quyền <code>page.posts.read</code></p></div>`;
+    }
+  } catch(e) {
+    console.error('Error loading Page Health:', e);
+  }
+}
+
+function renderFacebookPageHealth(data) {
+  const container = document.getElementById('fbPageHealthBody');
+  if (!container || !data) return;
+
+  const labelClass = data.label === 0 || data.label === 'Healthy' ? 'pill-active' : (data.label === 1 || data.label === 'Watch' ? 'pill-lead' : 'pill-muted');
+  const labelText = data.label === 0 || data.label === 'Healthy' ? 'HEALTHY (Khỏe mạnh)' : (data.label === 1 || data.label === 'Watch' ? 'WATCH (Cần theo dõi)' : 'CRITICAL (Cảnh báo)');
+
+  const completenessPercent = Math.round((data.axes?.completeness || 0) * 100);
+  const formatAxis = (val) => val !== null && val !== undefined ? `<b>${val}</b>/100` : '<span style="color:var(--text-muted);">—</span>';
+
+  let bannerHtml = '';
+  if (data.commentsStatus === 'forbidden') {
+    bannerHtml = `
+      <div style="background:rgba(245,158,11,.08); border:1px solid #f59e0b; border-radius:6px; padding:8px 12px; font-size:12px; color:#b45309; display:flex; align-items:flex-start; gap:8px;">
+        <i data-lucide="alert-triangle" class="icon-sm" style="flex-shrink:0; margin-top:2px;"></i>
+        <div><b>Quyền Graph & Tính minh bạch:</b> Đọc bình luận công khai từ khách hàng yêu cầu quyền <code>pages_read_user_content</code> (yêu cầu Meta App Review). Trạng thái hiện tại: <code>forbidden</code>. Hệ thống đánh dấu độ tươi là <i>unknown/forbidden</i> thay vì tự ý giả định 0 tương tác.</div>
+      </div>`;
+  } else if (data.commentsStatus === 'ok') {
+    bannerHtml = `
+      <div style="background:rgba(16,185,129,.08); border:1px solid #10b981; border-radius:6px; padding:8px 12px; font-size:12px; color:#065f46; display:flex; align-items:center; gap:8px;">
+        <i data-lucide="check-circle" class="icon-sm" style="flex-shrink:0;"></i>
+        <div><b>Quyền Graph:</b> Quyền đọc bình luận và bài viết đang hoạt động bình thường (<code>ok</code>).</div>
+      </div>`;
+  } else {
+    bannerHtml = `
+      <div style="background:rgba(245,158,11,.08); border:1px solid #f59e0b; border-radius:6px; padding:8px 12px; font-size:12px; color:#b45309; display:flex; align-items:flex-start; gap:8px;">
+        <i data-lucide="help-circle" class="icon-sm" style="flex-shrink:0; margin-top:2px;"></i>
+        <div><b>Trạng thái bình luận:</b> <code>unknown</code> (Chưa thể đo lường bình luận do token hết hạn hoặc lỗi kết nối Graph API). Vui lòng kiểm tra <code>FACEBOOK_PAGE_ACCESS_TOKEN</code> (yêu cầu Page token, không dùng User token).</div>
+      </div>`;
+  }
+
+  container.innerHTML = `
+    <div style="display:flex; flex-direction:column; gap:12px;">
+      <!-- Single-Row Compact Health Strip -->
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px;">
+        <div style="display:flex; align-items:center; gap:12px;">
+          <div style="font-size:28px; font-weight:800; color:var(--text);">${data.overallScore}<span style="font-size:14px; color:var(--text-muted); font-weight:normal;">/100</span></div>
+          <div>
+            <div><span class="pill ${labelClass}" style="font-size:11px; font-weight:700;">${labelText}</span></div>
+            <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">Model: <code>${esc(data.modelId)} v${esc(data.version)}</code></div>
+          </div>
+        </div>
+
+        <!-- 5 Axis Pills on the same row -->
+        <div style="display:flex; gap:6px; flex-wrap:wrap; align-items:center;">
+          <div class="metric-badge-item"><span style="color:var(--text-muted); font-size:11px;">📝 Nội dung:</span> ${formatAxis(data.axes?.content)}</div>
+          <div class="metric-badge-item"><span style="color:var(--text-muted); font-size:11px;">💬 Hộp thư:</span> ${formatAxis(data.axes?.inbox)}</div>
+          <div class="metric-badge-item"><span style="color:var(--text-muted); font-size:11px;">🎯 Leads:</span> ${formatAxis(data.axes?.leads)}</div>
+          <div class="metric-badge-item"><span style="color:var(--text-muted); font-size:11px;">⚡ Tương tác:</span> ${formatAxis(data.axes?.engagement)}</div>
+          <div class="metric-badge-item"><span style="color:var(--text-muted); font-size:11px;">📊 Độ đầy đủ:</span> <b>${completenessPercent}%</b></div>
+        </div>
+
+        <div style="display:flex; gap:6px; align-items:center;">
+          <button class="btn btn-sm" onclick="loadFacebookPageHealth()" id="btnRefreshHealth" title="Đánh giá lại">
+            <i data-lucide="refresh-cw" class="icon-sm"></i> Đánh giá lại
+          </button>
+          <button class="btn btn-sm" onclick="getFacebookPageAdvice()" id="btnGetAdvice">
+            <i data-lucide="bot" class="icon-sm"></i> Gợi ý từ AI
+          </button>
+          <button class="btn btn-sm btn-primary" onclick="runFacebookPageAgent()" id="btnRunAgent" style="display:flex; align-items:center; gap:6px;">
+            <i data-lucide="sparkles" class="icon-sm"></i> Chạy agent
+          </button>
+        </div>
+      </div>
+
+      <!-- Collapsed Evaluation Details -->
+      <details style="background:var(--bg-subtle); border-radius:8px; padding:10px 14px; border:1px solid var(--border); cursor:pointer;">
+        <summary style="font-weight:600; font-size:12px; color:var(--text); list-style:none; display:flex; align-items:center; justify-content:space-between;">
+          <span style="display:flex; align-items:center; gap:6px;"><i data-lucide="list-checks" class="icon-sm" style="color:var(--accent);"></i> Chi tiết 5 trục tiêu chí & Lý do đánh giá (${(data.reasons||[]).length} mục)</span>
+          <span style="font-size:11px; color:var(--text-muted);">Mở / Thu gọn ▼</span>
+        </summary>
+        <ul style="margin:8px 0 0 0; padding-left:18px; font-size:12px; line-height:1.6; color:var(--text);">
+          ${(data.reasons || []).map(r => `<li>${esc(r)}</li>`).join('')}
+        </ul>
+      </details>
+
+      <!-- Comments Status Banner -->
+      ${bannerHtml}
+
+      <!-- Agent Run Container (Action Cards + Contract Output) -->
+      <div id="fbPageAgentContainer"></div>
+
+      <!-- Inbox Action Items (AI suggested replies for unreplied convs) -->
+      <div id="fbInboxActionsContainer"></div>
+
+      <!-- Advisory Container (Loaded on demand) -->
+      <div id="fbPageAdviceContainer"></div>
+    </div>
+  `;
+  renderIcons();
+}
+
+async function loadFacebookInboxActions() {
+  const container = document.getElementById('fbInboxActionsContainer');
+  if (!container) return;
+
+  try {
+    const base = (CFG.url || window.location.origin).replace(/\/+$/, '');
+    const res = await fetch(`${base}/facebook/page/inbox-actions`, { headers: hdrs() });
+    if (res.ok) {
+      const items = await res.json();
+      renderFacebookInboxActions(items);
+    } else if (res.status === 403) {
+      container.innerHTML = `<div style="padding:10px; font-size:12px; color:var(--text-muted); background:var(--bg-subtle); border-radius:6px;">Cần quyền <code>inbox.read</code> để xem danh sách hội thoại cần xử lý.</div>`;
+    }
+  } catch(e) {
+    console.error('Error loading inbox actions:', e);
+  }
+}
+
+function renderFacebookInboxActions(items) {
+  const container = document.getElementById('fbInboxActionsContainer');
+  if (!container) return;
+
+  if (!items || items.length === 0) {
+    container.innerHTML = `
+      <div style="background:var(--bg-subtle); border:1px solid var(--border); border-radius:8px; padding:10px 14px;">
+        <div style="font-size:12px; font-weight:600; color:var(--text); display:flex; align-items:center; gap:6px;">
+          <i data-lucide="check-circle" class="icon-sm" style="color:var(--green);"></i> Hộp thư sạch — Không có hội thoại chưa phản hồi
+        </div>
+      </div>`;
+    renderIcons();
+    return;
+  }
+
+  const canReply = _currentProfile && Array.isArray(_currentProfile.permissions) && _currentProfile.permissions.includes('inbox.reply');
+
+  container.innerHTML = `
+    <details open style="background:var(--bg-card); border:1px solid var(--border); border-radius:8px; padding:12px 14px;">
+      <summary style="display:flex; justify-content:space-between; align-items:center; cursor:pointer; font-weight:700; font-size:13px; color:var(--text); list-style:none;">
+        <div style="display:flex; align-items:center; gap:6px;">
+          <i data-lucide="inbox" class="icon-sm" style="color:var(--accent);"></i> Hộp thư cần xử lý (${items.length} hội thoại chưa phản hồi)
+        </div>
+        <div style="font-size:11px; color:var(--text-muted);">AI gợi ý phản hồi · Nhân viên duyệt gửi ▼</div>
+      </summary>
+      <div style="display:flex; flex-direction:column; gap:10px; margin-top:12px;">
+        ${items.map(item => `
+          <div style="background:var(--bg-subtle); border:1px solid var(--border); border-radius:8px; padding:12px; display:flex; flex-direction:column; gap:8px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px;">
+              <div style="display:flex; align-items:center; gap:8px;">
+                <span style="font-weight:700; font-size:13px; color:var(--text);">${esc(item.customer_name || 'Khách hàng')}</span>
+                <span class="pill pill-muted" style="font-size:10px;">${esc(item.customer_phone || 'Chưa có SĐT')}</span>
+                ${item.assigned_to_actor ? `<span class="pill pill-lead" style="font-size:10px;">👤 ${esc(item.assigned_to_actor)}</span>` : ''}
+              </div>
+              <div style="display:flex; gap:6px;">
+                <button class="btn btn-sm" onclick="copySuggestedReply(this.dataset.reply)" data-reply="${esc(item.suggestedReply)}" title="Chép tin nhắn gợi ý">
+                  <i data-lucide="copy" class="icon-sm"></i> Chép tin
+                </button>
+                <button class="btn btn-sm" onclick="openInboxConversation('${esc(item.id)}')" title="Chuyển đến hộp thư">
+                  <i data-lucide="message-square" class="icon-sm"></i> Mở hộp thư
+                </button>
+                ${canReply ? `
+                <button class="btn btn-sm btn-primary" onclick="sendInboxActionReply(this.dataset.convId, this.dataset.reply)" data-conv-id="${esc(item.id)}" data-reply="${esc(item.suggestedReply)}" title="Gửi tin nhắn này trực tiếp đến khách hàng">
+                  <i data-lucide="send" class="icon-sm"></i> Gửi tin này
+                </button>` : ''}
+              </div>
+            </div>
+            <div style="font-size:12px; color:var(--text-light); font-style:italic;">
+              Tin nhắn gần nhất: "${esc(item.snippet || '(Chưa có nội dung)')}"
+            </div>
+            <div style="background:var(--bg-card); border:1px dashed var(--border); border-radius:6px; padding:8px 10px; font-size:12px; color:var(--text);">
+              <span style="font-size:10px; color:var(--accent); font-weight:700; text-transform:uppercase;">Gợi ý từ AI:</span> ${esc(item.suggestedReply)}
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </details>`;
+  renderIcons();
+}
+
+async function sendInboxActionReply(convId, text) {
+  if (!confirm(`Bạn có chắc muốn gửi tin nhắn này đến khách hàng không?\n\n"${text}"`)) {
+    return;
+  }
+  try {
+    const base = (CFG.url || window.location.origin).replace(/\/+$/, '');
+    const res = await fetch(`${base}/conversations/${encodeURIComponent(convId)}/messages`, {
+      method: 'POST',
+      headers: hdrs(),
+      body: JSON.stringify({ content: text })
+    });
+    if (res.ok) {
+      toast('Đã gửi tin nhắn trả lời khách hàng thành công!', 'success');
+      await loadFacebookInboxActions();
+      loadAll(true);
+    } else if (res.status === 403) {
+      toast('Từ chối: Cần quyền inbox.reply để gửi tin nhắn.', 'error');
+    } else {
+      toast('Gửi tin nhắn thất bại', 'error');
+    }
+  } catch(e) {
+    console.error('Error sending inbox reply:', e);
+    toast('Lỗi kết nối khi gửi tin nhắn', 'error');
+  }
+}
+
+function copySuggestedReply(text) {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text);
+  }
+  toast('Đã sao chép tin nhắn gợi ý vào clipboard!', 'success');
+}
+
+function openInboxConversation(id) {
+  const el = document.querySelector('.nav-item[data-sec="inbox"]');
+  if (el) el.click();
+  setTimeout(() => {
+    if (typeof selectConv === 'function') {
+      selectConv(id);
+    }
+  }, 100);
+}
+
+async function getFacebookPageAdvice() {
+  const btn = document.getElementById('btnGetAdvice');
+  const advContainer = document.getElementById('fbPageAdviceContainer');
+  if (btn) { btn.disabled = true; btn.innerHTML = `<i data-lucide="loader" class="icon-sm"></i> Đang phân tích...`; renderIcons(); }
+  if (advContainer) {
+    advContainer.innerHTML = `<div style="padding:14px; text-align:center; font-size:13px; color:var(--text-muted);">AI đang tổng hợp đề xuất tối ưu hóa cho Fanpage...</div>`;
+  }
+
+  try {
+    const base = (CFG.url || window.location.origin).replace(/\/+$/, '');
+    const res = await fetch(`${base}/facebook/page/advise`, {
+      method: 'POST',
+      headers: hdrs(),
+      body: JSON.stringify({ pageId: "988656934325292" })
+    });
+    if (res.ok) {
+      const data = await res.json();
+      renderFacebookPageAdvice(data);
+      toast('Đã nhận gợi ý từ Cố vấn AI!', 'success');
+    } else if (res.status === 403) {
+      toast('Từ chối: Cần quyền page.posts.read', 'error');
+      if (advContainer) advContainer.innerHTML = '';
+    } else {
+      toast('Không thể tải gợi ý AI', 'error');
+      if (advContainer) advContainer.innerHTML = '';
+    }
+  } catch(e) {
+    console.error(e);
+    toast('Lỗi kết nối gợi ý AI', 'error');
+    if (advContainer) advContainer.innerHTML = '';
+  } finally {
+    if (btn) { btn.disabled = false; btn.innerHTML = `<i data-lucide="bot" class="icon-sm"></i> Gợi ý từ AI`; renderIcons(); }
+  }
+}
+
+async function runFacebookPageAgent() {
+  const btn = document.getElementById('btnRunAgent');
+  const agentContainer = document.getElementById('fbPageAgentContainer');
+  if (btn) { btn.disabled = true; btn.innerHTML = `<i data-lucide="loader" class="icon-sm"></i> Agent đang chạy...`; renderIcons(); }
+  if (agentContainer) {
+    agentContainer.innerHTML = `<div style="padding:16px; text-align:center; font-size:13px; color:var(--text-muted); background:var(--bg-subtle); border-radius:8px; border:1px solid var(--border); margin-top:14px;"><i data-lucide="sparkles" class="icon-sm" style="color:var(--accent);"></i> AI Agent đang phân tích đa chiều & tổng hợp kế hoạch hành động...</div>`;
+    renderIcons();
+  }
+
+  try {
+    const base = (CFG.url || window.location.origin).replace(/\/+$/, '');
+    const res = await fetch(`${base}/facebook/page/agent/run`, {
+      method: 'POST',
+      headers: hdrs(),
+      body: JSON.stringify({ pageId: "988656934325292" })
+    });
+    if (res.ok) {
+      const data = await res.json();
+      renderFacebookPageAgent(data);
+      toast('Agent đã hoàn thành đề xuất hành động!', 'success');
+    } else if (res.status === 403) {
+      toast('Từ chối: Cần quyền page.posts.read để chạy Agent', 'error');
+      if (agentContainer) agentContainer.innerHTML = `<div style="padding:10px; font-size:12px; color:var(--red); background:rgba(239,68,68,0.1); border-radius:6px; margin-top:14px;">Từ chối (403): Tài khoản hiện tại thiếu quyền <code>page.posts.read</code>.</div>`;
+    } else {
+      toast('Không thể khởi chạy Agent', 'error');
+      if (agentContainer) agentContainer.innerHTML = '';
+    }
+  } catch(e) {
+    console.error('Error running page agent:', e);
+    toast('Lỗi kết nối khi chạy Agent', 'error');
+    if (agentContainer) agentContainer.innerHTML = '';
+  } finally {
+    if (btn) { btn.disabled = false; btn.innerHTML = `<i data-lucide="sparkles" class="icon-sm"></i> Chạy agent`; renderIcons(); }
+  }
+}
+
+function renderFacebookPageAgent(runResponse) {
+  const container = document.getElementById('fbPageAgentContainer');
+  if (!container) return;
+
+  const agent = runResponse.agent || runResponse;
+  const summary = agent.summary || 'Chưa có tóm tắt từ Agent.';
+  const focus = (agent.focus || 'inbox').toLowerCase();
+  const actions = agent.actions || [];
+  const disclaimer = agent.disclaimer || 'AI không tự đăng bài, không tự gửi tin, không chi tiền.';
+  const toolTrace = runResponse.toolTrace || [];
+
+  const canReply = _currentProfile && Array.isArray(_currentProfile.permissions) && _currentProfile.permissions.includes('inbox.reply');
+
+  const focusLabels = {
+    inbox: { label: '💬 Hộp thư & Chăm sóc khách', color: 'var(--orange)', bg: 'rgba(249,115,22,0.12)' },
+    content: { label: '📝 Nội dung & Đăng bài', color: 'var(--purple)', bg: 'rgba(167,139,250,0.12)' },
+    leads: { label: '🎯 Chuyển đổi Lead', color: 'var(--green)', bg: 'rgba(16,185,129,0.12)' },
+    engagement: { label: '⚡ Tăng trưởng tương tác', color: 'var(--accent)', bg: 'rgba(59,130,246,0.12)' },
+    data: { label: '📊 Đo lường dữ liệu', color: 'var(--text-muted)', bg: 'var(--bg-subtle)' }
+  };
+  const focusInfo = focusLabels[focus] || focusLabels.inbox;
+
+  container.innerHTML = `
+    <div style="margin-top:14px; background:var(--bg-card); border:1px solid var(--border); border-left:4px solid var(--accent); border-radius:10px; padding:16px; box-shadow:var(--shadow);">
+      <!-- Agent Header -->
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:10px; margin-bottom:12px;">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span style="display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px; border-radius:6px; background:linear-gradient(135deg,#3b82f6,#8b5cf6); color:#fff;">
+            <i data-lucide="bot" style="width:16px; height:16px;"></i>
+          </span>
+          <div>
+            <div style="font-weight:700; font-size:14px; color:var(--text); display:flex; align-items:center; gap:8px;">
+              Facebook Page Operator Agent
+              <span class="pill" style="color:${focusInfo.color}; background:${focusInfo.bg}; border:1px solid ${focusInfo.color}33;">
+                ${focusInfo.label}
+              </span>
+            </div>
+            <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">
+              Vòng lặp vận hành: Quan sát → Suy luận → Đề xuất hành động → Xác nhận
+            </div>
+          </div>
+        </div>
+        <span class="pill pill-muted" style="font-size:10px;">
+          <i data-lucide="lock" class="icon-sm"></i> ${esc(disclaimer)}
+        </span>
+      </div>
+
+      ${toolTrace.length > 0 ? `
+        <!-- Tool Trace Banner -->
+        <div style="font-size:11px; color:var(--text-muted); display:flex; align-items:center; gap:6px; margin-bottom:10px; background:var(--bg-subtle); padding:5px 10px; border-radius:6px;">
+          <i data-lucide="wrench" class="icon-sm" style="color:var(--accent);"></i>
+          <span>Đã dùng <b>${toolTrace.length}</b> tool: <code>${toolTrace.map(t => esc(t)).join(', ')}</code></span>
+        </div>
+      ` : ''}
+
+      <!-- Agent Summary -->
+      <div style="background:var(--bg-subtle); border:1px solid var(--border); border-radius:8px; padding:10px 14px; font-size:13px; line-height:1.5; color:var(--text); margin-bottom:14px;">
+        <b>Tóm tắt phân tích:</b> ${esc(summary)}
+      </div>
+
+      <!-- Action Cards -->
+      <div style="font-size:12px; font-weight:700; color:var(--text); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px; display:flex; align-items:center; gap:6px;">
+        <i data-lucide="list" class="icon-sm" style="color:var(--accent);"></i>
+        Danh sách hành động đề xuất (${actions.length}):
+      </div>
+
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:12px;">
+        ${actions.map((act, i) => {
+          const type = act.type || 'wait';
+          const title = act.title || 'Hành động đề xuất';
+          const rationale = act.rationale || '';
+          const payload = act.payload || {};
+
+          let typePill = '<span class="pill pill-muted">Theo dõi</span>';
+          if (type === 'reply_inbox') typePill = '<span class="pill pill-replied">💬 Trả lời inbox</span>';
+          else if (type === 'compose_post') typePill = '<span class="pill pill-lead">📝 Đăng bài mới</span>';
+          else if (type === 'sync_page') typePill = '<span class="pill pill-active">🔄 Đồng bộ</span>';
+          else if (type === 'ask_owner') typePill = '<span class="pill pill-waiting">👤 Hỏi chủ shop</span>';
+
+          return `
+          <div style="background:var(--bg-subtle); border:1px solid var(--border); border-radius:8px; padding:12px; display:flex; flex-direction:column; justify-content:space-between; gap:10px;">
+            <div>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                ${typePill}
+                <span style="font-size:10px; color:var(--text-muted); font-weight:600;">autoExecute: false</span>
+              </div>
+              <div style="font-weight:700; font-size:13px; color:var(--text); margin-bottom:4px;">${esc(title)}</div>
+              <div style="font-size:12px; color:var(--text-light); line-height:1.4;">${esc(rationale)}</div>
+            </div>
+
+            ${payload.suggestedReply ? `
+              <div style="background:var(--bg-card); padding:8px 10px; border-radius:6px; border:1px dashed var(--border);">
+                <div style="font-size:10px; color:var(--accent); font-weight:700; margin-bottom:4px;">Tin nhắn mẫu gợi ý:</div>
+                <div style="font-size:12px; color:var(--text); line-height:1.4;">${esc(payload.suggestedReply)}</div>
+              </div>
+            ` : ''}
+
+            ${payload.suggestedPost ? `
+              <div style="background:var(--bg-card); padding:8px 10px; border-radius:6px; border:1px dashed var(--border);">
+                <div style="font-size:10px; color:var(--purple); font-weight:700; margin-bottom:4px;">Nội dung bài viết mẫu:</div>
+                <div style="font-size:11px; color:var(--text); line-height:1.4; white-space:pre-wrap; max-height:80px; overflow-y:auto;">${esc(payload.suggestedPost)}</div>
+              </div>
+            ` : ''}
+
+            <div style="display:flex; gap:6px; flex-wrap:wrap; align-items:center; border-top:1px solid var(--border); padding-top:8px;">
+              ${type === 'reply_inbox' ? `
+                <button class="btn btn-sm" onclick="copySuggestedReply(this.dataset.reply)" data-reply="${esc(payload.suggestedReply || '')}" title="Sao chép nội dung">
+                  <i data-lucide="copy" class="icon-sm"></i> Chép tin
+                </button>
+                ${payload.conversationId ? `
+                  <button class="btn btn-sm" onclick="openInboxConversation('${esc(payload.conversationId)}')" title="Mở hộp thư">
+                    <i data-lucide="message-square" class="icon-sm"></i> Mở hộp thư
+                  </button>
+                  ${canReply ? `
+                    <button class="btn btn-sm btn-primary" onclick="sendInboxActionReply('${esc(payload.conversationId)}', this.dataset.reply)" data-reply="${esc(payload.suggestedReply || '')}" title="Gửi tin nhắn trực tiếp">
+                      <i data-lucide="send" class="icon-sm"></i> Gửi tin này
+                    </button>
+                  ` : ''}
+                ` : ''}
+              ` : ''}
+
+              ${type === 'compose_post' ? `
+                <button class="btn btn-sm" onclick="copyToPostMessage(this.dataset.content)" data-content="${esc(payload.suggestedPost || '')}" style="width:100%; justify-content:center;">
+                  <i data-lucide="copy" class="icon-sm"></i> Chép vào ô đăng bài
+                </button>
+              ` : ''}
+
+              ${type === 'sync_page' ? `
+                <button class="btn btn-sm btn-primary" onclick="syncFacebookPosts()" style="width:100%; justify-content:center;">
+                  <i data-lucide="refresh-cw" class="icon-sm"></i> Đồng bộ ngay
+                </button>
+              ` : ''}
+            </div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>
+  `;
+  renderIcons();
+}
+
+function renderFacebookPageAdvice(adviceData) {
+  const container = document.getElementById('fbPageAdviceContainer');
+  if (!container) return;
+
+  const recs = adviceData.recommendations?.recommendations || [];
+  if (recs.length === 0) {
+    container.innerHTML = `<div style="font-size:12px; color:var(--text-muted);">Chưa có khuyến nghị khả dụng.</div>`;
+    return;
+  }
+
+  container.innerHTML = `
+    <div style="margin-top:10px; border-top:1px dashed var(--border); padding-top:12px;">
+      <div style="font-size:13px; font-weight:700; color:var(--accent); display:flex; align-items:center; gap:6px; margin-bottom:10px;">
+        <i data-lucide="sparkles" class="icon-sm"></i> 3 Đề xuất hành động từ Cố vấn AI (Không tự động đăng):
+      </div>
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:10px;">
+        ${recs.map((rec, i) => {
+          const cat = rec.category || rec.Category || 'Tối ưu';
+          const title = rec.title || rec.Title || '';
+          const action = rec.actionText || rec.ActionText || '';
+          const postContent = rec.suggestedPostContent || rec.SuggestedPostContent;
+          return `
+          <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:8px; padding:12px; display:flex; flex-direction:column; justify-content:space-between; gap:10px;">
+            <div>
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span class="pill pill-lead" style="font-size:10px;">${esc(cat)}</span>
+                <span style="font-size:11px; font-weight:700; color:var(--text-muted);">#${i+1}</span>
+              </div>
+              <div style="font-weight:600; font-size:13px; margin-top:6px; color:var(--text);">${esc(title)}</div>
+              <div style="font-size:12px; color:var(--text-light); margin-top:4px; line-height:1.4;">${esc(action)}</div>
+            </div>
+            ${postContent ? `
+              <div style="background:var(--bg-subtle); padding:8px 10px; border-radius:6px; border:1px solid var(--border);">
+                <div style="font-size:10px; color:var(--text-muted); font-weight:600; margin-bottom:4px;">Nội dung mẫu:</div>
+                <div style="font-size:11px; color:var(--text); white-space:pre-wrap; max-height:80px; overflow-y:auto;">${esc(postContent)}</div>
+                <button class="btn btn-sm" onclick="copyToPostMessage(this.dataset.content)" data-content="${esc(postContent)}" style="margin-top:6px; width:100%; justify-content:center;">
+                  <i data-lucide="copy" class="icon-sm"></i> Chép vào ô đăng bài
+                </button>
+              </div>` : ''}
+          </div>`;
+        }).join('')}
+      </div>
+    </div>
+  `;
+  renderIcons();
+}
+
+function copyToPostMessage(text) {
+  const textarea = document.getElementById('fbPostMessage');
+  if (textarea) {
+    textarea.value = text;
+    textarea.focus();
+    toast('Đã chép nội dung vào ô soạn thảo đăng bài', 'success');
+  }
+}
+
+async function loadFacebookPosts() {
+  const container = document.getElementById('fbPostsListContainer');
+  if (!container) return;
+  try {
+    const base = (CFG.url || window.location.origin).replace(/\/+$/, '');
+    const res = await fetch(`${base}/facebook/posts`, { headers: hdrs() });
+    if (res.ok) {
+      _fbPosts = await res.json();
+      const allCount = _fbPosts.length;
+      const scheduledCount = _fbPosts.filter(p => p.status === 'scheduled').length;
+      const allBadge = document.getElementById('fbAllPostsCount');
+      if (allBadge) allBadge.textContent = allCount;
+      const schedBadge = document.getElementById('fbScheduledCount');
+      if (schedBadge) schedBadge.textContent = scheduledCount;
+      const totalBadge = document.getElementById('fbPostsCountBadge');
+      if (totalBadge) totalBadge.textContent = `${allCount} bài viết`;
+      renderFacebookPosts();
+    } else if (res.status === 403) {
+      container.innerHTML = `<div class="empty-state" style="color:var(--red);"><h3>Từ chối quyền truy cập (403 Forbidden)</h3><p>Actor hiện tại (${CURRENT_ACTOR}) thiếu quyền <code>page.posts.read</code></p></div>`;
+    }
+  } catch(e) {
+    console.error(e);
+  }
+}
+
+function toggleFbFeedItem(safeId) {
+  const body = document.getElementById(`fbFeedDetail_${safeId}`);
+  const badge = document.getElementById(`fbFeedBadge_${safeId}`);
+  if (!body) return;
+  const isOpen = body.classList.toggle('open');
+  if (badge) {
+    badge.innerHTML = isOpen
+      ? '<i data-lucide="chevron-up" class="icon-sm"></i> Thu gọn'
+      : '<i data-lucide="chevron-down" class="icon-sm"></i> Xem bài đăng Facebook';
+    renderIcons();
+  }
+}
+
+function toggleFbCaption(safeId, e) {
+  if (e) e.stopPropagation();
+  const textEl = document.getElementById(`fbCaptionText_${safeId}`);
+  const btnEl = document.getElementById(`fbCaptionBtn_${safeId}`);
+  if (!textEl) return;
+  const isClamped = textEl.classList.toggle('clamped');
+  if (btnEl) {
+    btnEl.textContent = isClamped ? '... Xem thêm' : ' Thu gọn';
+  }
+}
+
+function renderFacebookPosts() {
+  const container = document.getElementById('fbPostsListContainer');
+  if (!container) return;
+
+  const displayList = _fbPostsTab === 'scheduled'
+    ? (_fbPosts || []).filter(p => p.status === 'scheduled')
+    : (_fbPosts || []);
+
+  if (!displayList || displayList.length === 0) {
+    if (_fbPostsTab === 'scheduled') {
+      container.innerHTML = `<div class="empty-state"><h3>Không có bài viết nào trong hàng đợi</h3><p>Để lên lịch, hãy chọn ngày giờ (GMT+7) trong khung soạn thảo rồi bấm "Hẹn giờ đăng".</p></div>`;
+    } else {
+      container.innerHTML = `<div class="empty-state"><h3>Chưa có bài viết nào được đồng bộ</h3><p>Bấm nút "Đồng bộ Bài viết & Insights" để lấy dữ liệu từ Facebook Graph API.</p></div>`;
+    }
+    return;
+  }
+
+  container.innerHTML = displayList.map((p, idx) => {
+    const freshness = p.data_freshness || 'none';
+    const isFresh = freshness === 'fresh';
+
+    const dispImpressions = isFresh ? (p.impressions ?? 0).toLocaleString() : (p.impressions > 0 ? p.impressions.toLocaleString() : '—');
+    const dispEngaged = isFresh ? (p.engaged_users ?? 0).toLocaleString() : (p.engaged_users > 0 ? p.engaged_users.toLocaleString() : '—');
+    const dispClicks = isFresh ? (p.clicks ?? 0).toLocaleString() : (p.clicks > 0 ? p.clicks.toLocaleString() : '—');
+
+    const hasReactions = p.reaction_count !== undefined && p.reaction_count !== null;
+    const hasComments = p.comment_count !== undefined && p.comment_count !== null;
+    const hasShares = p.share_count !== undefined && p.share_count !== null;
+
+    const rawReactions = hasReactions ? Number(p.reaction_count) : 0;
+    const rawComments = hasComments ? Number(p.comment_count) : 0;
+    const rawShares = hasShares ? Number(p.share_count) : 0;
+
+    const dispReactions = hasReactions ? rawReactions.toLocaleString() : '—';
+    const dispComments = hasComments ? rawComments.toLocaleString() : '—';
+    const dispShares = hasShares ? rawShares.toLocaleString() : '—';
+
+    const dispCommentsFull = hasComments ? `${rawComments} bình luận` : '—';
+    const dispSharesFull = hasShares ? `${rawShares} chia sẻ` : '—';
+
+    const freshnessPillClass = freshness === 'fresh' ? 'pill-active' : (freshness === 'partial' ? 'pill-lead' : 'pill-muted');
+
+    const postId = p.post_id || p.id || '';
+    const cleanId = postId.startsWith('post_') ? postId.substring('post_'.length) : postId;
+    const safeId = cleanId.replace(/[^a-zA-Z0-9_-]/g, '_');
+
+    const isScheduled = p.status === 'scheduled';
+    const isCancelled = p.status === 'cancelled';
+    const statusPill = isScheduled ? '<span class="pill pill-lead"><i data-lucide="clock" class="icon-sm"></i> ĐÃ LÊN LỊCH</span>'
+      : (isCancelled ? '<span class="pill pill-muted">ĐÃ HỦY</span>'
+      : '<span class="pill pill-active"><i data-lucide="check-circle" class="icon-sm"></i> ĐÃ XUẤT BẢN</span>');
+
+    const timeDisplay = isScheduled
+      ? `Hẹn đăng: <b>${formatVnTime(p.scheduled_at)} (GMT+7)</b>`
+      : `Đăng lúc: ${formatVnTime(p.created_time || p.created_at)}`;
+
+    const rawMessage = p.message || '';
+    const firstLine = rawMessage ? rawMessage.split('\n')[0].trim() : '(Bài viết hình ảnh / không có văn bản)';
+
+    // Thumbnail / Media
+    const mediaSrc = p.full_picture || p.thumbnail_url || p.media_url || null;
+    const isVideo = p.media_type === 'video' || (p.media_url && p.media_url.includes('.mp4')) || (p.permalink_url && p.permalink_url.includes('/reel/'));
+
+    const miniThumbHtml = mediaSrc ? `
+      <div class="fb-feed-mini-thumb">
+        <img src="${esc(mediaSrc)}" alt="Thumb" style="width:100%; height:100%; object-fit:cover;" onerror="this.parentElement.innerHTML='<span style=\\'font-size:9px;color:var(--text-muted);\\'>Ảnh</span>';">
+        ${isVideo ? '<span style="position:absolute;bottom:2px;right:2px;background:rgba(0,0,0,0.8);color:#fff;border-radius:3px;font-size:8px;padding:1px 3px;">▶</span>' : ''}
+      </div>` : `
+      <div class="fb-feed-mini-thumb" style="color:var(--text-muted);">
+        <i data-lucide="file-text" style="width:20px; height:20px; stroke-width:1.5;"></i>
+      </div>`;
+
+    const isFirstItem = idx === 0;
+
+    return `
+      <div class="fb-feed-item">
+        <!-- Compact Summary Header (Click to toggle) -->
+        <div class="fb-feed-summary" onclick="toggleFbFeedItem('${safeId}')">
+          <div class="fb-feed-summary-left">
+            ${miniThumbHtml}
+            <div class="fb-feed-summary-meta">
+              <div class="fb-feed-summary-title">${esc(firstLine)}</div>
+              <div class="fb-feed-summary-sub">
+                ${statusPill}
+                <code style="font-size:11px;">${esc(cleanId)}</code>
+                <span>·</span>
+                <span>${timeDisplay}</span>
+              </div>
+            </div>
+          </div>
+          <div class="fb-feed-summary-right">
+            <div style="display:flex; gap:6px; align-items:center;">
+              <span class="metric-badge-item" title="Cảm xúc (Reactions)">👍 ${dispReactions}</span>
+              <span class="metric-badge-item" title="Bình luận (Comments)">💬 ${dispComments}</span>
+              <span class="metric-badge-item" title="Chia sẻ (Shares)">↗️ ${dispShares}</span>
+            </div>
+            <span class="fb-expand-badge" id="fbFeedBadge_${safeId}">
+              <i data-lucide="${isFirstItem ? 'chevron-up' : 'chevron-down'}" class="icon-sm"></i> ${isFirstItem ? 'Thu gọn' : 'Xem bài đăng Facebook'}
+            </span>
+          </div>
+        </div>
+
+        <!-- Expanded Native Facebook Post Card -->
+        <div class="fb-feed-expanded-body ${isFirstItem ? 'open' : ''}" id="fbFeedDetail_${safeId}">
+          <div class="fb-native-card">
+            <!-- 1. Post Header -->
+            <div class="fb-post-header">
+              <div class="fb-avatar-group">
+                <img src="https://graph.facebook.com/v22.0/988656934325292/picture?type=normal" alt="Royce Shop" class="fb-page-avatar-img" onerror="this.src='/logos/royce_avatar.jpg';">
+                <div>
+                  <div class="fb-page-title-row">
+                    <span>Royce Shop</span>
+                    <svg class="fb-verified-check" viewBox="0 0 16 16"><path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/></svg>
+                  </div>
+                  <div class="fb-post-subtext">
+                    <span>${isScheduled ? `Lên lịch đăng: ${formatFbDate(p.scheduled_at)}` : formatFbDate(p.created_time || p.created_at)}</span>
+                    <span>·</span>
+                    <i data-lucide="globe" style="width:12px; height:12px;"></i>
+                  </div>
+                </div>
+              </div>
+              <div class="fb-header-actions">
+                ${isScheduled ? `
+                  <button class="btn btn-sm" onclick="cancelScheduledPost('${esc(cleanId)}')" style="color:var(--red); border-color:rgba(239,68,68,0.3);" title="Hủy lịch đăng">
+                    <i data-lucide="x-circle" class="icon-sm"></i> Hủy lịch
+                  </button>
+                ` : `
+                  <button class="btn btn-sm" onclick="syncPostInsights('${esc(cleanId)}')" title="Đồng bộ chỉ số Insights">
+                    <i data-lucide="bar-chart-2" class="icon-sm"></i> Cập nhật Insights
+                  </button>
+                `}
+                ${p.permalink_url ? `
+                  <a href="${esc(p.permalink_url)}" target="_blank" rel="noopener noreferrer" class="btn btn-sm" style="color:#1877f2;" title="Mở trên Facebook">
+                    <i data-lucide="external-link" class="icon-sm"></i> Xem trên FB
+                  </a>
+                ` : ''}
+              </div>
+            </div>
+
+            <div class="fb-post-caption">
+              <span id="fbCaptionText_${safeId}" class="fb-caption-text ${rawMessage.length > 180 ? 'clamped' : ''}">${esc(rawMessage || '(Bài viết không có văn bản / Media)')}</span>${rawMessage.length > 180 ? `<span id="fbCaptionBtn_${safeId}" class="fb-caption-more-btn" onclick="toggleFbCaption('${safeId}', event)">Xem thêm</span>` : ''}
+            </div>
+
+            ${mediaSrc ? `
+              <div class="fb-post-media-container">
+                <img src="${esc(mediaSrc)}" alt="Creative Media" class="fb-post-media-img" loading="lazy" onclick="window.open('${esc(mediaSrc)}', '_blank')">
+                <div class="fb-media-audio-badge" title="Âm lượng video">
+                  <i data-lucide="volume-2" style="width:14px; height:14px; stroke:#fff; fill:none;"></i>
+                </div>
+              </div>
+            ` : ''}
+
+            <div class="fb-messenger-cta-bar">
+              <div class="fb-messenger-cta-label">MESSENGER</div>
+              <button class="fb-messenger-cta-btn" onclick="toast('Mở khung chat Messenger với Royce Shop', 'info')">
+                <i data-lucide="message-circle" style="width:14px; height:14px; fill:currentColor;"></i> Gửi tin nhắn
+              </button>
+            </div>
+
+            <div class="fb-boost-banner">
+              <div class="fb-boost-left">
+                <i data-lucide="megaphone" style="width:16px; height:16px; color:#1877f2; flex-shrink:0;"></i>
+                <span>Quảng cáo bài viết này để tăng số người tiếp cận cho Royce Shop.</span>
+              </div>
+              <button class="fb-boost-btn" onclick="toast('Mở công cụ Meta Ads Manager để đẩy mạnh tương tác', 'info')">
+                Quảng bá thước phim
+              </button>
+            </div>
+
+            <div class="fb-engagement-bar">
+              <div class="fb-engagement-left">
+                <span class="fb-stat-pill" style="cursor:pointer;" onclick="toggleFbLike('${safeId}')" title="Lượt thích">
+                  <i data-lucide="thumbs-up" style="width:16px; height:16px; fill:#1877f2; stroke:#1877f2;"></i> <b id="fbReactionCountVal_${safeId}">${dispReactions}</b>
+                </span>
+                <span class="fb-stat-pill" style="cursor:pointer;" onclick="toggleFbComments('${esc(cleanId)}', '${safeId}')" title="Bình luận">
+                  <i data-lucide="message-circle" style="width:16px; height:16px;"></i> <span id="fbCommentCountVal_${safeId}">${dispCommentsFull}</span>
+                </span>
+                <span class="fb-stat-pill" style="cursor:pointer;" onclick="copyTextToClipboard('${esc(p.permalink_url || cleanId)}')" title="Lượt chia sẻ">
+                  <i data-lucide="share-2" style="width:16px; height:16px;"></i> <span id="fbShareCountVal_${safeId}">${rawShares} chia sẻ</span>
+                </span>
+              </div>
+              <div class="fb-reaction-bubbles" id="fbReactionBubbles_${safeId}" style="cursor:pointer;" onclick="toggleFbLike('${safeId}')">
+                ${rawReactions > 0 ? `
+                  <span class="fb-reaction-bubble fb-bubble-like" title="Thích">👍</span>
+                  ${rawReactions >= 2 ? '<span class="fb-reaction-bubble fb-bubble-heart" title="Yêu thích">❤️</span>' : ''}
+                  ${rawReactions >= 3 ? '<span class="fb-reaction-bubble fb-bubble-haha" title="Haha">😆</span>' : ''}
+                ` : ''}
+              </div>
+            </div>
+
+            <div class="fb-action-row">
+              <button class="fb-feed-action-btn" id="fbLikeBtn_${safeId}" onclick="toggleFbLike('${safeId}')">
+                <i data-lucide="thumbs-up" class="icon-sm"></i> Thích
+              </button>
+              <button class="fb-feed-action-btn" onclick="toggleFbComments('${esc(cleanId)}', '${safeId}')">
+                <i data-lucide="message-circle" class="icon-sm"></i> Bình luận
+              </button>
+              <button class="fb-feed-action-btn" onclick="copyTextToClipboard('${esc(p.permalink_url || cleanId)}')">
+                <i data-lucide="share-2" class="icon-sm"></i> Chia sẻ
+              </button>
+            </div>
+
+            <div class="fb-comments-section" id="fbCommentsSec_${safeId}" style="display:none;">
+              <div class="fb-comments-list" id="fbCommentsList_${safeId}">
+                <div style="font-size:12px; color:var(--text-muted); text-align:center; padding:8px;">Đang tải bình luận...</div>
+              </div>
+
+              <div class="fb-comment-input-row">
+                <img src="https://graph.facebook.com/v22.0/988656934325292/picture?type=normal" alt="Avatar" class="fb-comment-avatar" style="width:32px; height:32px; object-fit:cover;" onerror="this.src='/logos/royce_avatar.jpg';">
+                <div class="fb-comment-input-wrap">
+                  <input type="text" id="fbCommentInput_${safeId}" class="fb-comment-input" placeholder="Viết bình luận công khai..." onkeydown="if(event.key==='Enter') submitFbComment('${esc(cleanId)}', '${safeId}')" />
+                  <button class="fb-comment-send-btn" onclick="submitFbComment('${esc(cleanId)}', '${safeId}')" title="Gửi bình luận">
+                    <i data-lucide="send" style="width:13px; height:13px;"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            ${!isScheduled ? `
+              <div class="fb-insights-footer">
+                    <span>Hiển thị: <b>${dispImpressions}</b></span>
+                    <span>Tiếp cận: <b>${dispEngaged}</b></span>
+                    <span>Clicks: <b>${dispClicks}</b></span>
+                    <span>Độ tươi: <span class="pill ${freshnessPillClass}" style="font-size:9px;">${esc(freshness)}</span></span>
+                  </div>
+                </div>
+              </div>
+            ` : `
+              <div class="fb-insights-footer" style="color:var(--green); font-size:11px; display:flex; align-items:center; gap:5px;">
+                <i data-lucide="shield-check" class="icon-sm"></i> Bài viết đã được lên lịch trực tiếp trên Meta Graph Scheduler. Meta sẽ tự động xuất bản đúng giờ.
+              </div>
+            `}
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+
+  renderIcons();
+}
+
+function toggleFbLike(safeId) {
+  const btn = document.getElementById(`fbLikeBtn_${safeId}`);
+  const countEl = document.getElementById(`fbReactionCountVal_${safeId}`);
+  const bubblesEl = document.getElementById(`fbReactionBubbles_${safeId}`);
+  if (!btn) return;
+  const isLiked = btn.classList.toggle('active-liked');
+  let count = parseInt(countEl?.textContent || '0', 10) || 0;
+  if (isLiked) {
+    btn.innerHTML = `<i data-lucide="thumbs-up" class="icon-sm" style="fill:#1877f2; stroke:#1877f2;"></i> Đã thích`;
+    count++;
+    toast('Đã thích bài viết!', 'info');
+    if (bubblesEl) {
+      bubblesEl.innerHTML = `<span class="fb-reaction-bubble fb-bubble-like" title="Thích">👍</span>`;
+    }
+  } else {
+    btn.innerHTML = `<i data-lucide="thumbs-up" class="icon-sm"></i> Thích`;
+    count = Math.max(0, count - 1);
+    if (count === 0 && bubblesEl) {
+      bubblesEl.innerHTML = '';
+    }
+  }
+  if (countEl) countEl.textContent = count;
+  renderIcons();
+}
+
+async function toggleFbComments(cleanId, safeId) {
+  const sec = document.getElementById(`fbCommentsSec_${safeId}`);
+  if (!sec) return;
+  if (sec.style.display === 'none' || sec.style.display === '') {
+    sec.style.display = 'block';
+    renderIcons();
+    await loadFbComments(cleanId, safeId);
+  } else {
+    sec.style.display = 'none';
+  }
+}
+
+async function loadFbComments(cleanId, safeId) {
+  const listEl = document.getElementById(`fbCommentsList_${safeId}`);
+  if (!listEl) return;
+  try {
+    const base = (CFG.url || window.location.origin).replace(/\/+$/, '');
+    const res = await fetch(`${base}/facebook/posts/${encodeURIComponent(cleanId)}/comments`, {
+      headers: hdrs()
+    });
+    if (res.ok) {
+      const comments = await res.json();
+      if (!comments || comments.length === 0) {
+        listEl.innerHTML = `<div style="font-size:12px; color:var(--text-muted); text-align:center; padding:10px;">Chưa có bình luận nào. Hãy là người đầu tiên bình luận!</div>`;
+      } else {
+        listEl.innerHTML = comments.map(c => {
+          const authorName = c.from_name || 'Khách hàng';
+          const initials = authorName.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase() || 'FB';
+          return `
+            <div class="fb-comment-item">
+              <div class="fb-comment-avatar">${esc(initials)}</div>
+              <div>
+                <div class="fb-comment-bubble">
+                  <div class="fb-comment-author">
+                    ${esc(authorName)}
+                    ${c.from_id === 'page_admin' ? '<svg class="fb-verified-check" viewBox="0 0 16 16" style="width:12px;height:12px;"><path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/></svg>' : ''}
+                  </div>
+                  <div class="fb-comment-text">${esc(c.message || '')}</div>
+                </div>
+                <div class="fb-comment-time">${formatVnTime(c.created_time || c.created_at)}</div>
+              </div>
+            </div>`;
+        }).join('');
+      }
+      renderIcons();
+    } else {
+      listEl.innerHTML = `<div style="font-size:12px; color:var(--red); text-align:center; padding:8px;">Không thể tải bình luận (${res.status})</div>`;
+    }
+  } catch(e) {
+    console.error('Error loading FB comments:', e);
+    listEl.innerHTML = `<div style="font-size:12px; color:var(--red); text-align:center; padding:8px;">Lỗi kết nối khi tải bình luận</div>`;
+  }
+}
+
+async function submitFbComment(cleanId, safeId) {
+  const inputEl = document.getElementById(`fbCommentInput_${safeId}`);
+  if (!inputEl) return;
+  const msg = inputEl.value.trim();
+  if (!msg) {
+    toast('Vui lòng nhập nội dung bình luận', 'warning');
+    return;
+  }
+
+  inputEl.disabled = true;
+  try {
+    const base = (CFG.url || window.location.origin).replace(/\/+$/, '');
+    const res = await fetch(`${base}/facebook/posts/${encodeURIComponent(cleanId)}/comments`, {
+      method: 'POST',
+      headers: hdrs(),
+      body: JSON.stringify({ content: msg })
+    });
+    if (res.ok) {
+      inputEl.value = '';
+      toast('Đã đăng bình luận thành công!', 'success');
+      await loadFbComments(cleanId, safeId);
+      // Update comment count on post
+      const targetPost = (_fbPosts || []).find(p => (p.post_id === cleanId || p.id === cleanId || p.post_id === `post_${cleanId}`));
+      if (targetPost) {
+        targetPost.comment_count = (targetPost.comment_count || 0) + 1;
+        const countTxt = document.getElementById(`fbCommentCountText_${safeId}`);
+        if (countTxt) countTxt.textContent = `${targetPost.comment_count} bình luận`;
+        const countVal = document.getElementById(`fbCommentCountVal_${safeId}`);
+        if (countVal) countVal.textContent = targetPost.comment_count;
+      }
+    } else {
+      const err = await res.json().catch(() => ({}));
+      toast(err.error || `Lỗi đăng bình luận (${res.status})`, 'error');
+    }
+  } catch(e) {
+    console.error(e);
+    toast('Lỗi kết nối khi gửi bình luận', 'error');
+  } finally {
+    inputEl.disabled = false;
+    inputEl.focus();
+  }
+}
+
+function previewFbComposerMedia() {
+  const urlInput = document.getElementById('fbPostMediaUrl');
+  const previewBox = document.getElementById('fbPostMediaPreviewContainer');
+  const imgEl = document.getElementById('fbPostMediaPreviewImg');
+  const videoEl = document.getElementById('fbPostMediaPreviewVideo');
+  const badgeEl = document.getElementById('fbPostMediaPreviewBadge');
+
+  if (!urlInput || !previewBox) return;
+  const url = urlInput.value.trim();
+
+  if (!url) {
+    previewBox.style.display = 'none';
+    if (imgEl) { imgEl.src = ''; imgEl.style.display = 'none'; }
+    if (videoEl) { videoEl.src = ''; videoEl.style.display = 'none'; }
+    return;
+  }
+
+  const isVideo = url.endsWith('.mp4') || url.endsWith('.mov');
+  if (isVideo) {
+    if (imgEl) imgEl.style.display = 'none';
+    if (videoEl) {
+      videoEl.src = url;
+      videoEl.style.display = 'block';
+    }
+    if (badgeEl) badgeEl.textContent = '🎬 Video Reel / MP4';
+    previewBox.style.display = 'block';
+  } else {
+    if (videoEl) { videoEl.src = ''; videoEl.style.display = 'none'; }
+    if (imgEl) {
+      imgEl.src = url;
+      imgEl.style.display = 'block';
+    }
+    if (badgeEl) badgeEl.textContent = '🖼️ Hình ảnh';
+    previewBox.style.display = 'block';
+  }
+}
+
+function handleFbMediaPreviewError() {
+  const badgeEl = document.getElementById('fbPostMediaPreviewBadge');
+  if (badgeEl) badgeEl.textContent = '🔗 Liên kết Web';
+}
+
+function clearFbComposerMedia() {
+  const urlInput = document.getElementById('fbPostMediaUrl');
+  if (urlInput) {
+    urlInput.value = '';
+    previewFbComposerMedia();
+  }
+}
+
+async function publishFacebookPost(isScheduled = false) {
+  const msgInput = document.getElementById('fbPostMessage');
+  if (!msgInput) return;
+  const message = msgInput.value.trim();
+  if (!message) {
+    toast('Vui lòng nhập nội dung bài viết', 'warning');
+    return;
+  }
+  const campaignSelect = document.getElementById('fbPostCampaignSelect');
+  const campaignId = campaignSelect && campaignSelect.value ? campaignSelect.value : null;
+
+  const mediaUrlInput = document.getElementById('fbPostMediaUrl');
+  const mediaUrl = mediaUrlInput && mediaUrlInput.value.trim() ? mediaUrlInput.value.trim() : null;
+
+  const schedInput = document.getElementById('fbPostScheduledAt');
+  const scheduledAtVal = schedInput && schedInput.value ? schedInput.value : null;
+
+  if (isScheduled && !scheduledAtVal) {
+    toast('Vui lòng chọn thời gian hẹn giờ (GMT+7)', 'warning');
+    if (schedInput) schedInput.focus();
+    return;
+  }
+
+  // Validate schedule window client side if scheduled
+  if (isScheduled && scheduledAtVal) {
+    const scheduledDate = new Date(scheduledAtVal);
+    const now = new Date();
+    const diffMins = (scheduledDate.getTime() - now.getTime()) / (60 * 1000);
+    if (diffMins < 9) {
+      toast('Thời gian hẹn giờ phải cách hiện tại ít nhất 10 phút', 'error');
+      return;
+    }
+    if (diffMins > 180 * 24 * 60) {
+      toast('Thời gian hẹn giờ không được vượt quá 6 tháng', 'error');
+      return;
+    }
+  }
+
+  const btn = isScheduled ? document.getElementById('btnScheduleFbPost') : document.getElementById('btnPublishFbPost');
+  const origText = btn ? btn.innerHTML : '';
+  if (btn) { btn.disabled = true; btn.innerHTML = `<i data-lucide="loader" class="icon-sm"></i> Đang xử lý...`; renderIcons(); }
+
+  try {
+    const base = (CFG.url || window.location.origin).replace(/\/+$/, '');
+    const payload = {
+      message: message,
+      mediaUrl: mediaUrl,
+      campaignId: campaignId,
+      scheduledAt: (isScheduled && scheduledAtVal) ? new Date(scheduledAtVal).toISOString() : null
+    };
+
+    const res = await fetch(`${base}/facebook/posts`, {
+      method: 'POST',
+      headers: hdrs(),
+      body: JSON.stringify(payload)
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      if (isScheduled) {
+        toast(`Đã lên lịch đăng bài thành công trên Graph API! (ID: ${data.post_id || data.id})`, 'success');
+      } else {
+        toast(`Đã xuất bản bài viết lên Facebook Fanpage thành công! (ID: ${data.post_id || data.id})`, 'success');
+      }
+      msgInput.value = '';
+      clearFbComposerMedia();
+      if (schedInput) schedInput.value = '';
+      await loadFacebookPosts();
+    } else if (res.status === 403) {
+      toast('Từ chối: Cần quyền page.publish để đăng/hẹn giờ bài viết.', 'error');
+    } else {
+      const err = await res.json().catch(() => ({}));
+      toast(`Lỗi đăng bài: ${err.error || err.message || 'Không thể đăng'}`, 'error');
+    }
+  } catch(e) {
+    console.error(e);
+    toast('Lỗi kết nối khi gửi bài viết', 'error');
+  } finally {
+    if (btn) { btn.disabled = false; btn.innerHTML = origText; renderIcons(); }
+  }
+}
+
+async function cancelScheduledPost(postId) {
+  if (!confirm(`Bạn có chắc muốn hủy lịch đăng bài viết này trên Facebook Graph API không?`)) {
+    return;
+  }
+  try {
+    const base = (CFG.url || window.location.origin).replace(/\/+$/, '');
+    const res = await fetch(`${base}/facebook/posts/${encodeURIComponent(postId)}/cancel-schedule`, {
+      method: 'POST',
+      headers: hdrs()
+    });
+    if (res.ok) {
+      toast('Đã hủy lịch đăng bài viết thành công!', 'success');
+      await loadFacebookPosts();
+    } else if (res.status === 403) {
+      toast('Từ chối: Cần quyền page.publish để hủy lịch đăng bài.', 'error');
+    } else {
+      const err = await res.json().catch(() => ({}));
+      toast(`Không thể hủy lịch: ${err.message || 'Lỗi hệ thống'}`, 'error');
+    }
+  } catch(e) {
+    console.error('Error cancelling scheduled post:', e);
+    toast('Lỗi kết nối khi hủy lịch đăng', 'error');
+  }
+}
+
+async function replyFacebookComment(commentId, postId) {
+  const input = document.getElementById(`replyInput_${commentId}`);
+  if (!input) return;
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = '';
+
+  try {
+    const base = (CFG.url || window.location.origin).replace(/\/+$/, '');
+    const res = await fetch(`${base}/facebook/posts/${encodeURIComponent(postId)}/comments`, {
+      method: 'POST',
+      headers: hdrs(),
+      body: JSON.stringify({ commentId: commentId, message: text })
+    });
+    if (res.ok) {
+      toast('Đã trả lời bình luận trên Facebook!', 'success');
+      await loadFacebookPosts();
+    } else if (res.status === 403) {
+      toast('Từ chối: Cần quyền page.comments.reply', 'error');
+    } else {
+      toast('Trả lời bình luận thất bại', 'error');
+    }
+  } catch(e) {
+    console.error(e);
+  }
+}
+
+async function syncPostInsights(postId) {
+  try {
+    const base = (CFG.url || window.location.origin).replace(/\/+$/, '');
+    const res = await fetch(`${base}/facebook/posts/${encodeURIComponent(postId)}/sync-insights`, {
+      method: 'POST',
+      headers: hdrs()
+    });
+    if (res.ok) {
+      toast('Đã cập nhật Insights bài viết', 'success');
+      await loadFacebookPosts();
+    } else if (res.status === 403) {
+      toast('Từ chối: Cần quyền page.insights.read', 'error');
+    }
+  } catch(e) {
+    console.error(e);
+  }
+}
+
+// ═══════════════ RBAC Management ═══════════════
+const ALL_PERMISSIONS = [
+  'inbox.read', 'inbox.reply', 'inbox.assign', 'inbox.moderate',
+  'leads.read', 'leads.convert',
+  'page.posts.read', 'page.comments.read', 'page.comments.reply',
+  'page.insights.read', 'page.publish',
+  'campaign.approve',
+  'settings.roles', 'settings.integrations'
+];
+
+let _rbacRoles = [];
+let _rbacUsers = [];
+
+async function loadRbacData() {
+  await fetchActorProfile();
+  try {
+    const base = (CFG.url || window.location.origin).replace(/\/+$/, '');
+    const [rolesRes, usersRes] = await Promise.all([
+      fetch(`${base}/settings/roles`, { headers: hdrs() }),
+      fetch(`${base}/settings/users`, { headers: hdrs() })
+    ]);
+    if (rolesRes.ok) {
+      _rbacRoles = await rolesRes.json();
+      renderRbacRoles();
+    } else if (rolesRes.status === 403) {
+      document.getElementById('rbacRolesTbody').innerHTML = `<tr><td colspan="5" class="empty-state" style="color:var(--red);">Cần quyền <code>settings.roles</code> để quản lý vai trò.</td></tr>`;
+    }
+    if (usersRes.ok) {
+      _rbacUsers = await usersRes.json();
+      renderRbacUsers();
+    } else if (usersRes.status === 403) {
+      document.getElementById('rbacUsersTbody').innerHTML = `<tr><td colspan="5" class="empty-state" style="color:var(--red);">Cần quyền <code>settings.roles</code> để xem danh sách user.</td></tr>`;
+    }
+  } catch(e) {
+    console.error('Error loading RBAC:', e);
+  }
+}
+
+function renderRbacRoles() {
+  const tbody = document.getElementById('rbacRolesTbody');
+  if (!tbody) return;
+  if (!_rbacRoles || _rbacRoles.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="5" class="empty-state">Không có vai trò nào</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = _rbacRoles.map(role => {
+    const permsSet = new Set(role.permissions || []);
+    return `
+      <tr>
+        <td><b>${esc(role.name)}</b></td>
+        <td><small style="color:var(--text-muted);">${esc(role.description || '—')}</small></td>
+        <td><span class="pill ${role.isSystem ? 'pill-active' : 'pill-lead'}">${role.isSystem ? 'Hệ thống' : 'Tùy chỉnh'}</span></td>
+        <td>
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(130px, 1fr)); gap:6px; max-width:650px;">
+            ${ALL_PERMISSIONS.map(p => `
+              <label style="display:flex; align-items:center; gap:4px; font-size:11px; cursor:pointer;">
+                <input type="checkbox" data-role-id="${esc(role.id)}" data-perm="${esc(p)}" ${permsSet.has(p)?'checked':''}>
+                <span>${esc(p)}</span>
+              </label>`).join('')}
+          </div>
+        </td>
+        <td style="text-align:right;">
+          <button class="btn btn-sm btn-primary" onclick="saveRolePermissions('${esc(role.id)}')">
+            <i data-lucide="save" class="icon-sm"></i> Lưu quyền
+          </button>
+        </td>
+      </tr>`;
+  }).join('');
+  renderIcons();
+}
+
+function renderRbacUsers() {
+  const tbody = document.getElementById('rbacUsersTbody');
+  if (!tbody) return;
+  if (!_rbacUsers || _rbacUsers.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="5" class="empty-state">Chưa có người dùng nào</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = _rbacUsers.map(u => `
+    <tr>
+      <td><code>${esc(u.actorId)}</code></td>
+      <td><b>${esc(u.displayName || u.actorId)}</b></td>
+      <td>${(u.roles || []).map(r => `<span class="pill pill-active">${esc(r)}</span>`).join(' ') || '<span class="pill">Chưa gán</span>'}</td>
+      <td><small style="color:var(--text-muted);">${(u.updatedAtUtc||'').slice(0,16).replace('T',' ')}</small></td>
+      <td style="text-align:right;">
+        <button class="btn btn-sm" onclick="editUserRolesModal('${esc(u.actorId)}', '${esc(u.displayName||'')}', '${esc((u.roles||[]).join(','))}')">
+          <i data-lucide="edit" class="icon-sm"></i> Sửa vai trò
+        </button>
+      </td>
+    </tr>`).join('');
+  renderIcons();
+}
+
+async function saveRolePermissions(roleId) {
+  const checkboxes = document.querySelectorAll(`input[data-role-id="${roleId}"]:checked`);
+  const perms = Array.from(checkboxes).map(cb => cb.dataset.perm);
+  try {
+    const base = (CFG.url || window.location.origin).replace(/\/+$/, '');
+    const res = await fetch(`${base}/settings/roles/${encodeURIComponent(roleId)}/permissions`, {
+      method: 'PUT',
+      headers: hdrs(),
+      body: JSON.stringify({ permissions: perms })
+    });
+    if (res.ok) {
+      toast('Đã cập nhật danh sách quyền cho vai trò!', 'success');
+      await loadRbacData();
+    } else if (res.status === 403) {
+      toast('Từ chối: Cần quyền settings.roles', 'error');
+    }
+  } catch(e) {
+    console.error(e);
+  }
+}
+
+function showCreateRoleModal() {
+  const name = prompt('Nhập tên vai trò mới (Ví dụ: SupportLead):');
+  if (!name) return;
+  const desc = prompt('Nhập mô tả cho vai trò:', 'Vai trò tùy chỉnh bởi Owner');
+  createRole(name, desc);
+}
+
+async function createRole(name, desc) {
+  try {
+    const base = (CFG.url || window.location.origin).replace(/\/+$/, '');
+    const res = await fetch(`${base}/settings/roles`, {
+      method: 'POST',
+      headers: hdrs(),
+      body: JSON.stringify({ name: name, description: desc, permissions: ['inbox.read', 'inbox.reply'] })
+    });
+    if (res.ok) {
+      toast(`Đã tạo vai trò mới: ${name}`, 'success');
+      await loadRbacData();
+    } else if (res.status === 403) {
+      toast('Từ chối: Cần quyền settings.roles', 'error');
+    }
+  } catch(e) {
+    console.error(e);
+  }
+}
+
+function showAssignUserModal() {
+  const actorId = prompt('Nhập Actor ID (Ví dụ: sales_charlie):');
+  if (!actorId) return;
+  const displayName = prompt('Nhập Tên hiển thị (Ví dụ: Charlie Sales):', actorId);
+  const rolesStr = prompt('Nhập các vai trò gán (phân cách bằng dấu phẩy, ví dụ: Sales, Marketer):', 'Sales');
+  if (!rolesStr) return;
+  const roles = rolesStr.split(',').map(s => s.trim()).filter(Boolean);
+  assignUserRoles(actorId, displayName, roles);
+}
+
+function editUserRolesModal(actorId, displayName, currentRoles) {
+  const rolesStr = prompt(`Cập nhật vai trò cho User ${actorId}:`, currentRoles);
+  if (rolesStr === null) return;
+  const roles = rolesStr.split(',').map(s => s.trim()).filter(Boolean);
+  assignUserRoles(actorId, displayName, roles);
+}
+
+async function assignUserRoles(actorId, displayName, roles) {
+  try {
+    const base = (CFG.url || window.location.origin).replace(/\/+$/, '');
+    const res = await fetch(`${base}/settings/users`, {
+      method: 'POST',
+      headers: hdrs(),
+      body: JSON.stringify({ actorId: actorId, displayName: displayName, roles: roles })
+    });
+    if (res.ok) {
+      toast(`Đã cập nhật vai trò cho User: ${actorId}`, 'success');
+      await loadRbacData();
+    } else if (res.status === 403) {
+      toast('Từ chối: Cần quyền settings.roles', 'error');
+    }
+  } catch(e) {
     console.error(e);
   }
 }
@@ -1901,7 +3753,7 @@ function exportHTMLReport() {
   const agent = msgsInPeriod.filter(m => m.sender_type==='agent').length;
   const topPartners = _customers.filter(c => c._stage === 'at_risk' || c._stage === 'dormant').slice(0,10);
 
-  const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>AIECOS Report ${new Date().toISOString().slice(0,10)}</title>
+  const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>SEO Trùm Report ${new Date().toISOString().slice(0,10)}</title>
   <style>
     body { font-family: -apple-system, sans-serif; max-width:900px; margin:40px auto; padding:0 20px; color:#0f172a; }
     h1 { border-bottom:2px solid #0f172a; padding-bottom:8px; }
@@ -1915,7 +3767,7 @@ function exportHTMLReport() {
     th { background:#f3f4f6; }
     .footer { margin-top:40px; padding-top:20px; border-top:1px solid #e5e7eb; color:#94a3b8; font-size:11px; }
   </style></head><body>
-    <h1>AIECOS Social CRM — Report</h1>
+    <h1>SEO Trùm Social CRM — Report</h1>
     <p><b>Period:</b> last ${_reportRange} days · <b>Generated:</b> ${new Date().toISOString()}</p>
 
     <h2>Key metrics</h2>
@@ -1936,9 +3788,9 @@ function exportHTMLReport() {
       ${topPartners.map(p => `<tr><td>${esc(p.name)}</td><td>${p._stage.toUpperCase()}</td><td>${p._days}d</td><td>${(p.last_seen_at||'').slice(0,10)}</td></tr>`).join('')}
     </tbody></table>
 
-    <div class="footer">Generated by AIECOS Social CRM · https://github.com/aiecosvietnam/aiecos-social-crm</div>
+    <div class="footer">Generated by SEO Trùm Social CRM · DX-OS Marketing Platform</div>
   </body></html>`;
-  downloadFile(`AIECOS-report-${new Date().toISOString().slice(0,10)}.html`, html, 'text/html');
+  downloadFile(`SEO-Trum-report-${new Date().toISOString().slice(0,10)}.html`, html, 'text/html');
 }
 
 // ═══════════════ Icon helper — re-render Lucide after innerHTML changes ═══════════════
@@ -1982,12 +3834,21 @@ document.getElementById('cfgUrl').value = CFG.url;
 document.getElementById('cfgKey').value = CFG.key;
 document.getElementById('cfgSchema').value = CFG.schema;
 renderIcons();    // Initial render of static icons (nav, badges)
-loadAll();
+loadAll(true);
+
+// Smart polling every 8s only when tab is visible
 setInterval(() => {
-  if (!DEMO_MODE) {
+  if (!DEMO_MODE && !document.hidden) {
     loadAll();
   }
-}, 3000);
+}, 8000);
+
+// Immediate refresh when tab becomes active again
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden && !DEMO_MODE) {
+    loadAll(true);
+  }
+});
 </script>
 
 <div id="mediaLightbox" onclick="closeLightbox(event)">

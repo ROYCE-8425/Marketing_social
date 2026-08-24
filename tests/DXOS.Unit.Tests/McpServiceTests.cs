@@ -106,11 +106,11 @@ public sealed class McpServiceTests
     }
 
     [Fact]
-    public void GetToolDefinitions_ReturnsAllSixExpectedTools()
+    public void GetToolDefinitions_ReturnsAllSevenExpectedTools()
     {
         var tools = McpService.GetToolDefinitions();
 
-        Assert.Equal(6, tools.Count);
+        Assert.Equal(7, tools.Count);
         var names = tools.Select(t => t.Name).ToList();
         Assert.Contains("lead_search", names);
         Assert.Contains("lead_get", names);
@@ -118,6 +118,7 @@ public sealed class McpServiceTests
         Assert.Contains("analytics_summary", names);
         Assert.Contains("platform_connections", names);
         Assert.Contains("sync_status", names);
+        Assert.Contains("page_health", names);
     }
 
     [Fact]

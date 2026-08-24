@@ -1,5 +1,6 @@
 using DXOS.Api;
 using DXOS.Application;
+using DXOS.Infrastructure;
 using DXOS.Infrastructure.Integrations;
 using DXOS.Infrastructure.Persistence;
 using DXOS.Workflows.Smoke;
@@ -38,9 +39,60 @@ builder.Services.AddScoped<DemoSeedService>();
 builder.Services.AddScoped<TrafficService>();
 builder.Services.AddScoped<SpendProposalService>();
 builder.Services.AddScoped<McpService>();
+builder.Services.AddScoped<RbacService>();
+builder.Services.AddScoped<IPageHealthStore, PageHealthStore>();
+builder.Services.AddScoped<PageHealthService>();
+builder.Services.AddScoped<PageAgentService>();
+builder.Services.AddSingleton<MockChatClient>();
 builder.Services.AddHttpClient();
+builder.Services.AddHttpClient<FacebookPageClient>();
+builder.Services.AddHttpClient<KimiChatClient>((sp, client) =>
+{
+    var config = sp.GetRequiredService<IConfiguration>();
+    var baseUrl = config["KIMI_API_BASE"] ?? config["Kimi:BaseUrl"] ?? "https://api.moonshot.ai/v1";
+    if (!baseUrl.EndsWith('/'))
+    {
+        baseUrl += "/";
+    }
+
+    client.BaseAddress = new Uri(baseUrl);
+    client.Timeout = TimeSpan.FromSeconds(60);
+});
+builder.Services.AddHttpClient<GeminiChatClient>((_, client) =>
+{
+    client.BaseAddress = new Uri("https://generativelanguage.googleapis.com/");
+    client.Timeout = TimeSpan.FromSeconds(60);
+});
+builder.Services.AddScoped<DXOS.Application.Abstractions.IChatClient>(sp =>
+{
+    var config = sp.GetRequiredService<IConfiguration>();
+    var geminiKey = config["GEMINI_API_KEY"] ?? config["Gemini:ApiKey"];
+    if (!string.IsNullOrWhiteSpace(geminiKey))
+    {
+        return sp.GetRequiredService<GeminiChatClient>();
+    }
+
+    var kimiKey = config["KIMI_API_KEY"] ?? config["Kimi:ApiKey"];
+    if (!string.IsNullOrWhiteSpace(kimiKey))
+    {
+        return sp.GetRequiredService<KimiChatClient>();
+    }
+
+    return sp.GetRequiredService<MockChatClient>();
+});
 builder.Services.AddSingleton<FacebookLeadAdsClient>();
 builder.Services.AddSingleton<ZaloOaClient>();
+builder.Services.AddSingleton<TikTokLeadAdsClient>();
+
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
+});
 
 // Health Checks
 builder.Services.AddHealthChecks()
@@ -55,6 +107,7 @@ builder.Services.AddElsa(elsa =>
 
 var app = builder.Build();
 
+app.UseCors();
 app.UseDefaultFiles();
 app.UseStaticFiles();
 
