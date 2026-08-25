@@ -1274,6 +1274,13 @@ let CFG = {
   key: localStorage.getItem('sb_key') || 'dxos-live',
   schema: localStorage.getItem('sb_schema') || 'aiecos_social',
 };
+
+function getApiBase() {
+  if (window.location.port === '8081') {
+    return `${window.location.protocol}//${window.location.hostname}:8080`;
+  }
+  return window.location.origin;
+}
 let DEMO_MODE = false;
 let _customers = [], _messages = [], _conversations = [];
 let _selectedConv = null;
@@ -1426,7 +1433,7 @@ function changeActor(val) {
 
 async function fetchActorProfile() {
   try {
-    const base = (CFG.url || window.location.origin).replace(/\/+$/, '');
+    const base = getApiBase();
     const res = await fetch(`${base}/auth/me`, { headers: hdrs() });
     if (res.ok) {
       _currentProfile = await res.json();
@@ -1582,7 +1589,7 @@ async function loadAll(force = false) {
   renderDashboard();
   renderTriage();
   renderInbox();
-  renderPipeline();
+  loadCampaigns();
   renderPartner360();
   renderPerformance();
   renderReports();
@@ -1923,7 +1930,7 @@ async function loadCampaigns() {
   }
 
   try {
-    const base = (CFG.url || window.location.origin).replace(/\/+$/, '');
+    const base = getApiBase();
     const res = await fetch(`${base}/campaigns`, { headers: hdrs() });
     if (res.ok) {
       _campaigns = await res.json();
@@ -2184,7 +2191,7 @@ async function saveCampaignBrief() {
   if (btn) btn.disabled = true;
 
   try {
-    const base = (CFG.url || window.location.origin).replace(/\/+$/, '');
+    const base = getApiBase();
     let res;
     if (_selectedCampaignId) {
       res = await fetch(`${base}/campaigns/${_selectedCampaignId}`, {
@@ -2244,7 +2251,7 @@ async function saveCampaignBrief() {
 
 async function submitCampaignReview(id) {
   try {
-    const base = (CFG.url || window.location.origin).replace(/\/+$/, '');
+    const base = getApiBase();
     const res = await fetch(`${base}/campaigns/${id}/submit-review`, {
       method: 'POST',
       headers: hdrs()
@@ -2263,7 +2270,7 @@ async function submitCampaignReview(id) {
 
 async function sendCampaignToOwner(id) {
   try {
-    const base = (CFG.url || window.location.origin).replace(/\/+$/, '');
+    const base = getApiBase();
     const res = await fetch(`${base}/campaigns/${id}/send-to-owner`, {
       method: 'POST',
       headers: hdrs()
@@ -2282,7 +2289,7 @@ async function sendCampaignToOwner(id) {
 
 async function approveCampaign(id) {
   try {
-    const base = (CFG.url || window.location.origin).replace(/\/+$/, '');
+    const base = getApiBase();
     const res = await fetch(`${base}/campaigns/${id}/approve`, {
       method: 'POST',
       headers: hdrs()
@@ -2301,7 +2308,7 @@ async function approveCampaign(id) {
 
 async function undoCampaignApproval(id) {
   try {
-    const base = (CFG.url || window.location.origin).replace(/\/+$/, '');
+    const base = getApiBase();
     const res = await fetch(`${base}/campaigns/${id}/undo`, {
       method: 'POST',
       headers: hdrs()
@@ -2323,7 +2330,7 @@ async function rejectCampaign(id) {
   if (!reason) return;
 
   try {
-    const base = (CFG.url || window.location.origin).replace(/\/+$/, '');
+    const base = getApiBase();
     const res = await fetch(`${base}/campaigns/${id}/reject`, {
       method: 'POST',
       headers: hdrs(),
@@ -2352,7 +2359,7 @@ async function generateCampaignAiDrafts() {
   toast('AI đang nghiên cứu brief và sáng tạo 3 phương án bài đăng...', 'info', 4000);
 
   try {
-    const base = (CFG.url || window.location.origin).replace(/\/+$/, '');
+    const base = getApiBase();
     const res = await fetch(`${base}/campaigns/${_selectedCampaignId}/ai-drafts`, {
       method: 'POST',
       headers: hdrs()
@@ -2409,7 +2416,7 @@ async function applyCampaignDraft(caption) {
 
   if (_selectedCampaignId) {
     try {
-      const base = (CFG.url || window.location.origin).replace(/\/+$/, '');
+      const base = getApiBase();
       const res = await fetch(`${base}/campaigns/${_selectedCampaignId}/apply-draft`, {
         method: 'POST',
         headers: hdrs(),
@@ -2443,7 +2450,7 @@ async function publishCampaignToFacebook() {
   }
 
   try {
-    const base = (CFG.url || window.location.origin).replace(/\/+$/, '');
+    const base = getApiBase();
     const res = await fetch(`${base}/facebook/posts`, {
       method: 'POST',
       headers: hdrs(),
