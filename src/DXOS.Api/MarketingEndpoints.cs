@@ -1219,9 +1219,9 @@ internal static class MarketingEndpoints
             var (allowed, forbidden, profile) = await CheckPermissionAsync(http, rbac, AppPermissions.InboxReply, cancellationToken);
             if (!allowed) return forbidden;
 
-            if (string.IsNullOrWhiteSpace(request.Content))
+            if (string.IsNullOrWhiteSpace(request.Content) && string.IsNullOrWhiteSpace(request.AttachmentUrl))
             {
-                return Results.BadRequest(new { error = "Content is required" });
+                return Results.BadRequest(new { error = "Content or AttachmentUrl is required" });
             }
 
             var conv = await db.SocialConversations.FirstOrDefaultAsync(c => c.Id == id, cancellationToken);
@@ -1248,11 +1248,12 @@ internal static class MarketingEndpoints
                     customerUserId = conv.CustomerId.Replace("zalo_user_", "");
                 }
 
+                var zaloContent = request.Content ?? (request.AttachmentType == "image" ? "[Hình ảnh]" : "[Đính kèm]");
                 if (!string.IsNullOrWhiteSpace(oaAccessToken) && !string.IsNullOrWhiteSpace(customerUserId) && !string.Equals(zaloMode, "mock", StringComparison.OrdinalIgnoreCase))
                 {
                     try
                     {
-                        var sendResult = await zaloClient.SendMessageAsync(customerUserId, request.Content, oaAccessToken, cancellationToken);
+                        var sendResult = await zaloClient.SendMessageAsync(customerUserId, zaloContent, oaAccessToken, cancellationToken);
                         if (!sendResult.Success)
                         {
                             var logger = loggerFactory.CreateLogger("DXOS.ZaloSend");
@@ -1279,7 +1280,7 @@ internal static class MarketingEndpoints
                     oaId,
                     "Royce Shop",
                     "agent",
-                    request.Content,
+                    zaloContent,
                     now,
                     cancellationToken);
 
@@ -1290,7 +1291,7 @@ internal static class MarketingEndpoints
                     conversation_id = conv.Id,
                     sender_type = "agent",
                     sender_name = "Royce Shop",
-                    content = request.Content,
+                    content = zaloContent,
                     created_time = now
                 });
             }
@@ -1301,6 +1302,7 @@ internal static class MarketingEndpoints
                 var ttMsgId = $"agent_msg_{Guid.NewGuid():N}";
                 var ttNow = DateTimeOffset.UtcNow;
                 var advId = conv.PageId ?? config["TIKTOK_ADVERTISER_ID"] ?? "tiktok_adv";
+                var ttContent = request.Content ?? (request.AttachmentType == "image" ? "[Hình ảnh]" : "[Đính kèm]");
 
                 await IngestSocialMessageAsync(
                     db,
@@ -1312,7 +1314,7 @@ internal static class MarketingEndpoints
                     advId,
                     "Royce Shop",
                     "agent",
-                    request.Content,
+                    ttContent,
                     ttNow,
                     cancellationToken);
 
@@ -1363,24 +1365,67 @@ internal static class MarketingEndpoints
                 {
                     var httpClient = httpFactory.CreateClient();
                     var sendUrl = $"https://graph.facebook.com/v22.0/me/messages?access_token={Uri.EscapeDataString(pageToken)}";
-                    var payload = new
+                    var logger = loggerFactory.CreateLogger("DXOS.FacebookSend");
+
+                    // 1. Send attachment if provided
+                    if (!string.IsNullOrWhiteSpace(request.AttachmentUrl))
                     {
-                        recipient = new { id = customerPsid },
-                        messaging_type = "RESPONSE",
-                        message = new { text = request.Content }
-                    };
-                    var bodyContent = new StringContent(JsonSerializer.Serialize(payload), System.Text.Encoding.UTF8, "application/json");
-                    using var response = await httpClient.PostAsync(sendUrl, bodyContent, cancellationToken);
-                    if (!response.IsSuccessStatusCode)
-                    {
-                        var errStr = await response.Content.ReadAsStringAsync(cancellationToken);
-                        var logger = loggerFactory.CreateLogger("DXOS.FacebookSend");
-                        logger.LogWarning("Facebook Send API warning for PSID {PSID}: {Error}", customerPsid, errStr);
+                        var rawAttType = (request.AttachmentType ?? "file").ToLowerInvariant();
+                        string attType = "file";
+                        if (rawAttType.StartsWith("image") || rawAttType == "img") attType = "image";
+                        else if (rawAttType.StartsWith("video")) attType = "video";
+                        else if (rawAttType.StartsWith("audio")) attType = "audio";
+
+                        var attPayload = new
+                        {
+                            recipient = new { id = customerPsid },
+                            messaging_type = "RESPONSE",
+                            message = new
+                            {
+                                attachment = new
+                                {
+                                    type = attType,
+                                    payload = new
+                                    {
+                                        url = request.AttachmentUrl,
+                                        is_reusable = true
+                                    }
+                                }
+                            }
+                        };
+                        var attBody = new StringContent(JsonSerializer.Serialize(attPayload), System.Text.Encoding.UTF8, "application/json");
+                        using var attResp = await httpClient.PostAsync(sendUrl, attBody, cancellationToken);
+                        if (!attResp.IsSuccessStatusCode)
+                        {
+                            var errStr = await attResp.Content.ReadAsStringAsync(cancellationToken);
+                            logger.LogWarning("Facebook Send Attachment warning for PSID {PSID}: {Error}", customerPsid, errStr);
+                        }
+                        else
+                        {
+                            logger.LogInformation("Facebook Send Attachment sent successfully to PSID {PSID}", customerPsid);
+                        }
                     }
-                    else
+
+                    // 2. Send text message if provided
+                    if (!string.IsNullOrWhiteSpace(request.Content))
                     {
-                        var logger = loggerFactory.CreateLogger("DXOS.FacebookSend");
-                        logger.LogInformation("Facebook Send API sent successfully to PSID {PSID}", customerPsid);
+                        var payload = new
+                        {
+                            recipient = new { id = customerPsid },
+                            messaging_type = "RESPONSE",
+                            message = new { text = request.Content }
+                        };
+                        var bodyContent = new StringContent(JsonSerializer.Serialize(payload), System.Text.Encoding.UTF8, "application/json");
+                        using var response = await httpClient.PostAsync(sendUrl, bodyContent, cancellationToken);
+                        if (!response.IsSuccessStatusCode)
+                        {
+                            var errStr = await response.Content.ReadAsStringAsync(cancellationToken);
+                            logger.LogWarning("Facebook Send API warning for PSID {PSID}: {Error}", customerPsid, errStr);
+                        }
+                        else
+                        {
+                            logger.LogInformation("Facebook Send API sent successfully to PSID {PSID}", customerPsid);
+                        }
                     }
                 }
                 catch (Exception ex)
@@ -1393,6 +1438,32 @@ internal static class MarketingEndpoints
             var fbMsgId = $"agent_msg_{Guid.NewGuid():N}";
             var fbNow = DateTimeOffset.UtcNow;
 
+            string outMsgType = "text";
+            string outAttsJson = "[]";
+            string outContent = request.Content ?? "";
+            if (!string.IsNullOrWhiteSpace(request.AttachmentUrl))
+            {
+                var rawAttType = (request.AttachmentType ?? "file").ToLowerInvariant();
+                if (rawAttType.StartsWith("image")) outMsgType = "image";
+                else if (rawAttType.StartsWith("video")) outMsgType = "video";
+                else if (rawAttType.StartsWith("audio")) outMsgType = "audio";
+                else outMsgType = "file";
+
+                if (string.IsNullOrWhiteSpace(outContent))
+                {
+                    outContent = outMsgType == "image" ? "[Hình ảnh]" : outMsgType == "video" ? "[Video]" : outMsgType == "audio" ? "[Tin nhắn thoại]" : "[Tập tin đính kèm]";
+                }
+
+                var attObj = new
+                {
+                    type = outMsgType,
+                    url = request.AttachmentUrl,
+                    title = request.AttachmentName ?? (outMsgType == "image" ? "Hình ảnh" : outMsgType == "video" ? "Video" : "Tập tin đính kèm"),
+                    name = request.AttachmentName
+                };
+                outAttsJson = JsonSerializer.Serialize(new[] { attObj });
+            }
+
             await IngestSocialMessageAsync(
                 db,
                 pageId,
@@ -1403,9 +1474,11 @@ internal static class MarketingEndpoints
                 pageId,
                 "Royce Shop",
                 "agent",
-                request.Content,
+                outContent,
                 fbNow,
-                cancellationToken);
+                cancellationToken,
+                messageType: outMsgType,
+                attachmentsJson: outAttsJson);
 
             await rbac.LogAuditAsync(profile.ActorId, AppPermissions.InboxReply, "send_message", conv.Id, $"Sent message to {conv.CustomerName}", cancellationToken);
 
@@ -1416,10 +1489,63 @@ internal static class MarketingEndpoints
                 conversation_id = conv.Id,
                 sender_type = "agent",
                 sender_name = "Royce Shop",
-                content = request.Content,
+                content = outContent,
+                message_type = outMsgType,
+                attachments_json = outAttsJson,
                 created_time = fbNow
             });
         });
+
+        // ── Media Upload Endpoint ──
+        app.MapPost("/media/upload", async (
+            IFormFile file,
+            IWebHostEnvironment env,
+            HttpContext http,
+            CancellationToken ct) =>
+        {
+            if (file == null || file.Length == 0)
+            {
+                return Results.BadRequest(new { error = "Không có tập tin nào được tải lên." });
+            }
+
+            var webRoot = env.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+            var uploadsFolder = Path.Combine(webRoot, "uploads");
+            if (!Directory.Exists(uploadsFolder))
+            {
+                Directory.CreateDirectory(uploadsFolder);
+            }
+
+            var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
+            var cleanBaseName = Path.GetFileNameWithoutExtension(file.FileName);
+            var safeFileName = $"{DateTime.UtcNow:yyyyMMdd_HHmmss}_{Guid.NewGuid().ToString("N")[..8]}_{cleanBaseName}{ext}";
+            var filePath = Path.Combine(uploadsFolder, safeFileName);
+
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await file.CopyToAsync(stream, ct);
+            }
+
+            var host = http.Request.Host.ToString();
+            var scheme = http.Request.Scheme;
+            var relativeUrl = $"/uploads/{safeFileName}";
+            var fullUrl = $"{scheme}://{host}{relativeUrl}";
+
+            string type = "file";
+            if (ext is ".jpg" or ".jpeg" or ".png" or ".webp" or ".gif") type = "image";
+            else if (ext is ".mp4" or ".mov" or ".webm" or ".avi") type = "video";
+            else if (ext is ".mp3" or ".wav" or ".ogg" or ".m4a") type = "audio";
+
+            return Results.Ok(new
+            {
+                success = true,
+                url = fullUrl,
+                relative_url = relativeUrl,
+                filename = file.FileName,
+                type = type,
+                size = file.Length,
+                content_type = file.ContentType
+            });
+        }).DisableAntiforgery();
 
         // ══════════════════════════════════════════════════════════════════════
         // ── RBAC Authorization Endpoints (Part A) ───────────────────────────
@@ -1753,6 +1879,45 @@ internal static class MarketingEndpoints
                     var isAgent = m.From?.Id == pageId;
                     var senderType = isAgent ? "agent" : "customer";
 
+                    string msgType = "text";
+                    string attsJson = "[]";
+                    if (!string.IsNullOrWhiteSpace(m.AttachmentUrl))
+                    {
+                        var rawType = (m.AttachmentType ?? "").ToLowerInvariant();
+                        if (rawType.StartsWith("image") || rawType.Contains("jpeg") || rawType.Contains("png") || rawType.Contains("webp") || rawType.Contains("gif"))
+                        {
+                            msgType = "image";
+                        }
+                        else if (rawType.StartsWith("video") || rawType.Contains("mp4") || rawType.Contains("mov") || rawType.Contains("quicktime"))
+                        {
+                            msgType = "video";
+                        }
+                        else if (rawType.StartsWith("audio") || rawType.Contains("mpeg") || rawType.Contains("mp3") || rawType.Contains("wav") || rawType.Contains("ogg"))
+                        {
+                            msgType = "audio";
+                        }
+                        else
+                        {
+                            msgType = "file";
+                        }
+
+                        var attObj = new
+                        {
+                            type = msgType,
+                            url = m.AttachmentUrl,
+                            title = !string.IsNullOrWhiteSpace(m.AttachmentName) ? m.AttachmentName : (msgType == "image" ? "Hình ảnh" : msgType == "video" ? "Video" : "Tập tin đính kèm"),
+                            name = m.AttachmentName,
+                            mime_type = m.AttachmentType
+                        };
+                        attsJson = JsonSerializer.Serialize(new[] { attObj });
+                    }
+
+                    var msgContent = m.Message;
+                    if (string.IsNullOrWhiteSpace(msgContent) && msgType != "text")
+                    {
+                        msgContent = msgType == "image" ? "[Hình ảnh]" : msgType == "video" ? "[Video]" : msgType == "audio" ? "[Tin nhắn thoại]" : "[Tập tin đính kèm]";
+                    }
+
                     if (existingMsg is null)
                     {
                         var newMsg = new SocialMessageRecord
@@ -1763,9 +1928,9 @@ internal static class MarketingEndpoints
                             SenderId = m.From?.Id ?? custId,
                             SenderName = m.From?.Name ?? (isAgent ? "Fanpage" : senderName),
                             SenderType = senderType,
-                            Content = m.Message ?? "",
-                            MessageType = !string.IsNullOrWhiteSpace(m.AttachmentUrl) ? (m.AttachmentType ?? "image") : "text",
-                            AttachmentsJson = !string.IsNullOrWhiteSpace(m.AttachmentUrl) ? JsonSerializer.Serialize(new[] { m.AttachmentUrl }) : "[]",
+                            Content = msgContent ?? "",
+                            MessageType = msgType,
+                            AttachmentsJson = attsJson,
                             CreatedTime = msgTime,
                             CreatedAt = msgTime,
                             SyncedAt = DateTimeOffset.UtcNow
@@ -1783,6 +1948,19 @@ internal static class MarketingEndpoints
                                 existingConv.CustomerPhone = phones[0];
                                 existingCust.PhoneNumbersJson = JsonSerializer.Serialize(phones);
                             }
+                        }
+                    }
+                    else
+                    {
+                        // Update existing message if attachment or content is newly enriched
+                        if (attsJson != "[]" && (existingMsg.AttachmentsJson == "[]" || existingMsg.AttachmentsJson == null || existingMsg.AttachmentsJson.StartsWith("[\"http")))
+                        {
+                            existingMsg.AttachmentsJson = attsJson;
+                            existingMsg.MessageType = msgType;
+                        }
+                        if (string.IsNullOrWhiteSpace(existingMsg.Content) && !string.IsNullOrWhiteSpace(msgContent))
+                        {
+                            existingMsg.Content = msgContent;
                         }
                     }
                 }
@@ -2041,6 +2219,45 @@ internal static class MarketingEndpoints
                     var isAgent = m.From?.Id == pageId;
                     var senderType = isAgent ? "agent" : "customer";
 
+                    string msgType = "text";
+                    string attsJson = "[]";
+                    if (!string.IsNullOrWhiteSpace(m.AttachmentUrl))
+                    {
+                        var rawType = (m.AttachmentType ?? "").ToLowerInvariant();
+                        if (rawType.StartsWith("image") || rawType.Contains("jpeg") || rawType.Contains("png") || rawType.Contains("webp") || rawType.Contains("gif"))
+                        {
+                            msgType = "image";
+                        }
+                        else if (rawType.StartsWith("video") || rawType.Contains("mp4") || rawType.Contains("mov") || rawType.Contains("quicktime"))
+                        {
+                            msgType = "video";
+                        }
+                        else if (rawType.StartsWith("audio") || rawType.Contains("mpeg") || rawType.Contains("mp3") || rawType.Contains("wav") || rawType.Contains("ogg"))
+                        {
+                            msgType = "audio";
+                        }
+                        else
+                        {
+                            msgType = "file";
+                        }
+
+                        var attObj = new
+                        {
+                            type = msgType,
+                            url = m.AttachmentUrl,
+                            title = !string.IsNullOrWhiteSpace(m.AttachmentName) ? m.AttachmentName : (msgType == "image" ? "Hình ảnh" : msgType == "video" ? "Video" : "Tập tin đính kèm"),
+                            name = m.AttachmentName,
+                            mime_type = m.AttachmentType
+                        };
+                        attsJson = JsonSerializer.Serialize(new[] { attObj });
+                    }
+
+                    var msgContent = m.Message;
+                    if (string.IsNullOrWhiteSpace(msgContent) && msgType != "text")
+                    {
+                        msgContent = msgType == "image" ? "[Hình ảnh]" : msgType == "video" ? "[Video]" : msgType == "audio" ? "[Tin nhắn thoại]" : "[Tập tin đính kèm]";
+                    }
+
                     if (existingMsg is null)
                     {
                         var newMsg = new SocialMessageRecord
@@ -2051,9 +2268,9 @@ internal static class MarketingEndpoints
                             SenderId = m.From?.Id ?? custId,
                             SenderName = m.From?.Name ?? (isAgent ? "Fanpage" : senderName),
                             SenderType = senderType,
-                            Content = m.Message ?? "",
-                            MessageType = !string.IsNullOrWhiteSpace(m.AttachmentUrl) ? (m.AttachmentType ?? "image") : "text",
-                            AttachmentsJson = !string.IsNullOrWhiteSpace(m.AttachmentUrl) ? JsonSerializer.Serialize(new[] { m.AttachmentUrl }) : "[]",
+                            Content = msgContent ?? "",
+                            MessageType = msgType,
+                            AttachmentsJson = attsJson,
                             CreatedTime = msgTime,
                             CreatedAt = msgTime,
                             SyncedAt = DateTimeOffset.UtcNow
@@ -2070,6 +2287,18 @@ internal static class MarketingEndpoints
                                 existingConv.CustomerPhone = phones[0];
                                 existingCust.PhoneNumbersJson = JsonSerializer.Serialize(phones);
                             }
+                        }
+                    }
+                    else
+                    {
+                        if (attsJson != "[]" && (existingMsg.AttachmentsJson == "[]" || existingMsg.AttachmentsJson == null || existingMsg.AttachmentsJson.StartsWith("[\"http")))
+                        {
+                            existingMsg.AttachmentsJson = attsJson;
+                            existingMsg.MessageType = msgType;
+                        }
+                        if (string.IsNullOrWhiteSpace(existingMsg.Content) && !string.IsNullOrWhiteSpace(msgContent))
+                        {
+                            existingMsg.Content = msgContent;
                         }
                     }
                 }
@@ -3381,7 +3610,13 @@ internal static class MarketingEndpoints
     }
 }
 
-internal sealed record SendSocialMessageRequest(string? Content, string? Message = null, string? ParentCommentId = null);
+internal sealed record SendSocialMessageRequest(
+    string? Content,
+    string? Message = null,
+    string? ParentCommentId = null,
+    string? AttachmentUrl = null,
+    string? AttachmentType = null,
+    string? AttachmentName = null);
 
 internal sealed record UpdateConversationStatusRequest(string? Status);
 

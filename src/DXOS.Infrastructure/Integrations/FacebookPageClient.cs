@@ -63,7 +63,8 @@ public sealed record FacebookMessageDto(
     [property: JsonPropertyName("from")] FacebookCommentFromDto? From,
     [property: JsonPropertyName("message")] string? Message,
     [property: JsonPropertyName("attachment_url")] string? AttachmentUrl = null,
-    [property: JsonPropertyName("attachment_type")] string? AttachmentType = null);
+    [property: JsonPropertyName("attachment_type")] string? AttachmentType = null,
+    [property: JsonPropertyName("attachment_name")] string? AttachmentName = null);
 
 public sealed record FacebookConversationDto(
     [property: JsonPropertyName("id")] string Id,
@@ -867,20 +868,38 @@ public sealed class FacebookPageClient
 
                         string? attUrl = null;
                         string? attType = null;
+                        string? attName = null;
                         if (m.TryGetProperty("attachments", out var attsObj) &&
                             attsObj.TryGetProperty("data", out var attsArr) &&
                             attsArr.ValueKind == JsonValueKind.Array &&
                             attsArr.GetArrayLength() > 0)
                         {
                             var first = attsArr[0];
+                            if (first.TryGetProperty("name", out var fn)) attName = fn.GetString();
                             if (first.TryGetProperty("mime_type", out var mt)) attType = mt.GetString();
-                            if (first.TryGetProperty("file_url", out var fu)) attUrl = fu.GetString();
-                            else if (first.TryGetProperty("image_data", out var imgD) && imgD.TryGetProperty("url", out var iu)) attUrl = iu.GetString();
+
+                            if (first.TryGetProperty("file_url", out var fu))
+                            {
+                                attUrl = fu.GetString();
+                                attType ??= "file";
+                            }
+                            else if (first.TryGetProperty("image_data", out var imgD))
+                            {
+                                if (imgD.TryGetProperty("url", out var iu)) attUrl = iu.GetString();
+                                else if (imgD.TryGetProperty("preview_url", out var pu)) attUrl = pu.GetString();
+                                attType ??= "image/jpeg";
+                            }
+                            else if (first.TryGetProperty("video_data", out var vidD))
+                            {
+                                if (vidD.TryGetProperty("url", out var vu)) attUrl = vu.GetString();
+                                else if (vidD.TryGetProperty("preview_url", out var vpu)) attUrl = vpu.GetString();
+                                attType ??= "video/mp4";
+                            }
                         }
 
                         if (!string.IsNullOrWhiteSpace(mId))
                         {
-                            messages.Add(new FacebookMessageDto(mId, mCreatedTime, from, mMsg, attUrl, attType));
+                            messages.Add(new FacebookMessageDto(mId, mCreatedTime, from, mMsg, attUrl, attType, attName));
                         }
                     }
                 }

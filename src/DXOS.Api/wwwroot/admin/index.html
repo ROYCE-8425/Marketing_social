@@ -607,10 +607,16 @@
             <div class="tab" onclick="switchInboxTab('info', this)"><i data-lucide="user" class="icon-sm"></i>Thông tin khách</div>
           </div>
           <div class="inbox-pane-body" style="display:flex; flex-direction:column; height:100%; overflow:hidden;">
-            <div id="inboxTabMsgs" class="msg-thread" style="flex:1; overflow-y:auto;"></div>
-            <div id="inboxTabInfo" class="info-panel" style="display:none; flex:1; overflow-y:auto;"></div>
-            <div class="inbox-reply-bar" id="inboxReplyBar" style="display:none;">
-              <input type="text" id="inboxReplyInput" placeholder="Nhập tin nhắn trả lời khách hàng..." onkeydown="if(event.key==='Enter') sendReply()">
+            <div id="inboxAttachmentPreviewStrip" style="display:none; padding:8px 14px; background:var(--bg-subtle); border-top:1px solid var(--border); align-items:center; justify-content:space-between; gap:10px;">
+              <div id="inboxAttPreviewContent" style="display:flex; align-items:center; gap:8px; flex:1; font-size:12px; overflow:hidden;"></div>
+              <button type="button" onclick="clearInboxAttachment()" style="border:none; background:transparent; color:var(--text-muted); cursor:pointer; font-size:14px; padding:4px 8px;" title="Xóa đính kèm">✕</button>
+            </div>
+            <div class="inbox-reply-bar" id="inboxReplyBar" style="display:none; display:flex; gap:8px; align-items:center;">
+              <input type="file" id="inboxAttachmentFileInput" style="display:none;" onchange="onInboxFileSelected(this)" accept="image/*,video/*,audio/*,.pdf,.docx,.xlsx,.txt,.zip">
+              <button type="button" class="btn btn-sm" onclick="document.getElementById('inboxAttachmentFileInput').click()" title="Đính kèm ảnh / video / tài liệu" style="padding:9px 12px; background:var(--bg-card); border:1px solid var(--border); border-radius:6px; cursor:pointer;">
+                <i data-lucide="paperclip" class="icon-sm"></i>
+              </button>
+              <input type="text" id="inboxReplyInput" placeholder="Nhập tin nhắn trả lời khách hàng..." onkeydown="if(event.key==='Enter') sendReply()" style="flex:1;">
               <button class="btn btn-primary" id="btnSendReply" onclick="sendReply()"><i data-lucide="send" class="icon-sm"></i> Gửi</button>
             </div>
           </div>
@@ -2729,55 +2735,72 @@ function renderInboxDetail() {
 
     if (Array.isArray(atts) && atts.length > 0) {
       atts.forEach(att => {
-        const type = att.type || 'file';
-        const url = att.url || '';
+        let type = 'file';
+        let url = '';
+        let fileName = '';
+
+        if (typeof att === 'string') {
+          url = att;
+          if (/\.(jpe?g|png|gif|webp)(\?|$)/i.test(url) || url.includes('fbcdn.net') || url.includes('image') || url.includes('fna.fbcdn')) type = 'image';
+          else if (/\.(mp4|mov|webm|avi)(\?|$)/i.test(url) || url.includes('video')) type = 'video';
+          else if (/\.(mp3|wav|ogg|m4a)(\?|$)/i.test(url) || url.includes('audio')) type = 'audio';
+          else type = 'file';
+        } else if (att && typeof att === 'object') {
+          url = att.url || att.file_url || '';
+          type = att.type || (att.mime_type?.startsWith('image/') ? 'image' : att.mime_type?.startsWith('video/') ? 'video' : att.mime_type?.startsWith('audio/') ? 'audio' : 'file');
+          fileName = att.title || att.name;
+        }
         if (!url) return;
 
-        let fileName = att.title;
         if (!fileName) {
           try {
             const raw = url.split('?')[0].split('/').pop();
-            fileName = decodeURIComponent(raw) || 'Tập tin đính kèm';
-          } catch(e) { fileName = 'Tập tin đính kèm'; }
+            fileName = decodeURIComponent(raw) || (type === 'image' ? 'Hình ảnh' : type === 'video' ? 'Video' : 'Tập tin đính kèm');
+          } catch(e) { fileName = (type === 'image' ? 'Hình ảnh' : type === 'video' ? 'Video' : 'Tập tin đính kèm'); }
         }
 
         if (type === 'image') {
           attHtml += `
-            <div style="position:relative; margin-top:4px;">
-              <img src="${esc(url)}" alt="Hình ảnh" loading="lazy" referrerpolicy="no-referrer" class="msg-media-img" onclick="openLightbox('${esc(url)}')">
+            <div style="position:relative; margin-top:6px; max-width:280px;">
+              <img src="${esc(url)}" alt="Hình ảnh" loading="lazy" referrerpolicy="no-referrer" class="msg-media-img" style="border-radius:8px; border:1px solid var(--border); max-width:100%; display:block;" onclick="openLightbox('${esc(url)}')">
               <div style="margin-top:4px; font-size:11px;">
                 <a href="${esc(url)}" target="_blank" rel="noopener noreferrer" style="color:var(--accent); text-decoration:none; display:inline-flex; align-items:center; gap:4px; font-weight:500;"><i data-lucide="external-link" style="width:12px; height:12px;"></i> Mở ảnh gốc</a>
               </div>
             </div>`;
         } else if (type === 'audio') {
           attHtml += `
-            <div class="voice-card">
+            <div class="voice-card" style="margin-top:6px; background:var(--bg-subtle); padding:6px 10px; border-radius:6px; border:1px solid var(--border); display:flex; align-items:center; gap:8px;">
               <i data-lucide="mic" style="color:var(--accent); width:16px; height:16px; flex-shrink:0;"></i>
-              <audio controls preload="none" referrerpolicy="no-referrer" src="${esc(url)}" class="voice-audio"></audio>
+              <audio controls preload="none" referrerpolicy="no-referrer" src="${esc(url)}" class="voice-audio" style="max-width:220px;"></audio>
               <a href="${esc(url)}" target="_blank" rel="noopener noreferrer" download style="color:var(--text-muted); padding:4px;" title="Tải file âm thanh"><i data-lucide="download" style="width:14px; height:14px;"></i></a>
             </div>`;
         } else if (type === 'video') {
           attHtml += `
-            <div style="position:relative; margin-top:4px;">
-              <video controls preload="none" referrerpolicy="no-referrer" src="${esc(url)}" class="msg-media-video"></video>
+            <div style="position:relative; margin-top:6px; max-width:280px;">
+              <video controls preload="none" referrerpolicy="no-referrer" src="${esc(url)}" class="msg-media-video" style="border-radius:8px; border:1px solid var(--border); max-width:100%; display:block;"></video>
               <div style="margin-top:4px; font-size:11px;">
                 <a href="${esc(url)}" target="_blank" rel="noopener noreferrer" style="color:var(--accent); text-decoration:none; display:inline-flex; align-items:center; gap:4px; font-weight:500;"><i data-lucide="external-link" style="width:12px; height:12px;"></i> Mở video</a>
               </div>
             </div>`;
         } else {
           attHtml += `
-            <a href="${esc(url)}" target="_blank" rel="noopener noreferrer" download class="file-card">
+            <a href="${esc(url)}" target="_blank" rel="noopener noreferrer" download class="file-card" style="display:flex; align-items:center; gap:8px; margin-top:6px; padding:8px 12px; background:var(--bg-card); border:1px solid var(--border); border-radius:6px; text-decoration:none; color:var(--text);">
               <i data-lucide="file-text" class="icon-sm" style="color:var(--accent); flex-shrink:0;"></i>
-              <span style="max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-weight:500;">${esc(fileName)}</span>
-              <i data-lucide="download" class="icon-sm" style="margin-left:auto; flex-shrink:0;"></i>
+              <span style="max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-weight:500; font-size:12px;">${esc(fileName)}</span>
+              <i data-lucide="download" class="icon-sm" style="margin-left:auto; flex-shrink:0; color:var(--text-muted);"></i>
             </a>`;
         }
       });
     }
 
     let bubbleText = esc(m.content || '');
-    if (attHtml && (bubbleText === '[Hình ảnh]' || bubbleText === '[Tin nhắn thoại]' || bubbleText === '[Video]' || bubbleText === '[Tập tin]' || bubbleText === '(Đính kèm)')) {
+    if (attHtml && (bubbleText === '[Hình ảnh]' || bubbleText === '[Tin nhắn thoại]' || bubbleText === '[Video]' || bubbleText === '[Tập tin]' || bubbleText === '[Tập tin đính kèm]' || bubbleText === '(Đính kèm)')) {
       bubbleText = '';
+    }
+
+    let hasBody = bubbleText || attHtml;
+    if (!hasBody) {
+      bubbleText = m.message_type === 'image' ? '[Hình ảnh]' : m.message_type === 'video' ? '[Video]' : m.message_type === 'audio' ? '[Tin nhắn thoại]' : '[Tập tin đính kèm]';
     }
 
     html += `<div class="msg-row ${m.sender_type}">
@@ -2822,12 +2845,93 @@ function renderInboxDetail() {
   if (window.lucide) lucide.createIcons();
 }
 
+let _inboxPendingAttachment = null;
+
+async function onInboxFileSelected(input) {
+  if (!input.files || input.files.length === 0) return;
+  const file = input.files[0];
+  const strip = document.getElementById('inboxAttachmentPreviewStrip');
+  const preview = document.getElementById('inboxAttPreviewContent');
+
+  if (strip && preview) {
+    strip.style.display = 'flex';
+    preview.innerHTML = `<i data-lucide="loader" class="icon-sm spin"></i> Đang tải lên <b>${esc(file.name)}</b> (${Math.round(file.size/1024)} KB)...`;
+    if (window.lucide) lucide.createIcons();
+  }
+
+  const formData = new FormData();
+  formData.append('file', file);
+
+  try {
+    const base = getApiBase();
+    const res = await fetch(`${base}/media/upload`, {
+      method: 'POST',
+      headers: {
+        'X-DXOS-Actor': CURRENT_ACTOR || 'royce',
+        'X-DXOS-Role': CURRENT_ROLE || 'Owner'
+      },
+      body: formData
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      _inboxPendingAttachment = {
+        url: data.url,
+        filename: data.filename || file.name,
+        type: data.type || 'file',
+        size: data.size || file.size
+      };
+
+      if (preview) {
+        if (data.type === 'image') {
+          preview.innerHTML = `
+            <img src="${esc(data.url)}" style="width:36px; height:36px; object-fit:cover; border-radius:4px; border:1px solid var(--border);">
+            <div style="font-weight:600; color:var(--text); font-size:12px;">${esc(data.filename)}</div>
+          `;
+        } else if (data.type === 'video') {
+          preview.innerHTML = `
+            <i data-lucide="video" class="icon-sm" style="color:var(--accent);"></i>
+            <div style="font-weight:600; color:var(--text); font-size:12px;">[Video] ${esc(data.filename)}</div>
+          `;
+        } else {
+          preview.innerHTML = `
+            <i data-lucide="file-text" class="icon-sm" style="color:var(--accent);"></i>
+            <div style="font-weight:600; color:var(--text); font-size:12px;">${esc(data.filename)}</div>
+          `;
+        }
+        if (window.lucide) lucide.createIcons();
+      }
+      toast('Tải file đính kèm thành công!', 'success');
+    } else {
+      toast('Tải file thất bại', 'error');
+      clearInboxAttachment();
+    }
+  } catch (err) {
+    console.error('File upload error:', err);
+    toast('Lỗi kết nối khi tải file', 'error');
+    clearInboxAttachment();
+  }
+}
+
+function clearInboxAttachment() {
+  _inboxPendingAttachment = null;
+  const input = document.getElementById('inboxAttachmentFileInput');
+  if (input) input.value = '';
+  const strip = document.getElementById('inboxAttachmentPreviewStrip');
+  if (strip) strip.style.display = 'none';
+}
+
 async function sendReply() {
   const input = document.getElementById('inboxReplyInput');
   if (!input) return;
   const text = input.value.trim();
-  if (!text || !_selectedConv) return;
+  const pendingAtt = _inboxPendingAttachment;
+
+  if (!text && !pendingAtt) return;
+  if (!_selectedConv) return;
+
   input.value = '';
+  clearInboxAttachment();
 
   const btn = document.getElementById('btnSendReply');
   if (btn) btn.disabled = true;
@@ -2838,13 +2942,15 @@ async function sendReply() {
     conversation_id: _selectedConv,
     sender_name: 'Royce Shop',
     sender_type: 'agent',
-    content: text,
+    content: text || (pendingAtt ? (pendingAtt.type === 'image' ? '[Hình ảnh]' : pendingAtt.type === 'video' ? '[Video]' : '[Tập tin đính kèm]') : ''),
+    message_type: pendingAtt ? pendingAtt.type : 'text',
+    attachments_json: pendingAtt ? JSON.stringify([{ type: pendingAtt.type, url: pendingAtt.url, title: pendingAtt.filename }]) : '[]',
     created_time: new Date().toISOString()
   };
   _messages.unshift(tempMsg);
   const conv = _conversations.find(c => c.id === _selectedConv);
   if (conv) {
-    conv.snippet = 'Bạn: ' + text;
+    conv.snippet = 'Bạn: ' + (tempMsg.content || 'Đính kèm');
     conv.is_replied = true;
     conv.stage = 'replied';
   }
@@ -2853,13 +2959,20 @@ async function sendReply() {
 
   try {
     const base = getApiBase();
+    const payload = {
+      content: text || null,
+      attachment_url: pendingAtt ? pendingAtt.url : null,
+      attachment_type: pendingAtt ? pendingAtt.type : null,
+      attachment_name: pendingAtt ? pendingAtt.filename : null
+    };
     const res = await fetch(`${base}/conversations/${encodeURIComponent(_selectedConv)}/messages`, {
       method: 'POST',
       headers: hdrs(),
-      body: JSON.stringify({ content: text })
+      body: JSON.stringify(payload)
     });
     if (res.ok) {
-      toast('Đã gửi tin nhắn đến khách hàng!', 'success');
+      toast('Đã gửi tin nhắn / tệp đính kèm đến khách hàng!', 'success');
+      setTimeout(() => syncInboxLive(true), 1500);
     } else if (res.status === 403) {
       const err = await res.json().catch(() => ({}));
       toast(`Từ chối quyền: ${err.message || 'Thiếu quyền inbox.reply'}`, 'error');
@@ -2868,6 +2981,7 @@ async function sendReply() {
     }
   } catch (e) {
     console.error(e);
+    toast('Lỗi kết nối khi gửi tin nhắn', 'error');
   } finally {
     if (btn) btn.disabled = false;
     await loadAll();
