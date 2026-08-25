@@ -109,8 +109,33 @@ builder.Services.AddElsa(elsa =>
 var app = builder.Build();
 
 app.UseCors();
+
+// Disable browser caching for HTML & admin assets to avoid stale UI caching
+app.Use(async (context, next) =>
+{
+    var path = context.Request.Path.Value ?? "";
+    if (path.EndsWith(".html", StringComparison.OrdinalIgnoreCase) ||
+        path == "/" ||
+        path.StartsWith("/admin", StringComparison.OrdinalIgnoreCase) ||
+        path.StartsWith("/inbox", StringComparison.OrdinalIgnoreCase))
+    {
+        context.Response.Headers.CacheControl = "no-cache, no-store, must-revalidate";
+        context.Response.Headers.Pragma = "no-cache";
+        context.Response.Headers.Expires = "0";
+    }
+    await next();
+});
+
 app.UseDefaultFiles();
-app.UseStaticFiles();
+app.UseStaticFiles(new StaticFileOptions
+{
+    OnPrepareResponse = ctx =>
+    {
+        ctx.Context.Response.Headers.CacheControl = "no-cache, no-store, must-revalidate";
+        ctx.Context.Response.Headers.Pragma = "no-cache";
+        ctx.Context.Response.Headers.Expires = "0";
+    }
+});
 
 // Liveness endpoint (Does NOT depend on PostgreSQL)
 app.MapGet("/health/live", () => Results.Ok(new

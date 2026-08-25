@@ -1513,7 +1513,7 @@ document.querySelectorAll('.nav-item').forEach(el => {
     const targetSec = document.getElementById('sec-' + secId);
     if (targetSec) targetSec.classList.add('active');
     if (secId === 'inbox') { syncInboxLive(true); }
-    if (secId === 'facebook-page') { loadFacebookPosts(); loadFacebookPageHealth(); }
+    if (secId === 'facebook-page') { syncFacebookPosts(); }
     if (secId === 'pipeline') { loadCampaigns(); }
     if (secId === 'rbac') loadRbacData();
     closeSidebar(); // auto-close on mobile after nav
@@ -3091,7 +3091,7 @@ async function syncFacebookPosts() {
   if (btn) { btn.disabled = true; btn.innerHTML = `<i data-lucide="loader" class="icon-sm"></i> Đang đồng bộ...`; renderIcons(); }
   try {
     const base = getApiBase();
-    const res = await fetch(`${base}/integrations/facebook/sync-all`, {
+    const res = await fetch(`${base}/facebook/page/sync-all`, {
       method: 'POST',
       headers: hdrs(),
       body: JSON.stringify({ pageId: "988656934325292" })
@@ -3623,7 +3623,7 @@ async function loadFacebookPosts() {
   const container = document.getElementById('fbPostsListContainer');
   if (!container) return;
   try {
-    const base = (CFG.url || window.location.origin).replace(/\/+$/, '');
+    const base = getApiBase();
     const res = await fetch(`${base}/facebook/posts`, { headers: hdrs() });
     if (res.ok) {
       _fbPosts = await res.json();
