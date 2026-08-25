@@ -1474,20 +1474,24 @@ function hdrs() {
   };
 }
 async function rest(path) {
-  if (!CFG.url) throw new Error('Not configured');
-  const base = CFG.url.replace(/\/+$/, '');
-  let url = base.includes('supabase.co') ? `${base}/rest/v1/${path}` : `${base}/${path}`;
-  if (base.endsWith('/rest/v1')) {
-    url = `${base}/${path}`;
+  const base = getApiBase();
+  const cleanPath = path.split('?')[0].replace(/^\/+/, '');
+  let url = `${base}/${cleanPath}`;
+  try {
+    let r = await fetch(url, { headers: hdrs() });
+    if (r.ok) return r.json();
+  } catch (e) {
+    console.warn(`Fetch error for ${url}:`, e);
   }
-  let r = await fetch(url, { headers: hdrs() });
-  if (!r.ok && r.status === 404 && !base.includes('supabase.co')) {
-    const altUrl = url.includes('/rest/v1/') ? url.replace('/rest/v1/', '/') : `${base}/rest/v1/${path}`;
-    const rAlt = await fetch(altUrl, { headers: hdrs() });
-    if (rAlt.ok) return rAlt.json();
+
+  if (CFG.url && CFG.url !== base) {
+    try {
+      let altUrl = `${CFG.url.replace(/\/+$/, '')}/${path}`;
+      let rAlt = await fetch(altUrl, { headers: hdrs() });
+      if (rAlt.ok) return rAlt.json();
+    } catch {}
   }
-  if (!r.ok) throw new Error(`REST ${r.status}`);
-  return r.json();
+  return [];
 }
 
 // ═══════════════ Navigation ═══════════════
@@ -1534,51 +1538,24 @@ let _lastDataSignature = '';
 async function loadAll(force = false) {
   if (document.hidden && !force) return;
 
-  // Decide: demo mode or live?
-  if (!CFG.url || !CFG.key) {
-    if (window.DEMO_DATA) {
-      DEMO_MODE = true;
-      document.getElementById('demoBadge').style.display = 'block';
-      document.getElementById('configWarning').innerHTML = `
-        <div class="config-info">
-          <i data-lucide="info" class="icon-sm" style="vertical-align:middle;"></i> <b>Demo mode</b> — đang hiển thị sample data. Vào <a href="#" onclick="document.querySelector('[data-sec=settings]').click(); return false;"><b>Settings</b></a> để connect Supabase thật.
-        </div>`;
-      _customers = window.DEMO_DATA.customers.map(c => ({ ...c, _days: daysSince(c.last_seen_at), _stage: stage(daysSince(c.last_seen_at)) }));
-      _messages = window.DEMO_DATA.messages;
-      _conversations = window.DEMO_DATA.conversations;
-    } else {
-      document.getElementById('configWarning').innerHTML = `<div class="config-warning"><i data-lucide="alert-triangle" class="icon-sm" style="vertical-align:middle;"></i> Chưa cấu hình. Vào Settings.</div>`;
-      return;
-    }
-  } else {
-    DEMO_MODE = false;
-    document.getElementById('demoBadge').style.display = 'none';
-    document.getElementById('configWarning').innerHTML = '';
-    try {
-      const [cust, msgs, convs, pages] = await Promise.all([
-        rest('customers?select=id,name,page_id,last_seen_at,first_seen_at&order=last_seen_at.desc.nullslast&limit=500'),
-        rest('messages?select=id,conversation_id,page_id,sender_id,sender_type,sender_name,content,message_type,attachments_json,created_time&order=created_time.desc&limit=5000'),
-        rest('conversations?select=id,page_id,customer_name&limit=500'),
-        rest('pages').catch(() => []),
-      ]);
-      if (pages && pages.length) {
-        window.DEMO_DATA = window.DEMO_DATA || {};
-        window.DEMO_DATA.pages = pages;
-      }
+  try {
+    const [cust, msgs, convs, pages] = await Promise.all([
+      rest('customers').catch(() => []),
+      rest('messages').catch(() => []),
+      rest('conversations').catch(() => []),
+      rest('pages').catch(() => []),
+    ]);
 
-      const newSignature = `${cust.length}:${msgs.length}:${msgs[0]?.id || ''}:${convs.length}:${pages.length}`;
-      if (!force && newSignature === _lastDataSignature) {
-        return; // Data has not changed, avoid flickering the DOM
-      }
-      _lastDataSignature = newSignature;
-
-      _customers = cust.map(c => ({ ...c, _days: daysSince(c.last_seen_at), _stage: stage(daysSince(c.last_seen_at)) }));
-      _messages = msgs;
-      _conversations = convs;
-    } catch (e) {
-      document.getElementById('configWarning').innerHTML = `<div class="config-warning">Lỗi tải data: ${esc(e.message)}</div>`;
-      return;
+    if (pages && pages.length) {
+      window.DEMO_DATA = window.DEMO_DATA || {};
+      window.DEMO_DATA.pages = pages;
     }
+
+    _customers = (cust || []).map(c => ({ ...c, _days: daysSince(c.last_seen_at), _stage: stage(daysSince(c.last_seen_at)) }));
+    _messages = msgs || [];
+    _conversations = convs || [];
+  } catch (e) {
+    console.error('Error loading data:', e);
   }
 
   // Preserve user reply input if active
