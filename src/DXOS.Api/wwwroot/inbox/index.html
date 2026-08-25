@@ -2644,6 +2644,10 @@ function renderInbox() {
     </div>`;
   }).join('');
 
+  if (!_selectedConv && convs.length > 0) {
+    _selectedConv = convs[0].id;
+  }
+
   if (window.lucide) lucide.createIcons();
   if (_selectedConv) renderInboxDetail();
 }
@@ -3001,10 +3005,15 @@ async function syncInboxLive(silent = false) {
   }
   try {
     const base = getApiBase();
+    const pageId = (localStorage.getItem('fb_page_id') || '988656934325292').trim();
     const res = await fetch(`${base}/facebook/page/sync-inbox`, {
       method: 'POST',
-      headers: hdrs(),
-      body: JSON.stringify({ pageId: localStorage.getItem('fb_page_id') || '988656934325292' })
+      headers: {
+        'Content-Type': 'application/json',
+        'X-DXOS-Actor': CURRENT_ACTOR || 'royce',
+        'X-DXOS-Role': CURRENT_ROLE || 'Owner'
+      },
+      body: JSON.stringify({ pageId: pageId })
     });
     if (res.ok) {
       await loadAll(true);
@@ -3013,7 +3022,7 @@ async function syncInboxLive(silent = false) {
       if (!silent) toast('Đồng bộ thất bại', 'error');
     }
   } catch (err) {
-    console.error('syncInboxLive error:', err);
+    console.warn('syncInboxLive background notice:', err);
     if (!silent) toast('Không thể kết nối để đồng bộ', 'error');
   } finally {
     _isSyncingInbox = false;
