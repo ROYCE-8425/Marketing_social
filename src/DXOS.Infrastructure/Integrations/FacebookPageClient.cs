@@ -52,6 +52,27 @@ public sealed record FacebookPostInsightsResult(
     long Clicks,
     string DataFreshness);
 
+public sealed record FacebookConversationSenderDto(
+    [property: JsonPropertyName("id")] string Id,
+    [property: JsonPropertyName("name")] string? Name,
+    [property: JsonPropertyName("email")] string? Email = null);
+
+public sealed record FacebookMessageDto(
+    [property: JsonPropertyName("id")] string Id,
+    [property: JsonPropertyName("created_time")] string? CreatedTime,
+    [property: JsonPropertyName("from")] FacebookCommentFromDto? From,
+    [property: JsonPropertyName("message")] string? Message,
+    [property: JsonPropertyName("attachment_url")] string? AttachmentUrl = null,
+    [property: JsonPropertyName("attachment_type")] string? AttachmentType = null);
+
+public sealed record FacebookConversationDto(
+    [property: JsonPropertyName("id")] string Id,
+    [property: JsonPropertyName("updated_time")] string? UpdatedTime,
+    [property: JsonPropertyName("message_count")] int? MessageCount,
+    [property: JsonPropertyName("unread_count")] int? UnreadCount,
+    [property: JsonPropertyName("senders")] IReadOnlyList<FacebookConversationSenderDto> Senders,
+    [property: JsonPropertyName("messages")] IReadOnlyList<FacebookMessageDto> Messages);
+
 public sealed class FacebookPageClient
 {
     private readonly HttpClient _httpClient;
@@ -773,5 +794,106 @@ public sealed class FacebookPageClient
         }
 
         return new FacebookPostInsightsResult(impressions, engagedUsers, clicks, freshness);
+    }
+
+    public async Task<IReadOnlyList<FacebookConversationDto>> GetPageConversationsAsync(string pageId, string pageAccessToken, CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(pageId) || string.IsNullOrWhiteSpace(pageAccessToken))
+        {
+            return [];
+        }
+
+        var url = $"https://graph.facebook.com/v22.0/{Uri.EscapeDataString(pageId)}/conversations?fields=id,updated_time,message_count,unread_count,senders,messages{{id,created_time,from,to,message,attachments}}&limit=50&access_token={Uri.EscapeDataString(pageAccessToken)}";
+
+        try
+        {
+            using var response = await _httpClient.GetAsync(url, cancellationToken);
+            if (!response.IsSuccessStatusCode)
+            {
+                var errContent = await response.Content.ReadAsStringAsync(cancellationToken);
+                _logger.LogWarning("Facebook Graph API GetPageConversations failed with status {StatusCode}: {Error}", response.StatusCode, errContent);
+                return [];
+            }
+
+            var json = await response.Content.ReadAsStringAsync(cancellationToken);
+            using var doc = JsonDocument.Parse(json);
+            if (!doc.RootElement.TryGetProperty("data", out var dataEl) || dataEl.ValueKind != JsonValueKind.Array)
+            {
+                return [];
+            }
+
+            var list = new List<FacebookConversationDto>();
+            foreach (var convEl in dataEl.EnumerateArray())
+            {
+                var id = convEl.TryGetProperty("id", out var idEl) ? idEl.GetString() : null;
+                if (string.IsNullOrWhiteSpace(id)) continue;
+
+                var updatedTime = convEl.TryGetProperty("updated_time", out var utEl) ? utEl.GetString() : null;
+                int? msgCount = convEl.TryGetProperty("message_count", out var mcEl) && mcEl.TryGetInt32(out var mc) ? mc : null;
+                int? unreadCount = convEl.TryGetProperty("unread_count", out var ucEl) && ucEl.TryGetInt32(out var uc) ? uc : null;
+
+                var senders = new List<FacebookConversationSenderDto>();
+                if (convEl.TryGetProperty("senders", out var sendersObj) &&
+                    sendersObj.TryGetProperty("data", out var sendersArray) &&
+                    sendersArray.ValueKind == JsonValueKind.Array)
+                {
+                    foreach (var s in sendersArray.EnumerateArray())
+                    {
+                        var sId = s.TryGetProperty("id", out var sIdEl) ? sIdEl.GetString() ?? "" : "";
+                        var sName = s.TryGetProperty("name", out var sNameEl) ? sNameEl.GetString() : null;
+                        var sEmail = s.TryGetProperty("email", out var sEmailEl) ? sEmailEl.GetString() : null;
+                        senders.Add(new FacebookConversationSenderDto(sId, sName, sEmail));
+                    }
+                }
+
+                var messages = new List<FacebookMessageDto>();
+                if (convEl.TryGetProperty("messages", out var msgsObj) &&
+                    msgsObj.TryGetProperty("data", out var msgsArray) &&
+                    msgsArray.ValueKind == JsonValueKind.Array)
+                {
+                    foreach (var m in msgsArray.EnumerateArray())
+                    {
+                        var mId = m.TryGetProperty("id", out var mIdEl) ? mIdEl.GetString() ?? "" : "";
+                        var mCreatedTime = m.TryGetProperty("created_time", out var mctEl) ? mctEl.GetString() : null;
+                        var mMsg = m.TryGetProperty("message", out var mMsgEl) ? mMsgEl.GetString() : null;
+
+                        FacebookCommentFromDto? from = null;
+                        if (m.TryGetProperty("from", out var fromObj))
+                        {
+                            var fId = fromObj.TryGetProperty("id", out var fIdEl) ? fIdEl.GetString() : null;
+                            var fName = fromObj.TryGetProperty("name", out var fNameEl) ? fNameEl.GetString() : null;
+                            from = new FacebookCommentFromDto(fId, fName);
+                        }
+
+                        string? attUrl = null;
+                        string? attType = null;
+                        if (m.TryGetProperty("attachments", out var attsObj) &&
+                            attsObj.TryGetProperty("data", out var attsArr) &&
+                            attsArr.ValueKind == JsonValueKind.Array &&
+                            attsArr.GetArrayLength() > 0)
+                        {
+                            var first = attsArr[0];
+                            if (first.TryGetProperty("mime_type", out var mt)) attType = mt.GetString();
+                            if (first.TryGetProperty("file_url", out var fu)) attUrl = fu.GetString();
+                            else if (first.TryGetProperty("image_data", out var imgD) && imgD.TryGetProperty("url", out var iu)) attUrl = iu.GetString();
+                        }
+
+                        if (!string.IsNullOrWhiteSpace(mId))
+                        {
+                            messages.Add(new FacebookMessageDto(mId, mCreatedTime, from, mMsg, attUrl, attType));
+                        }
+                    }
+                }
+
+                list.Add(new FacebookConversationDto(id, updatedTime, msgCount, unreadCount, senders, messages));
+            }
+
+            return list;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Exception querying Facebook conversations for page {PageId}", pageId);
+            return [];
+        }
     }
 }

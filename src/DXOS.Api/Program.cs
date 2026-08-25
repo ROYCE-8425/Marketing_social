@@ -36,6 +36,7 @@ builder.Services.AddScoped<ISpendProposalStore, SpendProposalStore>();
 builder.Services.AddScoped<CampaignService>();
 builder.Services.AddScoped<LeadService>();
 builder.Services.AddScoped<DemoSeedService>();
+builder.Services.AddScoped<SocialSeedService>();
 builder.Services.AddScoped<TrafficService>();
 builder.Services.AddScoped<SpendProposalService>();
 builder.Services.AddScoped<McpService>();
@@ -257,6 +258,18 @@ if (app.Configuration.GetValue<bool>("Database:AutoMigrate", false))
     var db = scope.ServiceProvider.GetRequiredService<BootstrapDbContext>();
     // If migration fails, throw immediately to fail fast at startup
     await db.Database.MigrateAsync();
+}
+
+// Auto-seed Social CRM baseline if tables are empty
+try
+{
+    using var seedScope = app.Services.CreateScope();
+    var seeder = seedScope.ServiceProvider.GetRequiredService<SocialSeedService>();
+    await seeder.EnsureSeedDataAsync();
+}
+catch (Exception ex)
+{
+    app.Logger.LogWarning(ex, "Could not run SocialSeedService at startup.");
 }
 
 app.Run();

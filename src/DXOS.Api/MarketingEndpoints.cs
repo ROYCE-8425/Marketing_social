@@ -1545,6 +1545,453 @@ internal static class MarketingEndpoints
             return Results.Ok(new { success = true, synced_count = syncedCount, page_id = pageId });
         });
 
+        app.MapPost("/facebook/page/sync-inbox", async (
+            FacebookPageClient fbClient,
+            BootstrapDbContext db,
+            RbacService rbac,
+            IConfiguration config,
+            LeadService leads,
+            HttpContext http,
+            CancellationToken ct) =>
+        {
+            var (allowed, forbidden, profile) = await CheckPermissionAsync(http, rbac, AppPermissions.InboxRead, ct);
+            if (!allowed) return forbidden;
+
+            var pageToken = config["FACEBOOK_PAGE_ACCESS_TOKEN"] ?? config["Facebook:PageAccessToken"];
+            var pageId = config["FACEBOOK_PAGE_ID"] ?? config["Facebook:PageId"] ?? "988656934325292";
+
+            if (string.IsNullOrWhiteSpace(pageToken))
+            {
+                return Results.BadRequest(new { error = "FACEBOOK_PAGE_ACCESS_TOKEN is not configured.", code = "MissingToken" });
+            }
+
+            var convs = await fbClient.GetPageConversationsAsync(pageId, pageToken, ct);
+            int syncedConvs = 0;
+            int syncedMsgs = 0;
+
+            foreach (var c in convs)
+            {
+                var sender = c.Senders.FirstOrDefault(s => s.Id != pageId) ?? c.Senders.FirstOrDefault();
+                var senderId = sender?.Id ?? "unknown";
+                var senderName = sender?.Name ?? "Khách hàng Facebook";
+                var custId = $"fb_user_{senderId}";
+
+                DateTimeOffset lastSeen = DateTimeOffset.UtcNow;
+                if (!string.IsNullOrWhiteSpace(c.UpdatedTime) && DateTimeOffset.TryParse(c.UpdatedTime, out var parsedUt))
+                {
+                    lastSeen = parsedUt;
+                }
+
+                // Upsert customer
+                var existingCust = await db.SocialCustomers.FindAsync(new object[] { custId }, ct);
+                if (existingCust is null)
+                {
+                    existingCust = new SocialCustomerRecord
+                    {
+                        Id = custId,
+                        Name = senderName,
+                        PageId = pageId,
+                        FirstSeenAt = lastSeen,
+                        LastSeenAt = lastSeen,
+                        CreatedAt = lastSeen,
+                        UpdatedAt = lastSeen
+                    };
+                    db.SocialCustomers.Add(existingCust);
+                }
+                else
+                {
+                    existingCust.Name = senderName;
+                    if (lastSeen > (existingCust.LastSeenAt ?? DateTimeOffset.MinValue))
+                    {
+                        existingCust.LastSeenAt = lastSeen;
+                    }
+                }
+
+                // Upsert conversation
+                var convId = c.Id.StartsWith("fb_") ? c.Id : $"fb_{c.Id}";
+                var latestMsg = c.Messages.OrderByDescending(m => m.CreatedTime).FirstOrDefault();
+                var snippet = latestMsg?.Message ?? "Tin nhắn Facebook";
+
+                var existingConv = await db.SocialConversations.FindAsync(new object[] { convId }, ct);
+                if (existingConv is null)
+                {
+                    existingConv = new SocialConversationRecord
+                    {
+                        Id = convId,
+                        PageId = pageId,
+                        CustomerId = custId,
+                        CustomerName = senderName,
+                        Snippet = snippet,
+                        MessageCount = c.MessageCount ?? c.Messages.Count,
+                        Status = "open",
+                        InsertedAt = lastSeen,
+                        UpdatedAt = lastSeen,
+                        SyncedAt = DateTimeOffset.UtcNow
+                    };
+                    db.SocialConversations.Add(existingConv);
+                }
+                else
+                {
+                    existingConv.CustomerName = senderName;
+                    existingConv.Snippet = snippet;
+                    existingConv.UpdatedAt = lastSeen;
+                    existingConv.MessageCount = Math.Max(existingConv.MessageCount, c.MessageCount ?? c.Messages.Count);
+                }
+
+                // Upsert messages
+                foreach (var m in c.Messages)
+                {
+                    if (string.IsNullOrWhiteSpace(m.Id)) continue;
+                    var msgId = m.Id.StartsWith("fb_msg_") ? m.Id : $"fb_msg_{m.Id}";
+                    var existingMsg = await db.SocialMessages.FindAsync(new object[] { msgId }, ct);
+
+                    DateTimeOffset msgTime = lastSeen;
+                    if (!string.IsNullOrWhiteSpace(m.CreatedTime) && DateTimeOffset.TryParse(m.CreatedTime, out var parsedMt))
+                    {
+                        msgTime = parsedMt;
+                    }
+
+                    var isAgent = m.From?.Id == pageId;
+                    var senderType = isAgent ? "agent" : "customer";
+
+                    if (existingMsg is null)
+                    {
+                        var newMsg = new SocialMessageRecord
+                        {
+                            Id = msgId,
+                            ConversationId = convId,
+                            PageId = pageId,
+                            SenderId = m.From?.Id ?? custId,
+                            SenderName = m.From?.Name ?? (isAgent ? "Fanpage" : senderName),
+                            SenderType = senderType,
+                            Content = m.Message ?? "",
+                            MessageType = !string.IsNullOrWhiteSpace(m.AttachmentUrl) ? (m.AttachmentType ?? "image") : "text",
+                            AttachmentsJson = !string.IsNullOrWhiteSpace(m.AttachmentUrl) ? JsonSerializer.Serialize(new[] { m.AttachmentUrl }) : "[]",
+                            CreatedTime = msgTime,
+                            CreatedAt = msgTime,
+                            SyncedAt = DateTimeOffset.UtcNow
+                        };
+                        db.SocialMessages.Add(newMsg);
+                        syncedMsgs++;
+
+                        // Phone extraction from customer messages
+                        if (!isAgent && !string.IsNullOrWhiteSpace(m.Message))
+                        {
+                            var phones = PhoneExtractor.ExtractAllPhoneNumbers(m.Message);
+                            if (phones.Count > 0)
+                            {
+                                existingConv.HasPhone = true;
+                                existingConv.CustomerPhone = phones[0];
+                                existingCust.PhoneNumbersJson = JsonSerializer.Serialize(phones);
+                            }
+                        }
+                    }
+                }
+
+                syncedConvs++;
+            }
+
+            // Update page stats
+            var pageRecord = await db.SocialPages.FindAsync(new object[] { pageId }, ct);
+            if (pageRecord is not null)
+            {
+                pageRecord.TotalConversations = await db.SocialConversations.CountAsync(c => c.PageId == pageId, ct);
+                pageRecord.TotalMessages = await db.SocialMessages.CountAsync(m => m.PageId == pageId, ct);
+                pageRecord.LastSyncAt = DateTimeOffset.UtcNow;
+            }
+
+            await db.SaveChangesAsync(ct);
+            await rbac.LogAuditAsync(profile.ActorId, AppPermissions.InboxRead, "sync_inbox", pageId, $"Synced {syncedConvs} conversations and {syncedMsgs} messages from Facebook Page", ct);
+
+            return Results.Ok(new { success = true, synced_conversations = syncedConvs, synced_messages = syncedMsgs, page_id = pageId });
+        });
+
+        app.MapPost("/facebook/page/sync-all", async (
+            FacebookPageSyncAllRequest? req,
+            FacebookPageClient fbClient,
+            BootstrapDbContext db,
+            RbacService rbac,
+            IConfiguration config,
+            HttpContext http,
+            CancellationToken ct) =>
+        {
+            var (allowed, forbidden, profile) = await CheckPermissionAsync(http, rbac, AppPermissions.PagePostsRead, ct);
+            if (!allowed) return forbidden;
+
+            var pageToken = !string.IsNullOrWhiteSpace(req?.PageAccessToken) 
+                ? req.PageAccessToken 
+                : (config["FACEBOOK_PAGE_ACCESS_TOKEN"] ?? config["Facebook:PageAccessToken"]);
+            var pageId = !string.IsNullOrWhiteSpace(req?.PageId) 
+                ? req.PageId 
+                : (config["FACEBOOK_PAGE_ID"] ?? config["Facebook:PageId"] ?? "988656934325292");
+
+            if (string.IsNullOrWhiteSpace(pageToken))
+            {
+                return Results.BadRequest(new { 
+                    error = "Chưa có Facebook Page Access Token. Vui lòng nhập token của Fanpage để đồng bộ dữ liệu thật.", 
+                    code = "MissingToken" 
+                });
+            }
+
+            // 1. Check page info
+            var pageInfo = await fbClient.GetPageAsync(pageId, pageToken, ct);
+            if (pageInfo is null)
+            {
+                return Results.BadRequest(new { 
+                    error = "Không thể kết nối Facebook Graph API. Token đã hết hạn hoặc không có quyền truy cập Page ID này.", 
+                    code = "InvalidOrExpiredToken",
+                    page_id = pageId
+                });
+            }
+
+            // Update or create SocialPageRecord
+            var pageRecord = await db.SocialPages.FindAsync(new object[] { pageId }, ct);
+            if (pageRecord is null)
+            {
+                pageRecord = new SocialPageRecord
+                {
+                    Id = pageId,
+                    Name = pageInfo.Name ?? "SEO Trùm Fanpage",
+                    Type = "facebook",
+                    CreatedAt = DateTimeOffset.UtcNow,
+                    UpdatedAt = DateTimeOffset.UtcNow
+                };
+                db.SocialPages.Add(pageRecord);
+            }
+            else
+            {
+                pageRecord.Name = pageInfo.Name ?? pageRecord.Name;
+                pageRecord.UpdatedAt = DateTimeOffset.UtcNow;
+            }
+
+            // 2. Sync Posts & Metrics
+            var posts = await fbClient.GetPagePostsAsync(pageId, pageToken, ct);
+            int syncedPosts = 0;
+            var allExistingPosts = await db.SocialPosts.Where(p => p.PageId == pageId).ToListAsync(ct);
+
+            foreach (var p in posts)
+            {
+                var msgPrefix = !string.IsNullOrWhiteSpace(p.Message) && p.Message.Length >= 20 ? p.Message[..20] : p.Message;
+                var existingPost = allExistingPosts.FirstOrDefault(sp =>
+                    sp.PostId == p.Id ||
+                    sp.PostId.EndsWith(p.Id) ||
+                    (!string.IsNullOrWhiteSpace(msgPrefix) && !string.IsNullOrWhiteSpace(sp.Message) && sp.Message.Contains(msgPrefix, StringComparison.OrdinalIgnoreCase)));
+
+                DateTimeOffset? createdTime = null;
+                if (!string.IsNullOrWhiteSpace(p.CreatedTime) && DateTimeOffset.TryParse(p.CreatedTime, out var parsedCt))
+                {
+                    createdTime = parsedCt;
+                }
+
+                if (existingPost is null)
+                {
+                    existingPost = new SocialPostRecord
+                    {
+                        Id = $"post_{p.Id}",
+                        PostId = p.Id,
+                        PageId = pageId,
+                        Message = p.Message,
+                        PermalinkUrl = p.PermalinkUrl,
+                        FullPicture = p.FullPicture,
+                        MediaType = p.MediaType,
+                        MediaUrl = p.MediaUrl,
+                        ThumbnailUrl = p.ThumbnailUrl,
+                        Status = "published",
+                        ReactionCount = p.ReactionCount ?? 0,
+                        CommentCount = p.CommentCount ?? 0,
+                        ShareCount = p.ShareCount ?? 0,
+                        CreatedTimeUtc = createdTime,
+                        CreatedAtUtc = DateTimeOffset.UtcNow
+                    };
+                    db.SocialPosts.Add(existingPost);
+                }
+                else
+                {
+                    existingPost.Message = p.Message;
+                    existingPost.PermalinkUrl = p.PermalinkUrl;
+                    existingPost.FullPicture = p.FullPicture;
+                    existingPost.MediaType = p.MediaType;
+                    existingPost.MediaUrl = p.MediaUrl;
+                    existingPost.ThumbnailUrl = p.ThumbnailUrl;
+                    existingPost.ReactionCount = p.ReactionCount ?? 0;
+                    existingPost.CommentCount = p.CommentCount ?? 0;
+                    existingPost.ShareCount = p.ShareCount ?? 0;
+                    if (createdTime.HasValue) existingPost.CreatedTimeUtc = createdTime;
+                }
+
+                // Insights
+                var insights = await fbClient.GetPostInsightsAsync(p.Id, pageToken, ct);
+                var metric = await db.SocialPostMetrics.FirstOrDefaultAsync(m => m.PostId == p.Id, ct);
+                if (metric is null)
+                {
+                    metric = new SocialPostMetricRecord
+                    {
+                        Id = $"metric_{p.Id}",
+                        PostId = p.Id,
+                        Impressions = insights.Impressions,
+                        EngagedUsers = insights.EngagedUsers,
+                        Clicks = insights.Clicks,
+                        Source = "graph",
+                        DataFreshness = insights.DataFreshness,
+                        FetchedAtUtc = DateTimeOffset.UtcNow
+                    };
+                    db.SocialPostMetrics.Add(metric);
+                }
+                else
+                {
+                    metric.Impressions = insights.Impressions;
+                    metric.EngagedUsers = insights.EngagedUsers;
+                    metric.Clicks = insights.Clicks;
+                    metric.DataFreshness = insights.DataFreshness;
+                    metric.FetchedAtUtc = DateTimeOffset.UtcNow;
+                }
+
+                syncedPosts++;
+            }
+
+            // 3. Sync Conversations & Messages
+            var convs = await fbClient.GetPageConversationsAsync(pageId, pageToken, ct);
+            int syncedConvs = 0;
+            int syncedMsgs = 0;
+
+            foreach (var c in convs)
+            {
+                var sender = c.Senders.FirstOrDefault(s => s.Id != pageId) ?? c.Senders.FirstOrDefault();
+                var senderId = sender?.Id ?? "unknown";
+                var senderName = sender?.Name ?? "Khách hàng Facebook";
+                var custId = $"fb_user_{senderId}";
+
+                DateTimeOffset lastSeen = DateTimeOffset.UtcNow;
+                if (!string.IsNullOrWhiteSpace(c.UpdatedTime) && DateTimeOffset.TryParse(c.UpdatedTime, out var parsedUt))
+                {
+                    lastSeen = parsedUt;
+                }
+
+                var existingCust = await db.SocialCustomers.FindAsync(new object[] { custId }, ct);
+                if (existingCust is null)
+                {
+                    existingCust = new SocialCustomerRecord
+                    {
+                        Id = custId,
+                        Name = senderName,
+                        PageId = pageId,
+                        FirstSeenAt = lastSeen,
+                        LastSeenAt = lastSeen,
+                        CreatedAt = lastSeen,
+                        UpdatedAt = lastSeen
+                    };
+                    db.SocialCustomers.Add(existingCust);
+                }
+                else
+                {
+                    existingCust.Name = senderName;
+                    if (lastSeen > (existingCust.LastSeenAt ?? DateTimeOffset.MinValue))
+                    {
+                        existingCust.LastSeenAt = lastSeen;
+                    }
+                }
+
+                var convId = c.Id.StartsWith("fb_") ? c.Id : $"fb_{c.Id}";
+                var latestMsg = c.Messages.OrderByDescending(m => m.CreatedTime).FirstOrDefault();
+                var snippet = latestMsg?.Message ?? "Tin nhắn Facebook";
+
+                var existingConv = await db.SocialConversations.FindAsync(new object[] { convId }, ct);
+                if (existingConv is null)
+                {
+                    existingConv = new SocialConversationRecord
+                    {
+                        Id = convId,
+                        PageId = pageId,
+                        CustomerId = custId,
+                        CustomerName = senderName,
+                        Snippet = snippet,
+                        MessageCount = c.MessageCount ?? c.Messages.Count,
+                        Status = "open",
+                        InsertedAt = lastSeen,
+                        UpdatedAt = lastSeen,
+                        SyncedAt = DateTimeOffset.UtcNow
+                    };
+                    db.SocialConversations.Add(existingConv);
+                }
+                else
+                {
+                    existingConv.CustomerName = senderName;
+                    existingConv.Snippet = snippet;
+                    existingConv.UpdatedAt = lastSeen;
+                    existingConv.MessageCount = Math.Max(existingConv.MessageCount, c.MessageCount ?? c.Messages.Count);
+                }
+
+                foreach (var m in c.Messages)
+                {
+                    if (string.IsNullOrWhiteSpace(m.Id)) continue;
+                    var msgId = m.Id.StartsWith("fb_msg_") ? m.Id : $"fb_msg_{m.Id}";
+                    var existingMsg = await db.SocialMessages.FindAsync(new object[] { msgId }, ct);
+
+                    DateTimeOffset msgTime = lastSeen;
+                    if (!string.IsNullOrWhiteSpace(m.CreatedTime) && DateTimeOffset.TryParse(m.CreatedTime, out var parsedMt))
+                    {
+                        msgTime = parsedMt;
+                    }
+
+                    var isAgent = m.From?.Id == pageId;
+                    var senderType = isAgent ? "agent" : "customer";
+
+                    if (existingMsg is null)
+                    {
+                        var newMsg = new SocialMessageRecord
+                        {
+                            Id = msgId,
+                            ConversationId = convId,
+                            PageId = pageId,
+                            SenderId = m.From?.Id ?? custId,
+                            SenderName = m.From?.Name ?? (isAgent ? "Fanpage" : senderName),
+                            SenderType = senderType,
+                            Content = m.Message ?? "",
+                            MessageType = !string.IsNullOrWhiteSpace(m.AttachmentUrl) ? (m.AttachmentType ?? "image") : "text",
+                            AttachmentsJson = !string.IsNullOrWhiteSpace(m.AttachmentUrl) ? JsonSerializer.Serialize(new[] { m.AttachmentUrl }) : "[]",
+                            CreatedTime = msgTime,
+                            CreatedAt = msgTime,
+                            SyncedAt = DateTimeOffset.UtcNow
+                        };
+                        db.SocialMessages.Add(newMsg);
+                        syncedMsgs++;
+
+                        if (!isAgent && !string.IsNullOrWhiteSpace(m.Message))
+                        {
+                            var phones = PhoneExtractor.ExtractAllPhoneNumbers(m.Message);
+                            if (phones.Count > 0)
+                            {
+                                existingConv.HasPhone = true;
+                                existingConv.CustomerPhone = phones[0];
+                                existingCust.PhoneNumbersJson = JsonSerializer.Serialize(phones);
+                            }
+                        }
+                    }
+                }
+
+                syncedConvs++;
+            }
+
+            pageRecord.TotalConversations = await db.SocialConversations.CountAsync(c => c.PageId == pageId, ct);
+            pageRecord.TotalMessages = await db.SocialMessages.CountAsync(m => m.PageId == pageId, ct);
+            pageRecord.LastSyncAt = DateTimeOffset.UtcNow;
+
+            await db.SaveChangesAsync(ct);
+            await rbac.LogAuditAsync(profile.ActorId, AppPermissions.PagePostsRead, "sync_all", pageId, $"Synced {syncedPosts} posts, {syncedConvs} convs, {syncedMsgs} msgs from Facebook Page", ct);
+
+            return Results.Ok(new { 
+                success = true, 
+                page_id = pageId,
+                page_name = pageInfo.Name,
+                fan_count = pageInfo.FanCount,
+                followers_count = pageInfo.FollowersCount,
+                posts_synced = syncedPosts, 
+                conversations_synced = syncedConvs, 
+                messages_synced = syncedMsgs,
+                message = $"Đã đồng bộ thành công {syncedPosts} bài viết, {syncedConvs} hội thoại và {syncedMsgs} tin nhắn thật từ Fanpage {pageInfo.Name}!"
+            });
+        });
+
         app.MapGet("/facebook/posts", async (
             string? status,
             BootstrapDbContext db,
@@ -2130,12 +2577,25 @@ internal static class MarketingEndpoints
             }
         });
 
-        app.MapPost("/demo/seed", async (DemoSeedService seed, HttpContext http, CancellationToken cancellationToken) =>
+        app.MapPost("/api/seed", async (SocialSeedService socialSeed, DemoSeedService demoSeed, HttpContext http, CancellationToken cancellationToken) =>
+        {
+            var socialCount = await socialSeed.SeedAsync(cancellationToken);
+            try { await demoSeed.SeedAsync(cancellationToken); } catch { }
+            return Results.Ok(new
+            {
+                success = true,
+                seededCustomers = socialCount,
+                message = "Đã nạp dữ liệu mẫu SEO Trùm Social CRM thành công!"
+            });
+        });
+
+        app.MapPost("/demo/seed", async (DemoSeedService seed, SocialSeedService socialSeed, HttpContext http, CancellationToken cancellationToken) =>
         {
             try
             {
                 ReadActor(http);
                 var result = await seed.SeedAsync(cancellationToken);
+                await socialSeed.SeedAsync(cancellationToken);
                 return Results.Ok(new
                 {
                     campaign = ToCampaignResponse(result.Campaign),
@@ -2798,3 +3258,4 @@ internal sealed record RecordTrafficRequest(
 
 internal sealed record PageAdviceRequest(string? PageId);
 internal sealed record PageAgentRunRequest(string? PageId);
+internal sealed record FacebookPageSyncAllRequest(string? PageId = null, string? PageAccessToken = null);

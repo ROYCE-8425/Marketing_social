@@ -1019,8 +1019,44 @@
 
     <!-- ═══ SETTINGS ═══ -->
     <section class="section" id="sec-settings">
-      <div class="page-header"><div><h1>Cài đặt</h1><p>Cấu hình kết nối Supabase</p></div></div>
-      <div class="card"><div class="card-body">
+      <div class="page-header"><div><h1>Cài đặt</h1><p>Cấu hình kết nối Facebook Graph API & Database</p></div></div>
+      
+      <!-- Facebook Graph API Live Connection Card -->
+      <div class="card" style="margin-bottom:18px; border:1px solid var(--border); border-left:4px solid #1877f2;">
+        <div class="card-header" style="background:var(--bg-subtle);">
+          <h3 style="margin:0; display:flex; align-items:center; gap:8px;">
+            <i data-lucide="facebook" style="color:#1877f2;"></i> Kết Nối Facebook Fanpage Trực Tiếp (Graph API v22)
+          </h3>
+        </div>
+        <div class="card-body">
+          <p style="font-size:13px; color:var(--text-muted); margin-top:0;">
+            Nhập Page Access Token để đồng bộ dữ liệu thật 100% từ Facebook (Bài viết, Bình luận, Tin nhắn Messenger, Chỉ số tương tác).
+          </p>
+          <div style="display:grid; grid-template-columns:180px 1fr; gap:12px 16px; align-items:center;">
+            <label style="font-weight:600;">Facebook Page ID</label>
+            <input id="cfgFbPageId" type="text" value="988656934325292" placeholder="Ví dụ: 988656934325292" style="padding:8px 12px; border:1px solid var(--border); border-radius:8px; font-family:monospace;">
+            
+            <label style="font-weight:600;">Page Access Token</label>
+            <div>
+              <input id="cfgFbPageToken" type="password" placeholder="Dán Facebook Page Access Token (EAA...)" style="width:100%; padding:8px 12px; border:1px solid var(--border); border-radius:8px; font-family:monospace;">
+              <small style="color:var(--text-muted); font-size:11px; display:block; margin-top:4px;">
+                Token cần quyền: <code>pages_read_engagement</code>, <code>pages_manage_posts</code>, <code>pages_messaging</code>, <code>pages_read_user_content</code>
+              </small>
+            </div>
+            
+            <div></div>
+            <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+              <button class="btn btn-primary" id="btnSyncFbLive" onclick="saveAndSyncFacebook()" style="display:flex; align-items:center; gap:6px;">
+                <i data-lucide="refresh-cw" class="icon-sm"></i> Lưu & Kéo Dữ Liệu Facebook Thật
+              </button>
+            </div>
+          </div>
+          <div id="fbSyncStatusAlert" style="display:none; margin-top:14px; padding:10px 14px; border-radius:8px; font-size:13px;"></div>
+        </div>
+      </div>
+
+      <!-- Supabase / Database Card -->
+      <div class="card"><div class="card-header"><h3>Cấu hình Supabase / Database</h3></div><div class="card-body">
         <div style="display:grid; grid-template-columns:160px 1fr; gap:12px 16px; align-items:center;">
           <label>Supabase URL</label>
           <input id="cfgUrl" type="text" placeholder="https://your-project.supabase.co" style="padding:8px 12px; border:1px solid var(--border); border-radius:8px;">
@@ -1035,7 +1071,7 @@
           </div>
         </div>
         <p style="margin-top:16px; font-size:12px; color:var(--text-muted);">
-          Config lưu trong <code>localStorage</code>. Bỏ trống = chạy demo mode với sample data.
+          Config lưu trong <code>localStorage</code>. Bỏ trống = chạy theo backend CRM.
         </p>
       </div></div>
     </section>
@@ -3373,6 +3409,88 @@ async function syncPostInsights(postId) {
     }
   } catch(e) {
     console.error(e);
+  }
+}
+
+async function syncFacebookPosts() {
+  const btn = document.getElementById('btnSyncFbPosts');
+  const origText = btn ? btn.innerHTML : '';
+  if (btn) { btn.disabled = true; btn.innerHTML = '<i data-lucide="loader-2" class="icon-sm spin"></i> Đang đồng bộ Facebook...'; renderIcons(); }
+  try {
+    const base = (CFG.url || window.location.origin).replace(/\/+$/, '');
+    const res = await fetch(`${base}/facebook/page/sync-all`, {
+      method: 'POST',
+      headers: hdrs(),
+      body: JSON.stringify({})
+    });
+    const data = await res.json();
+    if (res.ok) {
+      toast(data.message || `Đã đồng bộ ${data.posts_synced} bài viết, ${data.conversations_synced} hội thoại thật!`, 'success', 5000);
+      await loadFacebookPosts();
+      await loadFacebookPageHealth();
+      await loadAll(true);
+    } else {
+      toast(data.error || 'Lỗi đồng bộ Facebook Graph API: ' + (data.code || res.status), 'error', 6000);
+    }
+  } catch(e) {
+    console.error('syncFacebookPosts error:', e);
+    toast('Lỗi kết nối khi đồng bộ Facebook: ' + e.message, 'error');
+  } finally {
+    if (btn) { btn.disabled = false; btn.innerHTML = origText; renderIcons(); }
+  }
+}
+
+async function saveAndSyncFacebook() {
+  const pageId = document.getElementById('cfgFbPageId')?.value?.trim();
+  const token = document.getElementById('cfgFbPageToken')?.value?.trim();
+  const alertEl = document.getElementById('fbSyncStatusAlert');
+  const btn = document.getElementById('btnSyncFbLive');
+  const origText = btn ? btn.innerHTML : '';
+  
+  if (!token) {
+    toast('Vui lòng dán Facebook Page Access Token', 'warning');
+    document.getElementById('cfgFbPageToken')?.focus();
+    return;
+  }
+  
+  if (btn) { btn.disabled = true; btn.innerHTML = '<i data-lucide="loader-2" class="icon-sm spin"></i> Đang kết nối Graph API...'; renderIcons(); }
+  if (alertEl) { alertEl.style.display = 'none'; }
+  
+  try {
+    const base = (CFG.url || window.location.origin).replace(/\/+$/, '');
+    const res = await fetch(`${base}/facebook/page/sync-all`, {
+      method: 'POST',
+      headers: hdrs(),
+      body: JSON.stringify({ pageId: pageId || '988656934325292', pageAccessToken: token })
+    });
+    const data = await res.json();
+    if (res.ok) {
+      toast(data.message || 'Đã đồng bộ thành công dữ liệu thật từ Facebook Fanpage!', 'success', 5000);
+      if (alertEl) {
+        alertEl.style.display = 'block';
+        alertEl.style.background = 'rgba(16,185,129,0.12)';
+        alertEl.style.border = '1px solid #10b981';
+        alertEl.style.color = '#065f46';
+        alertEl.innerHTML = `<b>Kết nối thành công Fanpage:</b> ${esc(data.page_name)} (ID: ${esc(data.page_id)}) — Đã nạp <b>${data.posts_synced}</b> bài viết, <b>${data.conversations_synced}</b> hội thoại và <b>${data.messages_synced}</b> tin nhắn thật.`;
+      }
+      await loadFacebookPosts();
+      await loadFacebookPageHealth();
+      await loadAll(true);
+    } else {
+      toast(data.error || 'Lỗi kết nối Facebook: ' + (data.code || res.status), 'error', 6000);
+      if (alertEl) {
+        alertEl.style.display = 'block';
+        alertEl.style.background = 'rgba(239,68,68,0.12)';
+        alertEl.style.border = '1px solid #ef4444';
+        alertEl.style.color = '#991b1b';
+        alertEl.innerHTML = `<b>Không thể kết nối Facebook:</b> ${esc(data.error || 'Token không hợp lệ hoặc đã hết hạn')}`;
+      }
+    }
+  } catch(e) {
+    console.error('saveAndSyncFacebook error:', e);
+    toast('Lỗi kết nối: ' + e.message, 'error');
+  } finally {
+    if (btn) { btn.disabled = false; btn.innerHTML = origText; renderIcons(); }
   }
 }
 
