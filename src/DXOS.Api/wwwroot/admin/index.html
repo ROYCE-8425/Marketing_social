@@ -457,7 +457,7 @@
     <div class="nav-item" data-sec="triage"><i data-lucide="zap"></i>Cần chăm sóc</div>
     <div class="nav-item" data-sec="inbox"><i data-lucide="message-circle"></i>Hộp thư</div>
     <div class="nav-item" data-sec="facebook-page"><i data-lucide="facebook"></i>Facebook Fanpage</div>
-    <div class="nav-item" data-sec="pipeline"><i data-lucide="target"></i>Pipeline</div>
+    <div class="nav-item" data-sec="pipeline"><i data-lucide="megaphone"></i>Chiến dịch</div>
 
     <div class="nav-group">Khách hàng</div>
     <div class="nav-item" data-sec="partner360"><i data-lucide="users"></i>Đối tác 360</div>
@@ -611,16 +611,183 @@
       </div>
     </section>
 
-    <!-- ═══ PIPELINE ═══ -->
+    <!-- ═══ CAMPAIGN STUDIO ═══ -->
     <section class="section" id="sec-pipeline">
       <div class="page-header">
-        <div><h1>Pipeline</h1><p>Phân nhóm đối tác theo mức độ hoạt động (last contact)</p></div>
+        <div>
+          <h1>Chiến dịch Marketing (Campaign Studio)</h1>
+          <p>Lập kế hoạch, quản lý brief, tạo nội dung với AI và điều phối xuất bản đa kênh</p>
+        </div>
         <div class="header-actions">
-          <input id="pipelineSearch" type="text" placeholder="Tìm đối tác..." oninput="renderPipeline()" style="padding:7px 12px; border:1px solid var(--border); border-radius:8px; font-size:13px; background:var(--bg-card); color:var(--text); font-family:inherit; width:200px;">
+          <button class="btn btn-primary" onclick="newCampaignDraft()"><i data-lucide="plus" class="icon-sm"></i> Tạo chiến dịch mới</button>
+          <button class="btn" onclick="loadCampaigns()"><i data-lucide="refresh-cw" class="icon-sm"></i> Làm mới</button>
         </div>
       </div>
-      <div class="channel-row" id="pipelineChannelChips" style="border:none; padding:0 0 14px 0;"></div>
-      <div class="kanban" id="kanban"></div>
+
+      <div style="display:grid; grid-template-columns:320px 1fr; gap:20px; align-items:start;">
+        <!-- Left column: Campaign list -->
+        <div class="card" style="margin:0; max-height:820px; display:flex; flex-direction:column;">
+          <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
+            <h3 style="margin:0; font-size:14px;">Danh sách chiến dịch</h3>
+            <span id="campaignsCountBadge" class="pill pill-active" style="font-size:10px;">0</span>
+          </div>
+          <div style="padding:10px 14px; border-bottom:1px solid var(--border);">
+            <input id="campaignSearchInput" type="text" placeholder="Tìm theo tên/chủ đề..." oninput="renderCampaignsList()" style="width:100%; padding:6px 10px; border:1px solid var(--border); border-radius:6px; font-size:12px; background:var(--bg-card); color:var(--text);">
+          </div>
+          <div id="campaignsListContainer" style="flex:1; overflow-y:auto; padding:8px 10px; display:flex; flex-direction:column; gap:8px;">
+            Đang tải danh sách chiến dịch...
+          </div>
+        </div>
+
+        <!-- Right column: Studio Form / Detail -->
+        <div class="card" style="margin:0;">
+          <div class="card-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+            <div style="display:flex; align-items:center; gap:10px;">
+              <h3 id="campaignFormHeaderTitle" style="margin:0;">Chi tiết chiến dịch</h3>
+              <span id="campaignStatusBadge" class="pill pill-muted" style="font-size:11px;">DRAFT</span>
+            </div>
+            <div id="campaignHeaderActions" style="display:flex; gap:6px; flex-wrap:wrap;">
+              <!-- Action buttons will be rendered dynamically -->
+            </div>
+          </div>
+
+          <div class="card-body" style="display:flex; flex-direction:column; gap:16px;">
+            <!-- Row 1: Title & Kind -->
+            <div style="display:grid; grid-template-columns:2fr 1fr; gap:16px;">
+              <div>
+                <label style="font-size:12px; font-weight:600; color:var(--text-muted); display:block; margin-bottom:6px;">Tiêu đề / Chủ đề chiến dịch (*)</label>
+                <input id="campTitle" type="text" placeholder="Ví dụ: Siêu Sale Khai Trương Chi Nhánh Mới" style="width:100%; padding:9px 12px; border:1px solid var(--border); border-radius:8px; font-size:14px; background:var(--bg-card); color:var(--text);">
+              </div>
+              <div>
+                <label style="font-size:12px; font-weight:600; color:var(--text-muted); display:block; margin-bottom:6px;">Loại chiến dịch</label>
+                <select id="campKind" style="width:100%; padding:9px 12px; border:1px solid var(--border); border-radius:8px; font-size:13px; background:var(--bg-card); color:var(--text);">
+                  <option value="promotion">Khuyến mãi / Ưu đãi (Promotion)</option>
+                  <option value="event">Sự kiện (Event)</option>
+                  <option value="product_launch">Ra mắt sản phẩm (Product Launch)</option>
+                  <option value="seasonal">Theo mùa / Dịp lễ (Seasonal)</option>
+                  <option value="other">Khác (Other)</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Row 2: Platforms Selection -->
+            <div>
+              <label style="font-size:12px; font-weight:600; color:var(--text-muted); display:block; margin-bottom:6px;">Nền tảng thực thi</label>
+              <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+                <label style="display:flex; align-items:center; gap:6px; cursor:pointer; background:rgba(24,119,242,0.1); padding:6px 12px; border-radius:6px; border:1px solid rgba(24,119,242,0.3); font-size:13px; font-weight:600; color:#1877f2;">
+                  <input type="checkbox" id="campPlatFb" checked disabled> <i data-lucide="facebook" class="icon-sm"></i> Facebook Fanpage (Khả dụng)
+                </label>
+                <label style="display:flex; align-items:center; gap:6px; opacity:0.6; cursor:not-allowed; background:var(--bg-subtle); padding:6px 12px; border-radius:6px; border:1px solid var(--border); font-size:13px;">
+                  <input type="checkbox" disabled> <i data-lucide="message-square" class="icon-sm"></i> Zalo OA <span style="font-size:10px; color:var(--text-muted);">(Chưa kết nối)</span>
+                </label>
+                <label style="display:flex; align-items:center; gap:6px; opacity:0.6; cursor:not-allowed; background:var(--bg-subtle); padding:6px 12px; border-radius:6px; border:1px solid var(--border); font-size:13px;">
+                  <input type="checkbox" disabled> <i data-lucide="video" class="icon-sm"></i> TikTok <span style="font-size:10px; color:var(--text-muted);">(Chưa kết nối)</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Row 3: Description Brief -->
+            <div>
+              <label style="font-size:12px; font-weight:600; color:var(--text-muted); display:block; margin-bottom:6px;">Mô tả brief chiến dịch</label>
+              <textarea id="campDesc" rows="3" placeholder="Mục tiêu chiến dịch, thông điệp truyền thông, đối tượng mục tiêu..." style="width:100%; padding:9px 12px; border:1px solid var(--border); border-radius:8px; font-size:13px; background:var(--bg-card); color:var(--text); line-height:1.5;"></textarea>
+            </div>
+
+            <!-- Row 4: Event Date & Location -->
+            <div id="campEventRow" style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; background:var(--bg-subtle); padding:12px; border-radius:8px; border:1px solid var(--border);">
+              <div>
+                <label style="font-size:11px; font-weight:600; color:var(--text-muted); display:block; margin-bottom:4px;">Thời gian bắt đầu (VN)</label>
+                <input id="campEventStart" type="datetime-local" style="width:100%; padding:7px 10px; border:1px solid var(--border); border-radius:6px; font-size:12px; background:var(--bg-card); color:var(--text);">
+              </div>
+              <div>
+                <label style="font-size:11px; font-weight:600; color:var(--text-muted); display:block; margin-bottom:4px;">Thời gian kết thúc (VN)</label>
+                <input id="campEventEnd" type="datetime-local" style="width:100%; padding:7px 10px; border:1px solid var(--border); border-radius:6px; font-size:12px; background:var(--bg-card); color:var(--text);">
+              </div>
+              <div>
+                <label style="font-size:11px; font-weight:600; color:var(--text-muted); display:block; margin-bottom:4px;">Địa điểm tổ chức</label>
+                <input id="campLocation" type="text" placeholder="Showroom / Trực tuyến" style="width:100%; padding:7px 10px; border:1px solid var(--border); border-radius:6px; font-size:12px; background:var(--bg-card); color:var(--text);">
+              </div>
+            </div>
+
+            <!-- Row 5: Media URLs & Landing Link -->
+            <div style="display:grid; grid-template-columns:1.4fr 1fr; gap:16px;">
+              <div>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                  <label style="font-size:12px; font-weight:600; color:var(--text-muted);">Danh sách URL hình ảnh</label>
+                  <button type="button" class="btn" onclick="addCampaignImageUrl()" style="font-size:11px; padding:3px 8px;"><i data-lucide="plus" class="icon-sm"></i> Thêm link ảnh</button>
+                </div>
+                <div id="campImageUrlsContainer" style="display:flex; flex-direction:column; gap:6px;">
+                  <!-- Dynamic URL rows -->
+                </div>
+              </div>
+              <div>
+                <label style="font-size:12px; font-weight:600; color:var(--text-muted); display:block; margin-bottom:6px;">Link Landing Page / Website</label>
+                <input id="campLandingUrl" type="url" placeholder="https://royceshop.vn/khuyen-mai" style="width:100%; padding:8px 12px; border:1px solid var(--border); border-radius:8px; font-size:13px; background:var(--bg-card); color:var(--text);">
+              </div>
+            </div>
+
+            <!-- Row 6: Optional Product Block -->
+            <div style="border-top:1px solid var(--border); padding-top:14px;">
+              <label style="display:inline-flex; align-items:center; gap:8px; cursor:pointer; font-weight:600; font-size:13px; margin-bottom:10px;">
+                <input type="checkbox" id="campHasProduct" onchange="toggleCampaignProductFields()"> Có sản phẩm đính kèm chiến dịch
+              </label>
+              <div id="campProductBlock" style="display:none; grid-template-columns:repeat(4, 1fr); gap:12px; background:var(--bg-subtle); padding:12px; border-radius:8px; border:1px solid var(--border);">
+                <div>
+                  <label style="font-size:11px; color:var(--text-muted); display:block; margin-bottom:4px;">Tên sản phẩm</label>
+                  <input id="campProdName" type="text" placeholder="Áo Thun Royce Signature" style="width:100%; padding:6px 10px; border:1px solid var(--border); border-radius:6px; font-size:12px; background:var(--bg-card); color:var(--text);">
+                </div>
+                <div>
+                  <label style="font-size:11px; color:var(--text-muted); display:block; margin-bottom:4px;">Giá niêm yết (VNĐ)</label>
+                  <input id="campProdPrice" type="number" placeholder="350000" style="width:100%; padding:6px 10px; border:1px solid var(--border); border-radius:6px; font-size:12px; background:var(--bg-card); color:var(--text);">
+                </div>
+                <div>
+                  <label style="font-size:11px; color:var(--text-muted); display:block; margin-bottom:4px;">Mã SKU</label>
+                  <input id="campProdSku" type="text" placeholder="ROYCE-TS-01" style="width:100%; padding:6px 10px; border:1px solid var(--border); border-radius:6px; font-size:12px; background:var(--bg-card); color:var(--text);">
+                </div>
+                <div>
+                  <label style="font-size:11px; color:var(--text-muted); display:block; margin-bottom:4px;">URL ảnh sản phẩm</label>
+                  <input id="campProdImage" type="text" placeholder="https://.../product.jpg" style="width:100%; padding:6px 10px; border:1px solid var(--border); border-radius:6px; font-size:12px; background:var(--bg-card); color:var(--text);">
+                </div>
+              </div>
+            </div>
+
+            <!-- Row 7: Master Copy & AI Studio Assistant -->
+            <div style="border-top:1px solid var(--border); padding-top:14px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                <label style="font-size:13px; font-weight:700; color:var(--text); display:flex; align-items:center; gap:6px;">
+                  <i data-lucide="file-text" class="icon-sm" style="color:var(--accent);"></i> Nội dung bài đăng Master Copy
+                </label>
+                <button type="button" class="btn btn-primary" id="btnCampAiDraft" onclick="generateCampaignAiDrafts()" style="display:flex; align-items:center; gap:6px; background:linear-gradient(135deg, #6366f1, #8b5cf6); border:none;">
+                  <i data-lucide="sparkles" class="icon-sm"></i> ✨ AI Soạn Bài (3 mẫu)
+                </button>
+              </div>
+              <textarea id="campCopy" rows="5" placeholder="Nội dung bài viết hoàn chỉnh để xuất bản lên Facebook Fanpage..." style="width:100%; padding:10px 12px; border:1px solid var(--border); border-radius:8px; font-size:13px; background:var(--bg-card); color:var(--text); line-height:1.6; font-family:inherit;"></textarea>
+            </div>
+
+            <!-- AI Drafts Container -->
+            <div id="campAiDraftsContainer" style="display:none; background:rgba(99,102,241,0.05); border:1px solid rgba(99,102,241,0.2); border-radius:8px; padding:14px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                <h4 style="margin:0; font-size:13px; color:#4f46e5; display:flex; align-items:center; gap:6px;">
+                  <i data-lucide="bot" class="icon-sm"></i> Đề xuất bài viết từ AI
+                </h4>
+                <span style="font-size:11px; color:var(--text-muted);">AI không tự động đăng bài</span>
+              </div>
+              <div id="campAiDraftsList" style="display:grid; grid-template-columns:repeat(3, 1fr); gap:12px;"></div>
+            </div>
+
+            <!-- Bottom Action Bar (Save Draft, Submit Review, Publish to Facebook) -->
+            <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--border); padding-top:14px; flex-wrap:wrap; gap:10px;">
+              <div style="display:flex; gap:8px;">
+                <button class="btn btn-primary" id="btnSaveCamp" onclick="saveCampaignBrief()"><i data-lucide="save" class="icon-sm"></i> Lưu chiến dịch</button>
+              </div>
+              <div id="campPublishFbCard" style="display:none; align-items:center; gap:10px; background:rgba(16,185,129,0.08); border:1px solid #10b981; padding:8px 14px; border-radius:8px;">
+                <span style="font-size:12px; font-weight:600; color:#065f46;">Đã phê duyệt (Published)</span>
+                <button class="btn btn-primary" onclick="publishCampaignToFacebook()" style="background:#1877f2; border:none; display:flex; align-items:center; gap:6px;"><i data-lucide="send" class="icon-sm"></i> Đăng ngay lên Facebook</button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
     </section>
 
     <!-- ═══ PARTNER 360 ═══ -->
@@ -1326,6 +1493,7 @@ document.querySelectorAll('.nav-item').forEach(el => {
     const targetSec = document.getElementById('sec-' + secId);
     if (targetSec) targetSec.classList.add('active');
     if (secId === 'facebook-page') { loadFacebookPosts(); loadFacebookPageHealth(); }
+    if (secId === 'pipeline') { loadCampaigns(); }
     if (secId === 'rbac') loadRbacData();
     closeSidebar(); // auto-close on mobile after nav
   };
@@ -1701,50 +1869,604 @@ function renderDashboard() {
   document.getElementById('recentList').innerHTML = recent || '<div class="empty-state">No messages yet</div>';
 }
 
-// ═══════════════ Pipeline (Kanban) ═══════════════
-let _pipelineChannel = 'all';
-function setPipelineChannel(ch, btn) {
-  _pipelineChannel = ch;
-  document.querySelectorAll('#pipelineChannelChips .channel-chip').forEach(b => b.classList.remove('active'));
-  if (btn) btn.classList.add('active');
-  renderPipeline();
-}
-function renderPipeline() {
-  // Channel filter chips
-  const pages = window.DEMO_DATA?.pages || [];
-  const channels = ['all', ...new Set(pages.map(p => p.type))];
-  const chipsHost = document.getElementById('pipelineChannelChips');
-  if (chipsHost && chipsHost.children.length === 0) {
-    chipsHost.innerHTML = channels.map(ch => {
-      const icon = ch === 'all' ? 'globe' : ch === 'facebook' ? 'facebook' : ch.startsWith('zalo') ? 'message-square' : ch === 'instagram' ? 'instagram' : 'circle';
-      const label = ch === 'all' ? 'All channels' : ch === 'zalo_oa' ? 'Zalo OA' : ch.charAt(0).toUpperCase() + ch.slice(1);
-      return `<button class="channel-chip ${ch===_pipelineChannel?'active':''}" onclick="setPipelineChannel('${ch}', this)"><i data-lucide="${icon}" class="icon-sm"></i>${label}</button>`;
-    }).join('');
-  }
-  // Search + channel filter
-  const search = (document.getElementById('pipelineSearch')?.value || '').toLowerCase().trim();
-  let pool = _customers.slice();
-  if (_pipelineChannel !== 'all') {
-    pool = pool.filter(c => {
-      const page = pages.find(p => p.id === c.page_id);
-      return page && page.type === _pipelineChannel;
-    });
-  }
-  if (search) pool = pool.filter(c => (c.name||'').toLowerCase().includes(search));
+// ═══════════════ Campaign Studio ═══════════════
+let _campaigns = [];
+let _selectedCampaignId = null;
+let _campaignImageUrls = [];
 
-  const stages = ['active','sleeping','at_risk','dormant','churned'];
-  const grouped = Object.fromEntries(stages.map(s => [s, pool.filter(c => c._stage === s)]));
-  document.getElementById('kanban').innerHTML = stages.map(s => `
-    <div class="kanban-col">
-      <div class="kanban-col-header">
-        <span style="background:${STAGE_COLOR[s]}; width:8px; height:8px; border-radius:50%;"></span>
-        <span class="title">${STAGE_LABEL[s]}</span>
-        <span class="count">${grouped[s].length}</span>
+function toggleCampaignProductFields() {
+  const hasProd = document.getElementById('campHasProduct')?.checked;
+  const block = document.getElementById('campProductBlock');
+  if (block) block.style.display = hasProd ? 'grid' : 'none';
+}
+
+function addCampaignImageUrl(url = '') {
+  _campaignImageUrls.push(url);
+  renderCampaignImageUrls();
+}
+
+function removeCampaignImageUrl(idx) {
+  _campaignImageUrls.splice(idx, 1);
+  renderCampaignImageUrls();
+}
+
+function updateCampaignImageUrl(idx, val) {
+  _campaignImageUrls[idx] = val;
+  renderCampaignImageUrls(false);
+}
+
+function renderCampaignImageUrls(rebuildInputs = true) {
+  const container = document.getElementById('campImageUrlsContainer');
+  if (!container) return;
+
+  if (rebuildInputs) {
+    if (_campaignImageUrls.length === 0) {
+      container.innerHTML = `<div style="font-size:11px; color:var(--text-muted); font-style:italic;">Chưa có ảnh nào. Nhấn "+ Thêm link ảnh" để đính kèm media.</div>`;
+      return;
+    }
+
+    container.innerHTML = _campaignImageUrls.map((url, idx) => `
+      <div style="display:flex; align-items:center; gap:8px;">
+        <input type="text" value="${esc(url)}" placeholder="https://.../banner.jpg" oninput="updateCampaignImageUrl(${idx}, this.value)" style="flex:1; padding:6px 10px; border:1px solid var(--border); border-radius:6px; font-size:12px; background:var(--bg-card); color:var(--text);">
+        ${url ? `<img src="${esc(url)}" style="width:32px; height:32px; object-fit:cover; border-radius:4px; border:1px solid var(--border);" onerror="this.style.display='none'">` : ''}
+        <button type="button" class="btn btn-sm" onclick="removeCampaignImageUrl(${idx})" style="padding:4px 8px; color:var(--red);" title="Xóa"><i data-lucide="trash-2" class="icon-sm"></i></button>
       </div>
-      <div class="kanban-col-body">
-        ${grouped[s].slice(0,30).map(p => `<div class="kanban-card"><div class="name">${esc((p.name||'').slice(0,30))}</div><div class="meta">${p._days} ngày im</div></div>`).join('') || '<div style="text-align:center; padding:20px; font-size:11px; color:var(--text-muted);">Empty</div>'}
+    `).join('');
+    renderIcons();
+  }
+}
+
+async function loadCampaigns() {
+  const container = document.getElementById('campaignsListContainer');
+  if (container && _campaigns.length === 0) {
+    container.innerHTML = '<div style="padding:20px; text-align:center; color:var(--text-muted); font-size:12px;">Đang tải danh sách chiến dịch...</div>';
+  }
+
+  try {
+    const base = (CFG.url || window.location.origin).replace(/\/+$/, '');
+    const res = await fetch(`${base}/campaigns`, { headers: hdrs() });
+    if (res.ok) {
+      _campaigns = await res.json();
+      const badge = document.getElementById('campaignsCountBadge');
+      if (badge) badge.textContent = _campaigns.length;
+      renderCampaignsList();
+
+      if (_selectedCampaignId) {
+        const stillExists = _campaigns.find(c => c.id === _selectedCampaignId);
+        if (stillExists) {
+          selectCampaign(stillExists.id, false);
+        } else if (_campaigns.length > 0) {
+          selectCampaign(_campaigns[0].id, false);
+        } else {
+          newCampaignDraft();
+        }
+      } else if (_campaigns.length > 0) {
+        selectCampaign(_campaigns[0].id, false);
+      } else {
+        newCampaignDraft();
+      }
+    }
+  } catch (e) {
+    console.error('Error loading campaigns:', e);
+  }
+}
+
+function renderCampaignsList() {
+  const container = document.getElementById('campaignsListContainer');
+  if (!container) return;
+
+  const search = (document.getElementById('campaignSearchInput')?.value || '').toLowerCase().trim();
+  let pool = _campaigns.slice();
+  if (search) {
+    pool = pool.filter(c => (c.title || c.topic || '').toLowerCase().includes(search) || (c.kind || '').toLowerCase().includes(search));
+  }
+
+  if (pool.length === 0) {
+    container.innerHTML = '<div style="padding:20px; text-align:center; color:var(--text-muted); font-size:12px;">Không có chiến dịch nào</div>';
+    return;
+  }
+
+  container.innerHTML = pool.map(camp => {
+    const isSelected = camp.id === _selectedCampaignId;
+    let statusClass = 'pill-muted';
+    let statusLabel = camp.status || 'Draft';
+    if (camp.status === 'Published') { statusClass = 'pill-active'; statusLabel = 'PUBLISHED'; }
+    else if (camp.status === 'PendingReview') { statusClass = 'pill-waiting'; statusLabel = 'REVIEW'; }
+    else if (camp.status === 'PendingApproval') { statusClass = 'pill-lead'; statusLabel = 'APPROVAL'; }
+    else if (camp.status === 'Rejected') { statusClass = 'pill-danger'; statusLabel = 'REJECTED'; }
+
+    let kindLabel = camp.kind || 'promotion';
+    if (kindLabel === 'promotion') kindLabel = 'Khuyến mãi';
+    else if (kindLabel === 'event') kindLabel = 'Sự kiện';
+    else if (kindLabel === 'product_launch') kindLabel = 'Ra mắt SP';
+    else if (kindLabel === 'seasonal') kindLabel = 'Theo mùa';
+    else kindLabel = 'Khác';
+
+    return `
+      <div onclick="selectCampaign('${camp.id}')" style="padding:10px 12px; border-radius:8px; border:1px solid ${isSelected ? 'var(--accent)' : 'var(--border)'}; background:${isSelected ? 'rgba(59,130,246,0.06)' : 'var(--bg-card)'}; cursor:pointer; display:flex; flex-direction:column; gap:6px; transition:all 0.15s ease;">
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:6px;">
+          <span style="font-weight:700; font-size:13px; color:var(--text); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${esc(camp.title || camp.topic || 'Chưa đặt tiêu đề')}</span>
+          <span class="pill ${statusClass}" style="font-size:9px; padding:1px 5px;">${statusLabel}</span>
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center; font-size:11px; color:var(--text-muted);">
+          <span style="background:var(--bg-subtle); padding:2px 6px; border-radius:4px;">${kindLabel}</span>
+          <span style="display:flex; align-items:center; gap:4px;"><i data-lucide="facebook" style="width:12px; height:12px; color:#1877f2;"></i> Fanpage</span>
+        </div>
       </div>
-    </div>`).join('');
+    `;
+  }).join('');
+  renderIcons();
+}
+
+function newCampaignDraft() {
+  _selectedCampaignId = null;
+  const titleHeader = document.getElementById('campaignFormHeaderTitle');
+  if (titleHeader) titleHeader.textContent = 'Tạo chiến dịch mới';
+  const badge = document.getElementById('campaignStatusBadge');
+  if (badge) {
+    badge.className = 'pill pill-muted';
+    badge.textContent = 'DRAFT';
+  }
+  if (document.getElementById('campTitle')) document.getElementById('campTitle').value = '';
+  if (document.getElementById('campKind')) document.getElementById('campKind').value = 'promotion';
+  if (document.getElementById('campDesc')) document.getElementById('campDesc').value = '';
+  if (document.getElementById('campEventStart')) document.getElementById('campEventStart').value = '';
+  if (document.getElementById('campEventEnd')) document.getElementById('campEventEnd').value = '';
+  if (document.getElementById('campLocation')) document.getElementById('campLocation').value = '';
+  if (document.getElementById('campLandingUrl')) document.getElementById('campLandingUrl').value = '';
+  if (document.getElementById('campCopy')) document.getElementById('campCopy').value = '';
+
+  if (document.getElementById('campHasProduct')) document.getElementById('campHasProduct').checked = false;
+  if (document.getElementById('campProdName')) document.getElementById('campProdName').value = '';
+  if (document.getElementById('campProdPrice')) document.getElementById('campProdPrice').value = '';
+  if (document.getElementById('campProdSku')) document.getElementById('campProdSku').value = '';
+  if (document.getElementById('campProdImage')) document.getElementById('campProdImage').value = '';
+  toggleCampaignProductFields();
+
+  _campaignImageUrls = [];
+  renderCampaignImageUrls();
+
+  const draftContainer = document.getElementById('campAiDraftsContainer');
+  if (draftContainer) draftContainer.style.display = 'none';
+  const draftList = document.getElementById('campAiDraftsList');
+  if (draftList) draftList.innerHTML = '';
+  const fbCard = document.getElementById('campPublishFbCard');
+  if (fbCard) fbCard.style.display = 'none';
+
+  renderCampaignHeaderActions(null);
+  renderCampaignsList();
+}
+
+function selectCampaign(id, updateList = true) {
+  _selectedCampaignId = id;
+  const camp = _campaigns.find(c => c.id === id);
+  if (!camp) return;
+
+  const headerTitle = document.getElementById('campaignFormHeaderTitle');
+  if (headerTitle) headerTitle.textContent = `Chi tiết: ${camp.title || camp.topic || id}`;
+  const badge = document.getElementById('campaignStatusBadge');
+  if (badge) {
+    let statusClass = 'pill-muted';
+    if (camp.status === 'Published') statusClass = 'pill-active';
+    else if (camp.status === 'PendingReview') statusClass = 'pill-waiting';
+    else if (camp.status === 'PendingApproval') statusClass = 'pill-lead';
+    else if (camp.status === 'Rejected') statusClass = 'pill-danger';
+    badge.className = `pill ${statusClass}`;
+    badge.textContent = camp.status ? camp.status.toUpperCase() : 'DRAFT';
+  }
+
+  if (document.getElementById('campTitle')) document.getElementById('campTitle').value = camp.title || camp.topic || '';
+  if (document.getElementById('campKind')) document.getElementById('campKind').value = camp.kind || 'promotion';
+  if (document.getElementById('campDesc')) document.getElementById('campDesc').value = camp.description || '';
+
+  // Local Vietnam display time
+  if (camp.eventStartUtc) {
+    try {
+      const d = new Date(camp.eventStartUtc);
+      d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+      document.getElementById('campEventStart').value = d.toISOString().slice(0, 16);
+    } catch(e) { document.getElementById('campEventStart').value = ''; }
+  } else {
+    if (document.getElementById('campEventStart')) document.getElementById('campEventStart').value = '';
+  }
+
+  if (camp.eventEndUtc) {
+    try {
+      const d = new Date(camp.eventEndUtc);
+      d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+      document.getElementById('campEventEnd').value = d.toISOString().slice(0, 16);
+    } catch(e) { document.getElementById('campEventEnd').value = ''; }
+  } else {
+    if (document.getElementById('campEventEnd')) document.getElementById('campEventEnd').value = '';
+  }
+
+  if (document.getElementById('campLocation')) document.getElementById('campLocation').value = camp.location || '';
+  if (document.getElementById('campLandingUrl')) document.getElementById('campLandingUrl').value = camp.landingUrl || '';
+  if (document.getElementById('campCopy')) document.getElementById('campCopy').value = camp.copy || '';
+
+  // Product block
+  const hasProd = !!(camp.product || camp.productName || camp.productPriceVnd);
+  if (document.getElementById('campHasProduct')) document.getElementById('campHasProduct').checked = hasProd;
+  const prod = camp.product || {};
+  if (document.getElementById('campProdName')) document.getElementById('campProdName').value = prod.name || camp.productName || '';
+  if (document.getElementById('campProdPrice')) document.getElementById('campProdPrice').value = prod.priceVnd !== undefined ? prod.priceVnd : (camp.productPriceVnd || '');
+  if (document.getElementById('campProdSku')) document.getElementById('campProdSku').value = prod.sku || camp.productSku || '';
+  if (document.getElementById('campProdImage')) document.getElementById('campProdImage').value = prod.imageUrl || camp.productImageUrl || '';
+  toggleCampaignProductFields();
+
+  // Images
+  _campaignImageUrls = Array.isArray(camp.imageUrls) ? camp.imageUrls.slice() : [];
+  renderCampaignImageUrls();
+
+  // FB Publish visibility
+  const canPublishFb = camp.status === 'Published' && _currentProfile && Array.isArray(_currentProfile.permissions) && _currentProfile.permissions.includes('page.publish');
+  const fbCard = document.getElementById('campPublishFbCard');
+  if (fbCard) fbCard.style.display = canPublishFb ? 'flex' : 'none';
+
+  renderCampaignHeaderActions(camp);
+  if (updateList) renderCampaignsList();
+}
+
+function renderCampaignHeaderActions(camp) {
+  const container = document.getElementById('campaignHeaderActions');
+  if (!container) return;
+
+  if (!camp) {
+    container.innerHTML = '';
+    return;
+  }
+
+  const role = CURRENT_ROLE || 'Owner';
+  const status = camp.status || 'Draft';
+  let html = '';
+
+  if (status === 'Draft' || status === 'Rejected') {
+    html += `<button class="btn btn-sm" onclick="submitCampaignReview('${camp.id}')"><i data-lucide="send" class="icon-sm"></i> Gửi duyệt Marketer</button>`;
+  }
+
+  if (status === 'PendingReview') {
+    html += `
+      <button class="btn btn-sm btn-primary" onclick="sendCampaignToOwner('${camp.id}')"><i data-lucide="user-check" class="icon-sm"></i> Chuyển Chủ shop duyệt</button>
+      <button class="btn btn-sm" onclick="rejectCampaign('${camp.id}')" style="color:var(--red);"><i data-lucide="x" class="icon-sm"></i> Từ chối</button>
+    `;
+  }
+
+  if (status === 'PendingApproval') {
+    if (role === 'Owner' || role === 'Admin') {
+      html += `
+        <button class="btn btn-sm btn-primary" onclick="approveCampaign('${camp.id}')" style="background:var(--green); border-color:var(--green);"><i data-lucide="check" class="icon-sm"></i> Phê duyệt xuất bản</button>
+        <button class="btn btn-sm" onclick="rejectCampaign('${camp.id}')" style="color:var(--red);"><i data-lucide="x" class="icon-sm"></i> Từ chối</button>
+      `;
+    } else {
+      html += `<span style="font-size:11px; color:var(--text-muted); font-style:italic;">Đang chờ Chủ shop (Owner) duyệt</span>`;
+    }
+  }
+
+  if (status === 'Published') {
+    if (role === 'Owner') {
+      html += `<button class="btn btn-sm" onclick="undoCampaignApproval('${camp.id}')" title="Hoàn tác trong vòng 15 phút"><i data-lucide="undo" class="icon-sm"></i> Hoàn tác duyệt</button>`;
+    }
+  }
+
+  container.innerHTML = html;
+  renderIcons();
+}
+
+async function saveCampaignBrief() {
+  const title = document.getElementById('campTitle')?.value.trim();
+  if (!title) {
+    toast('Vui lòng nhập tiêu đề chiến dịch', 'warning');
+    return;
+  }
+
+  const kind = document.getElementById('campKind')?.value || 'promotion';
+  const desc = document.getElementById('campDesc')?.value.trim() || '';
+  const location = document.getElementById('campLocation')?.value.trim() || '';
+  const landingUrl = document.getElementById('campLandingUrl')?.value.trim() || '';
+  const copy = document.getElementById('campCopy')?.value.trim() || '';
+
+  const startVal = document.getElementById('campEventStart')?.value;
+  const endVal = document.getElementById('campEventEnd')?.value;
+  const eventStart = startVal ? new Date(startVal).toISOString() : null;
+  const eventEnd = endVal ? new Date(endVal).toISOString() : null;
+
+  const hasProd = document.getElementById('campHasProduct')?.checked;
+  const product = hasProd ? {
+    name: document.getElementById('campProdName')?.value.trim() || null,
+    priceVnd: document.getElementById('campProdPrice')?.value ? parseFloat(document.getElementById('campProdPrice').value) : null,
+    sku: document.getElementById('campProdSku')?.value.trim() || null,
+    imageUrl: document.getElementById('campProdImage')?.value.trim() || null
+  } : null;
+
+  const validImages = _campaignImageUrls.filter(u => u && u.trim());
+
+  const btn = document.getElementById('btnSaveCamp');
+  if (btn) btn.disabled = true;
+
+  try {
+    const base = (CFG.url || window.location.origin).replace(/\/+$/, '');
+    let res;
+    if (_selectedCampaignId) {
+      res = await fetch(`${base}/campaigns/${_selectedCampaignId}`, {
+        method: 'PUT',
+        headers: hdrs(),
+        body: JSON.stringify({
+          title,
+          topic: title,
+          copy,
+          kind,
+          description: desc,
+          platforms: ["facebook"],
+          eventStart,
+          eventEnd,
+          location,
+          imageUrls: validImages,
+          landingUrl,
+          product
+        })
+      });
+    } else {
+      res = await fetch(`${base}/campaigns`, {
+        method: 'POST',
+        headers: hdrs(),
+        body: JSON.stringify({
+          title,
+          topic: title,
+          kind,
+          description: desc,
+          platforms: ["facebook"],
+          eventStart,
+          eventEnd,
+          location,
+          imageUrls: validImages,
+          landingUrl,
+          product
+        })
+      });
+    }
+
+    if (res.ok) {
+      const saved = await res.json();
+      toast('Đã lưu chiến dịch thành công!', 'success');
+      _selectedCampaignId = saved.id || _selectedCampaignId;
+      await loadCampaigns();
+    } else {
+      const err = await res.json().catch(() => ({}));
+      toast(`Lỗi khi lưu chiến dịch: ${err.error || err.message || res.status}`, 'error');
+    }
+  } catch (e) {
+    console.error('Error saving campaign:', e);
+    toast('Lỗi kết nối khi lưu chiến dịch', 'error');
+  } finally {
+    if (btn) btn.disabled = false;
+  }
+}
+
+async function submitCampaignReview(id) {
+  try {
+    const base = (CFG.url || window.location.origin).replace(/\/+$/, '');
+    const res = await fetch(`${base}/campaigns/${id}/submit-review`, {
+      method: 'POST',
+      headers: hdrs()
+    });
+    if (res.ok) {
+      toast('Đã gửi chiến dịch cho Marketer duyệt', 'success');
+      await loadCampaigns();
+    } else {
+      const err = await res.json().catch(() => ({}));
+      toast(`Lỗi gửi duyệt: ${err.error || res.status}`, 'error');
+    }
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+async function sendCampaignToOwner(id) {
+  try {
+    const base = (CFG.url || window.location.origin).replace(/\/+$/, '');
+    const res = await fetch(`${base}/campaigns/${id}/send-to-owner`, {
+      method: 'POST',
+      headers: hdrs()
+    });
+    if (res.ok) {
+      toast('Đã chuyển chiến dịch cho Chủ shop (Owner) phê duyệt', 'success');
+      await loadCampaigns();
+    } else {
+      const err = await res.json().catch(() => ({}));
+      toast(`Lỗi chuyển duyệt: ${err.error || res.status}`, 'error');
+    }
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+async function approveCampaign(id) {
+  try {
+    const base = (CFG.url || window.location.origin).replace(/\/+$/, '');
+    const res = await fetch(`${base}/campaigns/${id}/approve`, {
+      method: 'POST',
+      headers: hdrs()
+    });
+    if (res.ok) {
+      toast('Đã phê duyệt chiến dịch (Published)', 'success');
+      await loadCampaigns();
+    } else {
+      const err = await res.json().catch(() => ({}));
+      toast(`Lỗi phê duyệt: ${err.error || res.status}`, 'error');
+    }
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+async function undoCampaignApproval(id) {
+  try {
+    const base = (CFG.url || window.location.origin).replace(/\/+$/, '');
+    const res = await fetch(`${base}/campaigns/${id}/undo`, {
+      method: 'POST',
+      headers: hdrs()
+    });
+    if (res.ok) {
+      toast('Đã hoàn tác phê duyệt chiến dịch', 'success');
+      await loadCampaigns();
+    } else {
+      const err = await res.json().catch(() => ({}));
+      toast(`Lỗi hoàn tác: ${err.error || res.status}`, 'error');
+    }
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+async function rejectCampaign(id) {
+  const reason = prompt('Nhập lý do từ chối chiến dịch:', 'Cần chỉnh sửa lại thông điệp và hình ảnh');
+  if (!reason) return;
+
+  try {
+    const base = (CFG.url || window.location.origin).replace(/\/+$/, '');
+    const res = await fetch(`${base}/campaigns/${id}/reject`, {
+      method: 'POST',
+      headers: hdrs(),
+      body: JSON.stringify({ reason })
+    });
+    if (res.ok) {
+      toast('Đã từ chối chiến dịch', 'info');
+      await loadCampaigns();
+    } else {
+      const err = await res.json().catch(() => ({}));
+      toast(`Lỗi từ chối: ${err.error || res.status}`, 'error');
+    }
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+async function generateCampaignAiDrafts() {
+  if (!_selectedCampaignId) {
+    toast('Vui lòng lưu chiến dịch trước khi tạo bài viết AI', 'warning');
+    return;
+  }
+
+  const btn = document.getElementById('btnCampAiDraft');
+  if (btn) btn.disabled = true;
+  toast('AI đang nghiên cứu brief và sáng tạo 3 phương án bài đăng...', 'info', 4000);
+
+  try {
+    const base = (CFG.url || window.location.origin).replace(/\/+$/, '');
+    const res = await fetch(`${base}/campaigns/${_selectedCampaignId}/ai-drafts`, {
+      method: 'POST',
+      headers: hdrs()
+    });
+    if (res.ok) {
+      const result = await res.json();
+      renderCampaignAiDrafts(result.drafts || []);
+      toast('AI đã soạn xong 3 mẫu bài viết!', 'success');
+    } else {
+      const err = await res.json().catch(() => ({}));
+      toast(`Lỗi AI soạn bài: ${err.error || res.status}`, 'error');
+    }
+  } catch (e) {
+    console.error('Error generating AI drafts:', e);
+    toast('Lỗi kết nối AI assistant', 'error');
+  } finally {
+    if (btn) btn.disabled = false;
+  }
+}
+
+function renderCampaignAiDrafts(drafts) {
+  const container = document.getElementById('campAiDraftsContainer');
+  const list = document.getElementById('campAiDraftsList');
+  if (!container || !list) return;
+
+  if (!drafts || drafts.length === 0) {
+    container.style.display = 'none';
+    return;
+  }
+
+  list.innerHTML = drafts.map((d, i) => `
+    <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:8px; padding:12px; display:flex; flex-direction:column; justify-content:space-between; gap:10px;">
+      <div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+          <span style="font-size:11px; font-weight:700; color:#4f46e5;">Phương án ${i + 1}</span>
+          ${d.scheduleHintLocal ? `<span style="font-size:10px; color:var(--text-muted);"><i data-lucide="clock" style="width:10px; height:10px;"></i> ${esc(d.scheduleHintLocal)}</span>` : ''}
+        </div>
+        <div style="font-size:12px; line-height:1.5; color:var(--text); white-space:pre-wrap; max-height:150px; overflow-y:auto; padding:6px; background:var(--bg-subtle); border-radius:6px;">${esc(d.caption || '')}</div>
+      </div>
+      <button class="btn btn-sm btn-primary" onclick="applyCampaignDraft(this.dataset.caption)" data-caption="${esc(d.caption || '')}" style="width:100%; justify-content:center;">
+        <i data-lucide="check" class="icon-sm"></i> Dùng bản này
+      </button>
+    </div>
+  `).join('');
+
+  container.style.display = 'block';
+  renderIcons();
+}
+
+async function applyCampaignDraft(caption) {
+  if (!caption) return;
+  const copyEl = document.getElementById('campCopy');
+  if (copyEl) copyEl.value = caption;
+
+  if (_selectedCampaignId) {
+    try {
+      const base = (CFG.url || window.location.origin).replace(/\/+$/, '');
+      const res = await fetch(`${base}/campaigns/${_selectedCampaignId}/apply-draft`, {
+        method: 'POST',
+        headers: hdrs(),
+        body: JSON.stringify({ caption })
+      });
+      if (res.ok) {
+        toast('Đã áp dụng nội dung AI vào Master Copy!', 'success');
+        await loadCampaigns();
+      }
+    } catch(e) {
+      console.error(e);
+    }
+  }
+}
+
+async function publishCampaignToFacebook() {
+  if (!_selectedCampaignId) return;
+  const camp = _campaigns.find(c => c.id === _selectedCampaignId);
+  if (!camp) return;
+
+  const copy = (document.getElementById('campCopy')?.value || '').trim() || camp.copy;
+  if (!copy) {
+    toast('Chưa có nội dung bài đăng (Master Copy)', 'warning');
+    return;
+  }
+
+  const mediaUrl = _campaignImageUrls.length > 0 ? _campaignImageUrls[0] : (camp.product?.imageUrl || null);
+
+  if (!confirm('Bạn có chắc chắn muốn xuất bản bài viết này lên Facebook Fanpage ngay bây giờ không?')) {
+    return;
+  }
+
+  try {
+    const base = (CFG.url || window.location.origin).replace(/\/+$/, '');
+    const res = await fetch(`${base}/facebook/posts`, {
+      method: 'POST',
+      headers: hdrs(),
+      body: JSON.stringify({
+        message: copy,
+        content: copy,
+        campaignId: _selectedCampaignId,
+        mediaUrl: mediaUrl || undefined,
+        mediaType: mediaUrl ? 'image' : undefined
+      })
+    });
+
+    if (res.ok) {
+      toast('Đã xuất bản bài viết lên Facebook Fanpage thành công!', 'success');
+      if (typeof loadFacebookPosts === 'function') loadFacebookPosts();
+    } else {
+      const err = await res.json().catch(() => ({}));
+      toast(`Lỗi đăng bài: ${err.error || err.message || res.status}`, 'error');
+    }
+  } catch (e) {
+    console.error('Error publishing to Facebook:', e);
+    toast('Lỗi kết nối khi xuất bản bài viết', 'error');
+  }
 }
 
 // ═══════════════ Partner 360 ═══════════════
@@ -3949,7 +4671,7 @@ function renderIcons() {
   }
 }
 // Patch all render functions to re-render icons after they update DOM
-['renderDashboard','renderTriage','renderInbox','renderPipeline','renderPartner360','renderPerformance','renderReports','renderInboxDetail'].forEach(fn => {
+['renderDashboard','renderTriage','renderInbox','renderCampaignsList','renderPartner360','renderPerformance','renderReports','renderInboxDetail'].forEach(fn => {
   const orig = window[fn];
   if (typeof orig === 'function') {
     window[fn] = function(...args) { const r = orig.apply(this, args); renderIcons(); return r; };

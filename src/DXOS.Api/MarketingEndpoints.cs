@@ -17,7 +17,76 @@ internal static class MarketingEndpoints
     {
         app.MapPost("/campaigns", async (CreateCampaignRequest request, CampaignService campaigns, HttpContext http, CancellationToken cancellationToken) =>
         {
-            return await ExecuteAsync(http, actor => campaigns.CreateDraftAsync(actor, request.Topic ?? string.Empty, cancellationToken));
+            return await ExecuteAsync(http, actor =>
+            {
+                var dto = new CreateCampaignDraftDto(
+                    request.Title,
+                    request.Topic,
+                    request.Kind,
+                    request.Description,
+                    request.Platforms,
+                    request.EventStart,
+                    request.EventEnd,
+                    request.Location,
+                    request.ImageUrls,
+                    request.LandingUrl,
+                    request.Product);
+                return campaigns.CreateDraftAsync(actor, dto, cancellationToken);
+            });
+        });
+
+        app.MapPut("/campaigns/{id:guid}", async (Guid id, UpdateCampaignRequest request, CampaignService campaigns, HttpContext http, CancellationToken cancellationToken) =>
+        {
+            return await ExecuteAsync(http, actor =>
+            {
+                var dto = new UpdateCampaignBriefDto(
+                    request.Title,
+                    request.Topic,
+                    request.Copy,
+                    request.Kind,
+                    request.Description,
+                    request.Platforms,
+                    request.EventStart,
+                    request.EventEnd,
+                    request.Location,
+                    request.ImageUrls,
+                    request.LandingUrl,
+                    request.Product);
+                return campaigns.UpdateBriefAsync(actor, id, dto, cancellationToken);
+            });
+        });
+
+        app.MapPost("/campaigns/{id:guid}/ai-drafts", async (
+            Guid id,
+            CampaignService campaigns,
+            DXOS.Application.Abstractions.IChatClient chatClient,
+            RbacService rbac,
+            HttpContext http,
+            CancellationToken cancellationToken) =>
+        {
+            var (allowed, forbidden, profile) = await CheckPermissionAsync(http, rbac, AppPermissions.PagePostsRead, cancellationToken);
+            if (!allowed)
+            {
+                var (pubAllowed, pubForbidden, _) = await CheckPermissionAsync(http, rbac, AppPermissions.PagePublish, cancellationToken);
+                if (!pubAllowed) return forbidden;
+            }
+
+            return await ExecuteAsync(http, actor => campaigns.GenerateAiDraftsAsync(actor, id, chatClient, cancellationToken));
+        });
+
+        app.MapPost("/campaigns/{id:guid}/apply-draft", async (
+            Guid id,
+            ApplyCampaignDraftRequest request,
+            CampaignService campaigns,
+            HttpContext http,
+            CancellationToken cancellationToken) =>
+        {
+            if (string.IsNullOrWhiteSpace(request?.Caption))
+            {
+                return Results.BadRequest(new { error = "Caption cannot be empty.", code = "InvalidCaption" });
+            }
+
+            return await ExecuteAsync(http, actor => campaigns.ApplyDraftCopyAsync(actor, id, request.Caption, cancellationToken));
         });
 
         app.MapPost("/campaigns/{id:guid}/submit-review", async (Guid id, CampaignService campaigns, HttpContext http, CancellationToken cancellationToken) =>
@@ -1735,18 +1804,19 @@ internal static class MarketingEndpoints
             var (allowed, forbidden, profile) = await CheckPermissionAsync(http, rbac, AppPermissions.PagePostsRead, ct);
             if (!allowed) return forbidden;
 
-            var pageToken = !string.IsNullOrWhiteSpace(req?.PageAccessToken) 
-                ? req.PageAccessToken 
+            var pageToken = !string.IsNullOrWhiteSpace(req?.PageAccessToken)
+                ? req.PageAccessToken
                 : (config["FACEBOOK_PAGE_ACCESS_TOKEN"] ?? config["Facebook:PageAccessToken"]);
-            var pageId = !string.IsNullOrWhiteSpace(req?.PageId) 
-                ? req.PageId 
+            var pageId = !string.IsNullOrWhiteSpace(req?.PageId)
+                ? req.PageId
                 : (config["FACEBOOK_PAGE_ID"] ?? config["Facebook:PageId"] ?? "988656934325292");
 
             if (string.IsNullOrWhiteSpace(pageToken))
             {
-                return Results.BadRequest(new { 
-                    error = "Chưa có Facebook Page Access Token. Vui lòng nhập token của Fanpage để đồng bộ dữ liệu thật.", 
-                    code = "MissingToken" 
+                return Results.BadRequest(new
+                {
+                    error = "Chưa có Facebook Page Access Token. Vui lòng nhập token của Fanpage để đồng bộ dữ liệu thật.",
+                    code = "MissingToken"
                 });
             }
 
@@ -1754,8 +1824,9 @@ internal static class MarketingEndpoints
             var pageInfo = await fbClient.GetPageAsync(pageId, pageToken, ct);
             if (pageInfo is null)
             {
-                return Results.BadRequest(new { 
-                    error = "Không thể kết nối Facebook Graph API. Token đã hết hạn hoặc không có quyền truy cập Page ID này.", 
+                return Results.BadRequest(new
+                {
+                    error = "Không thể kết nối Facebook Graph API. Token đã hết hạn hoặc không có quyền truy cập Page ID này.",
                     code = "InvalidOrExpiredToken",
                     page_id = pageId
                 });
@@ -2000,14 +2071,15 @@ internal static class MarketingEndpoints
             await db.SaveChangesAsync(ct);
             await rbac.LogAuditAsync(profile.ActorId, AppPermissions.PagePostsRead, "sync_all", pageId, $"Synced {syncedPosts} posts, {syncedConvs} convs, {syncedMsgs} msgs from Facebook Page", ct);
 
-            return Results.Ok(new { 
-                success = true, 
+            return Results.Ok(new
+            {
+                success = true,
                 page_id = pageId,
                 page_name = pageInfo.Name,
                 fan_count = pageInfo.FanCount,
                 followers_count = pageInfo.FollowersCount,
-                posts_synced = syncedPosts, 
-                conversations_synced = syncedConvs, 
+                posts_synced = syncedPosts,
+                conversations_synced = syncedConvs,
                 messages_synced = syncedMsgs,
                 message = $"Đã đồng bộ thành công {syncedPosts} bài viết, {syncedConvs} hội thoại và {syncedMsgs} tin nhắn thật từ Fanpage {pageInfo.Name}!"
             });
@@ -2885,13 +2957,63 @@ internal static class MarketingEndpoints
 
     private static object ToCampaignResponse(Campaign campaign)
     {
+        IReadOnlyList<string> platforms;
+        try
+        {
+            platforms = !string.IsNullOrWhiteSpace(campaign.PlatformsJson)
+                ? JsonSerializer.Deserialize<List<string>>(campaign.PlatformsJson) ?? new List<string> { "facebook" }
+                : new List<string> { "facebook" };
+        }
+        catch
+        {
+            platforms = new List<string> { "facebook" };
+        }
+
+        IReadOnlyList<string> imageUrls;
+        try
+        {
+            imageUrls = !string.IsNullOrWhiteSpace(campaign.ImageUrlsJson)
+                ? JsonSerializer.Deserialize<List<string>>(campaign.ImageUrlsJson) ?? new List<string>()
+                : new List<string>();
+        }
+        catch
+        {
+            imageUrls = new List<string>();
+        }
+
+        object? product = !string.IsNullOrWhiteSpace(campaign.ProductName) || campaign.ProductPriceVnd.HasValue
+            ? new
+            {
+                name = campaign.ProductName,
+                priceVnd = campaign.ProductPriceVnd,
+                sku = campaign.ProductSku,
+                imageUrl = campaign.ProductImageUrl
+            }
+            : null;
+
         return new
         {
             id = campaign.Id,
+            title = campaign.Topic,
             topic = campaign.Topic,
+            kind = campaign.Kind,
+            description = campaign.Description,
             copy = campaign.Copy,
             copySnapshot = campaign.CopySnapshot,
             status = campaign.Status.ToString(),
+            platforms = platforms,
+            platformsJson = campaign.PlatformsJson,
+            eventStartUtc = campaign.EventStartUtc,
+            eventEndUtc = campaign.EventEndUtc,
+            location = campaign.Location,
+            imageUrls = imageUrls,
+            imageUrlsJson = campaign.ImageUrlsJson,
+            landingUrl = campaign.LandingUrl,
+            product = product,
+            productName = campaign.ProductName,
+            productPriceVnd = campaign.ProductPriceVnd,
+            productSku = campaign.ProductSku,
+            productImageUrl = campaign.ProductImageUrl,
             rejectionReason = campaign.RejectionReason,
             approvedAtUtc = campaign.ApprovedAtUtc,
             createdByActor = campaign.CreatedByActor,
@@ -3249,7 +3371,34 @@ internal sealed record AssignUserRoleRequest(string? ActorId, string? DisplayNam
 
 internal sealed record PublishFacebookPostRequest(string? Message, string? Content = null, Guid? CampaignId = null, string? ScheduledAt = null, string? MediaUrl = null, string? MediaType = null);
 
-internal sealed record CreateCampaignRequest(string? Topic);
+internal sealed record CreateCampaignRequest(
+    string? Title = null,
+    string? Topic = null,
+    string? Kind = null,
+    string? Description = null,
+    string[]? Platforms = null,
+    DateTimeOffset? EventStart = null,
+    DateTimeOffset? EventEnd = null,
+    string? Location = null,
+    string[]? ImageUrls = null,
+    string? LandingUrl = null,
+    CampaignProductDto? Product = null);
+
+internal sealed record UpdateCampaignRequest(
+    string? Title = null,
+    string? Topic = null,
+    string? Copy = null,
+    string? Kind = null,
+    string? Description = null,
+    string[]? Platforms = null,
+    DateTimeOffset? EventStart = null,
+    DateTimeOffset? EventEnd = null,
+    string? Location = null,
+    string[]? ImageUrls = null,
+    string? LandingUrl = null,
+    CampaignProductDto? Product = null);
+
+internal sealed record ApplyCampaignDraftRequest(string? Caption);
 
 internal sealed record RejectRequest(string? Reason);
 

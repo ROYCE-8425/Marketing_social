@@ -17,7 +17,39 @@ public sealed class Campaign
     public DateTimeOffset CreatedAtUtc { get; private set; }
     public DateTimeOffset UpdatedAtUtc { get; private set; }
 
-    public static Campaign CreateDraft(string topic, string copy, string createdByActor, DateTimeOffset nowUtc)
+    // Studio brief and platform properties
+    public string Kind { get; private set; } = "other";
+    public string? Description { get; private set; }
+    public string PlatformsJson { get; private set; } = "[\"facebook\"]";
+    public DateTimeOffset? EventStartUtc { get; private set; }
+    public DateTimeOffset? EventEndUtc { get; private set; }
+    public string? Location { get; private set; }
+    public string ImageUrlsJson { get; private set; } = "[]";
+    public string? LandingUrl { get; private set; }
+
+    // Optional product properties
+    public string? ProductName { get; private set; }
+    public decimal? ProductPriceVnd { get; private set; }
+    public string? ProductSku { get; private set; }
+    public string? ProductImageUrl { get; private set; }
+
+    public static Campaign CreateDraft(
+        string topic,
+        string copy,
+        string createdByActor,
+        DateTimeOffset nowUtc,
+        string? kind = "other",
+        string? description = null,
+        string? platformsJson = null,
+        DateTimeOffset? eventStartUtc = null,
+        DateTimeOffset? eventEndUtc = null,
+        string? location = null,
+        string? imageUrlsJson = null,
+        string? landingUrl = null,
+        string? productName = null,
+        decimal? productPriceVnd = null,
+        string? productSku = null,
+        string? productImageUrl = null)
     {
         if (string.IsNullOrWhiteSpace(topic))
         {
@@ -38,7 +70,19 @@ public sealed class Campaign
             Status = CampaignStatus.Draft,
             CreatedByActor = createdByActor.Trim(),
             CreatedAtUtc = nowUtc,
-            UpdatedAtUtc = nowUtc
+            UpdatedAtUtc = nowUtc,
+            Kind = string.IsNullOrWhiteSpace(kind) ? "other" : kind.Trim().ToLowerInvariant(),
+            Description = description,
+            PlatformsJson = string.IsNullOrWhiteSpace(platformsJson) ? "[\"facebook\"]" : platformsJson,
+            EventStartUtc = eventStartUtc,
+            EventEndUtc = eventEndUtc,
+            Location = location,
+            ImageUrlsJson = string.IsNullOrWhiteSpace(imageUrlsJson) ? "[]" : imageUrlsJson,
+            LandingUrl = landingUrl,
+            ProductName = productName,
+            ProductPriceVnd = productPriceVnd,
+            ProductSku = productSku,
+            ProductImageUrl = productImageUrl
         };
     }
 
@@ -52,7 +96,19 @@ public sealed class Campaign
         DateTimeOffset? approvedAtUtc,
         string createdByActor,
         DateTimeOffset createdAtUtc,
-        DateTimeOffset updatedAtUtc)
+        DateTimeOffset updatedAtUtc,
+        string? kind = "other",
+        string? description = null,
+        string? platformsJson = null,
+        DateTimeOffset? eventStartUtc = null,
+        DateTimeOffset? eventEndUtc = null,
+        string? location = null,
+        string? imageUrlsJson = null,
+        string? landingUrl = null,
+        string? productName = null,
+        decimal? productPriceVnd = null,
+        string? productSku = null,
+        string? productImageUrl = null)
     {
         return new Campaign
         {
@@ -65,7 +121,19 @@ public sealed class Campaign
             ApprovedAtUtc = approvedAtUtc,
             CreatedByActor = createdByActor,
             CreatedAtUtc = createdAtUtc,
-            UpdatedAtUtc = updatedAtUtc
+            UpdatedAtUtc = updatedAtUtc,
+            Kind = string.IsNullOrWhiteSpace(kind) ? "other" : kind,
+            Description = description,
+            PlatformsJson = string.IsNullOrWhiteSpace(platformsJson) ? "[\"facebook\"]" : platformsJson,
+            EventStartUtc = eventStartUtc,
+            EventEndUtc = eventEndUtc,
+            Location = location,
+            ImageUrlsJson = string.IsNullOrWhiteSpace(imageUrlsJson) ? "[]" : imageUrlsJson,
+            LandingUrl = landingUrl,
+            ProductName = productName,
+            ProductPriceVnd = productPriceVnd,
+            ProductSku = productSku,
+            ProductImageUrl = productImageUrl
         };
     }
 
@@ -81,9 +149,53 @@ public sealed class Campaign
         return Restore(id, topic, copy, null, status, null, null, createdByActor, createdAtUtc, updatedAtUtc);
     }
 
+    public void UpdateBrief(
+        string topic,
+        string copy,
+        string? kind,
+        string? description,
+        string? platformsJson,
+        DateTimeOffset? eventStartUtc,
+        DateTimeOffset? eventEndUtc,
+        string? location,
+        string? imageUrlsJson,
+        string? landingUrl,
+        string? productName,
+        decimal? productPriceVnd,
+        string? productSku,
+        string? productImageUrl,
+        DateTimeOffset nowUtc)
+    {
+        if (Status is not (CampaignStatus.Draft or CampaignStatus.Rejected))
+        {
+            throw new DomainRuleException("InvalidTransition", "Cannot modify campaign brief unless it is in Draft or Rejected status.");
+        }
+
+        if (string.IsNullOrWhiteSpace(topic))
+        {
+            throw new DomainRuleException("InvalidTopic", "Campaign topic is required.");
+        }
+
+        Topic = topic.Trim();
+        Copy = copy ?? string.Empty;
+        Kind = string.IsNullOrWhiteSpace(kind) ? "other" : kind.Trim().ToLowerInvariant();
+        Description = description;
+        PlatformsJson = string.IsNullOrWhiteSpace(platformsJson) ? "[\"facebook\"]" : platformsJson;
+        EventStartUtc = eventStartUtc;
+        EventEndUtc = eventEndUtc;
+        Location = location;
+        ImageUrlsJson = string.IsNullOrWhiteSpace(imageUrlsJson) ? "[]" : imageUrlsJson;
+        LandingUrl = landingUrl;
+        ProductName = productName;
+        ProductPriceVnd = productPriceVnd;
+        ProductSku = productSku;
+        ProductImageUrl = productImageUrl;
+        UpdatedAtUtc = nowUtc;
+    }
+
     public void UpdateCopy(string newCopy, DateTimeOffset nowUtc)
     {
-        if (Status != CampaignStatus.Draft)
+        if (Status != CampaignStatus.Draft && Status != CampaignStatus.Rejected)
         {
             throw new DomainRuleException("InvalidTransition", "Cannot modify copy after submission. Must create a new draft.");
         }

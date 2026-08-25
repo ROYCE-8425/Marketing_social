@@ -48,6 +48,20 @@ public sealed class CampaignStore : ICampaignStore
         record.CreatedByActor = campaign.CreatedByActor;
         record.CreatedAtUtc = campaign.CreatedAtUtc;
         record.UpdatedAtUtc = campaign.UpdatedAtUtc;
+
+        record.Kind = campaign.Kind;
+        record.Description = campaign.Description;
+        record.PlatformsJson = campaign.PlatformsJson;
+        record.EventStartUtc = campaign.EventStartUtc;
+        record.EventEndUtc = campaign.EventEndUtc;
+        record.Location = campaign.Location;
+        record.ImageUrlsJson = campaign.ImageUrlsJson;
+        record.LandingUrl = campaign.LandingUrl;
+        record.ProductName = campaign.ProductName;
+        record.ProductPriceVnd = campaign.ProductPriceVnd;
+        record.ProductSku = campaign.ProductSku;
+        record.ProductImageUrl = campaign.ProductImageUrl;
+
         await _db.SaveChangesAsync(cancellationToken);
     }
 
@@ -64,7 +78,19 @@ public sealed class CampaignStore : ICampaignStore
             ApprovedAtUtc = campaign.ApprovedAtUtc,
             CreatedByActor = campaign.CreatedByActor,
             CreatedAtUtc = campaign.CreatedAtUtc,
-            UpdatedAtUtc = campaign.UpdatedAtUtc
+            UpdatedAtUtc = campaign.UpdatedAtUtc,
+            Kind = campaign.Kind,
+            Description = campaign.Description,
+            PlatformsJson = campaign.PlatformsJson,
+            EventStartUtc = campaign.EventStartUtc,
+            EventEndUtc = campaign.EventEndUtc,
+            Location = campaign.Location,
+            ImageUrlsJson = campaign.ImageUrlsJson,
+            LandingUrl = campaign.LandingUrl,
+            ProductName = campaign.ProductName,
+            ProductPriceVnd = campaign.ProductPriceVnd,
+            ProductSku = campaign.ProductSku,
+            ProductImageUrl = campaign.ProductImageUrl
         };
     }
 
@@ -80,6 +106,18 @@ public sealed class CampaignStore : ICampaignStore
             record.ApprovedAtUtc,
             record.CreatedByActor,
             record.CreatedAtUtc,
-            record.UpdatedAtUtc);
+            record.UpdatedAtUtc,
+            record.Kind,
+            record.Description,
+            record.PlatformsJson,
+            record.EventStartUtc,
+            record.EventEndUtc,
+            record.Location,
+            record.ImageUrlsJson,
+            record.LandingUrl,
+            record.ProductName,
+            record.ProductPriceVnd,
+            record.ProductSku,
+            record.ProductImageUrl);
     }
 }

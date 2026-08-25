@@ -62,6 +62,19 @@ public sealed class BootstrapDbContext : DbContext
             entity.Property(e => e.CreatedByActor).IsRequired().HasMaxLength(128);
             entity.Property(e => e.CreatedAtUtc).IsRequired();
             entity.Property(e => e.UpdatedAtUtc).IsRequired();
+
+            entity.Property(e => e.Kind).HasMaxLength(64).HasDefaultValue("other");
+            entity.Property(e => e.Description);
+            entity.Property(e => e.PlatformsJson).HasDefaultValue("[\"facebook\"]");
+            entity.Property(e => e.EventStartUtc);
+            entity.Property(e => e.EventEndUtc);
+            entity.Property(e => e.Location).HasMaxLength(512);
+            entity.Property(e => e.ImageUrlsJson).HasDefaultValue("[]");
+            entity.Property(e => e.LandingUrl).HasMaxLength(1024);
+            entity.Property(e => e.ProductName).HasMaxLength(256);
+            entity.Property(e => e.ProductPriceVnd).HasColumnType("numeric(18,0)");
+            entity.Property(e => e.ProductSku).HasMaxLength(128);
+            entity.Property(e => e.ProductImageUrl).HasMaxLength(1024);
         });
 
         modelBuilder.Entity<LeadRecord>(entity =>

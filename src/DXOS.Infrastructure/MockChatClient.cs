@@ -24,6 +24,36 @@ public sealed class MockChatClient : IChatClient
     {
         _logger.LogInformation("MockChatClient generating advisory or draft response based on prompt context");
 
+        // If this is a Campaign AI draft request
+        if (systemPrompt.Contains("Campaign AI Content Strategist", StringComparison.OrdinalIgnoreCase) ||
+            userPrompt.Contains("chiến dịch", StringComparison.OrdinalIgnoreCase) ||
+            userPrompt.Contains("ai-draft", StringComparison.OrdinalIgnoreCase))
+        {
+            var campaignDraftsJson = """
+            {
+              "drafts": [
+                {
+                  "caption": "🔥 [SIÊU ƯU ĐÃI KHAI TRƯƠNG]\nNhận ngay quà tặng đặc biệt và ưu đãi giảm giá lên đến 30% khi liên hệ tư vấn hôm nay!\n👉 Inbox ngay để shop gửi bảng giá chi tiết và tư vấn 1-1 nhé!",
+                  "suggestedMediaUrl": "/logos/royce_avatar.jpg",
+                  "scheduleHintLocal": "20:00 hôm nay"
+                },
+                {
+                  "caption": "⚡ [ĐỪNG BỎ LỠ CƠ HỘI]\nTrải nghiệm giải pháp Marketing và CRM thế hệ mới. Tăng tốc tương tác, bứt phá doanh thu bán hàng!\n👉 Đăng ký nhận ưu đãi tại Fanpage ngay hôm nay!",
+                  "suggestedMediaUrl": "/logos/royce_avatar.jpg",
+                  "scheduleHintLocal": "11:30 ngày mai"
+                },
+                {
+                  "caption": "🌟 [BỘ SƯU TẬP & SỰ KIỆN ĐẶC BIỆT]\nChào đón mùa mua sắm mới với ngập tràn ưu đãi độc quyền dành riêng cho khách hàng tương tác trên Fanpage.\n👉 Để lại bình luận hoặc nhắn tin để nhận mã giảm giá!",
+                  "suggestedMediaUrl": "/logos/royce_avatar.jpg",
+                  "scheduleHintLocal": "09:00 cuối tuần"
+                }
+              ],
+              "disclaimer": "AI không tự đăng bài, không tự gửi tin, không chi tiền."
+            }
+            """;
+            return Task.FromResult(campaignDraftsJson);
+        }
+
         // If this is an Operator Agent run request
         if (systemPrompt.Contains("Facebook Page Operator Agent", StringComparison.OrdinalIgnoreCase) ||
             systemPrompt.Contains("Page Operator Agent", StringComparison.OrdinalIgnoreCase) ||
