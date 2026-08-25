@@ -1333,19 +1333,27 @@ internal static class MarketingEndpoints
             var fbMode = config["FACEBOOK_MODE"] ?? config["Facebook:Mode"] ?? "mock";
             var pageId = conv.PageId ?? "988656934325292";
 
-            // Extract customer PSID
+            // Extract customer PSID (Page-Scoped ID) for Facebook Messenger Send API
             string? customerPsid = null;
-            if (conv.Id.StartsWith("fb_") && !conv.Id.Contains("lead"))
+            if (!string.IsNullOrWhiteSpace(conv.CustomerId) && conv.CustomerId.StartsWith("fb_user_"))
             {
-                var parts = conv.Id.Split('_');
-                if (parts.Length >= 3)
-                {
-                    customerPsid = parts[2];
-                }
+                customerPsid = conv.CustomerId["fb_user_".Length..].Trim();
             }
-            if (string.IsNullOrWhiteSpace(customerPsid) && !string.IsNullOrWhiteSpace(conv.CustomerId))
+            else if (!string.IsNullOrWhiteSpace(conv.CustomerId) && !conv.CustomerId.StartsWith("fb_") && !conv.CustomerId.StartsWith("zalo_") && !conv.CustomerId.StartsWith("tiktok_"))
             {
-                customerPsid = conv.CustomerId.Replace("fb_user_", "");
+                customerPsid = conv.CustomerId.Trim();
+            }
+
+            if (string.IsNullOrWhiteSpace(customerPsid))
+            {
+                var custMsg = await db.SocialMessages
+                    .Where(m => m.ConversationId == conv.Id && m.SenderType == "customer" && m.SenderId != pageId)
+                    .OrderByDescending(m => m.CreatedTime)
+                    .FirstOrDefaultAsync(cancellationToken);
+                if (custMsg != null && !string.IsNullOrWhiteSpace(custMsg.SenderId))
+                {
+                    customerPsid = custMsg.SenderId.Replace("fb_user_", "").Trim();
+                }
             }
 
             // Call Facebook Send API if live
@@ -1354,7 +1362,7 @@ internal static class MarketingEndpoints
                 try
                 {
                     var httpClient = httpFactory.CreateClient();
-                    var sendUrl = $"https://graph.facebook.com/v21.0/me/messages?access_token={Uri.EscapeDataString(pageToken)}";
+                    var sendUrl = $"https://graph.facebook.com/v22.0/me/messages?access_token={Uri.EscapeDataString(pageToken)}";
                     var payload = new
                     {
                         recipient = new { id = customerPsid },
@@ -1367,13 +1375,18 @@ internal static class MarketingEndpoints
                     {
                         var errStr = await response.Content.ReadAsStringAsync(cancellationToken);
                         var logger = loggerFactory.CreateLogger("DXOS.FacebookSend");
-                        logger.LogWarning("Facebook Send API warning: {Error}", errStr);
+                        logger.LogWarning("Facebook Send API warning for PSID {PSID}: {Error}", customerPsid, errStr);
+                    }
+                    else
+                    {
+                        var logger = loggerFactory.CreateLogger("DXOS.FacebookSend");
+                        logger.LogInformation("Facebook Send API sent successfully to PSID {PSID}", customerPsid);
                     }
                 }
                 catch (Exception ex)
                 {
                     var logger = loggerFactory.CreateLogger("DXOS.FacebookSend");
-                    logger.LogError(ex, "Failed to send Facebook Messenger message via Graph API");
+                    logger.LogError(ex, "Failed to send Facebook Messenger message via Graph API to PSID {PSID}", customerPsid);
                 }
             }
 

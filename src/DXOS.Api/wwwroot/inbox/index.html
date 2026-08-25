@@ -562,7 +562,14 @@
 
     <!-- ═══ INBOX (Rocky 3-pane) ═══ -->
     <section class="section" id="sec-inbox">
-      <div class="page-header"><div><h1>Inbox</h1><p>3 cột: Trang · Hội thoại · Tin nhắn + Thông tin khách</p></div></div>
+      <div class="page-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+        <div><h1>Inbox</h1><p>3 cột: Trang · Hội thoại · Tin nhắn + Thông tin khách</p></div>
+        <div class="header-actions">
+          <button class="btn btn-primary" onclick="syncInboxLive()" id="btnSyncInboxLive" style="display:flex; align-items:center; gap:6px; background:linear-gradient(135deg, #1877f2, #0d65d9); border:none; box-shadow:0 2px 6px rgba(24,119,242,0.3);">
+            <i data-lucide="refresh-cw" class="icon-sm"></i> Đồng bộ tin nhắn mới
+          </button>
+        </div>
+      </div>
 
       <div class="channel-row">
         <button class="channel-chip active" onclick="setInboxChannel('all', this)"><i data-lucide="globe" class="icon-sm"></i>Tất cả kênh</button>
@@ -1505,6 +1512,7 @@ document.querySelectorAll('.nav-item').forEach(el => {
     const secId = el.dataset.sec;
     const targetSec = document.getElementById('sec-' + secId);
     if (targetSec) targetSec.classList.add('active');
+    if (secId === 'inbox') { syncInboxLive(true); }
     if (secId === 'facebook-page') { loadFacebookPosts(); loadFacebookPageHealth(); }
     if (secId === 'pipeline') { loadCampaigns(); }
     if (secId === 'rbac') loadRbacData();
@@ -2863,6 +2871,43 @@ async function sendReply() {
   } finally {
     if (btn) btn.disabled = false;
     await loadAll();
+    syncInboxLive(true);
+  }
+}
+
+let _isSyncingInbox = false;
+async function syncInboxLive(silent = false) {
+  if (_isSyncingInbox) return;
+  _isSyncingInbox = true;
+  const btn = document.getElementById('btnSyncInboxLive');
+  if (btn && !silent) {
+    btn.disabled = true;
+    btn.innerHTML = '<i data-lucide="loader" class="icon-sm spin"></i> Đang đồng bộ...';
+    if (window.lucide) lucide.createIcons();
+  }
+  try {
+    const base = getApiBase();
+    const res = await fetch(`${base}/facebook/page/sync-inbox`, {
+      method: 'POST',
+      headers: hdrs(),
+      body: JSON.stringify({ pageId: localStorage.getItem('fb_page_id') || '988656934325292' })
+    });
+    if (res.ok) {
+      await loadAll(true);
+      if (!silent) toast('Đã đồng bộ tin nhắn mới nhất!', 'success');
+    } else {
+      if (!silent) toast('Đồng bộ thất bại', 'error');
+    }
+  } catch (err) {
+    console.error('syncInboxLive error:', err);
+    if (!silent) toast('Không thể kết nối để đồng bộ', 'error');
+  } finally {
+    _isSyncingInbox = false;
+    if (btn && !silent) {
+      btn.disabled = false;
+      btn.innerHTML = '<i data-lucide="refresh-cw" class="icon-sm"></i> Đồng bộ tin nhắn mới';
+      if (window.lucide) lucide.createIcons();
+    }
   }
 }
 
@@ -4725,17 +4770,27 @@ if (fbTokenInput && localStorage.getItem('fb_page_token')) fbTokenInput.value = 
 renderIcons();    // Initial render of static icons (nav, badges)
 loadAll(true);
 
-// Smart polling every 8s only when tab is visible
+// Smart polling: if inbox tab active, sync from Facebook API every 5s; otherwise poll DB every 8s
 setInterval(() => {
   if (!DEMO_MODE && !document.hidden) {
-    loadAll();
+    const inboxActive = document.getElementById('sec-inbox')?.classList.contains('active');
+    if (inboxActive) {
+      syncInboxLive(true);
+    } else {
+      loadAll();
+    }
   }
-}, 8000);
+}, 5000);
 
 // Immediate refresh when tab becomes active again
 document.addEventListener('visibilitychange', () => {
   if (!document.hidden && !DEMO_MODE) {
-    loadAll(true);
+    const inboxActive = document.getElementById('sec-inbox')?.classList.contains('active');
+    if (inboxActive) {
+      syncInboxLive(true);
+    } else {
+      loadAll(true);
+    }
   }
 });
 </script>
