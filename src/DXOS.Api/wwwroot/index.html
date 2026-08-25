@@ -3418,19 +3418,30 @@ async function syncFacebookPosts() {
   if (btn) { btn.disabled = true; btn.innerHTML = '<i data-lucide="loader-2" class="icon-sm spin"></i> Đang đồng bộ Facebook...'; renderIcons(); }
   try {
     const base = (CFG.url || window.location.origin).replace(/\/+$/, '');
+    const savedToken = localStorage.getItem('fb_page_token') || '';
+    const savedPageId = localStorage.getItem('fb_page_id') || '988656934325292';
+    
     const res = await fetch(`${base}/facebook/page/sync-all`, {
       method: 'POST',
       headers: hdrs(),
-      body: JSON.stringify({})
+      body: JSON.stringify({ pageId: savedPageId, pageAccessToken: savedToken || null })
     });
-    const data = await res.json();
+    
+    let data;
+    try {
+      data = await res.json();
+    } catch {
+      const txt = await res.text().catch(() => '');
+      data = { error: txt || `Lỗi máy chủ (HTTP ${res.status})` };
+    }
+
     if (res.ok) {
       toast(data.message || `Đã đồng bộ ${data.posts_synced} bài viết, ${data.conversations_synced} hội thoại thật!`, 'success', 5000);
       await loadFacebookPosts();
       await loadFacebookPageHealth();
       await loadAll(true);
     } else {
-      toast(data.error || 'Lỗi đồng bộ Facebook Graph API: ' + (data.code || res.status), 'error', 6000);
+      toast(data.error || 'Lỗi đồng bộ Facebook: ' + (data.code || res.status), 'error', 6000);
     }
   } catch(e) {
     console.error('syncFacebookPosts error:', e);
@@ -3441,7 +3452,7 @@ async function syncFacebookPosts() {
 }
 
 async function saveAndSyncFacebook() {
-  const pageId = document.getElementById('cfgFbPageId')?.value?.trim();
+  const pageId = document.getElementById('cfgFbPageId')?.value?.trim() || '988656934325292';
   const token = document.getElementById('cfgFbPageToken')?.value?.trim();
   const alertEl = document.getElementById('fbSyncStatusAlert');
   const btn = document.getElementById('btnSyncFbLive');
@@ -3452,8 +3463,12 @@ async function saveAndSyncFacebook() {
     document.getElementById('cfgFbPageToken')?.focus();
     return;
   }
+
+  // Save to localStorage for quick access
+  localStorage.setItem('fb_page_id', pageId);
+  localStorage.setItem('fb_page_token', token);
   
-  if (btn) { btn.disabled = true; btn.innerHTML = '<i data-lucide="loader-2" class="icon-sm spin"></i> Đang kết nối Graph API...'; renderIcons(); }
+  if (btn) { btn.disabled = true; btn.innerHTML = '<i data-lucide="loader-2" class="icon-sm spin"></i> Đang kết nối Graph API & kéo dữ liệu...'; renderIcons(); }
   if (alertEl) { alertEl.style.display = 'none'; }
   
   try {
@@ -3461,9 +3476,17 @@ async function saveAndSyncFacebook() {
     const res = await fetch(`${base}/facebook/page/sync-all`, {
       method: 'POST',
       headers: hdrs(),
-      body: JSON.stringify({ pageId: pageId || '988656934325292', pageAccessToken: token })
+      body: JSON.stringify({ pageId: pageId, pageAccessToken: token })
     });
-    const data = await res.json();
+    
+    let data;
+    try {
+      data = await res.json();
+    } catch {
+      const txt = await res.text().catch(() => '');
+      data = { error: txt || `Lỗi máy chủ (HTTP ${res.status})` };
+    }
+
     if (res.ok) {
       toast(data.message || 'Đã đồng bộ thành công dữ liệu thật từ Facebook Fanpage!', 'success', 5000);
       if (alertEl) {
@@ -3471,24 +3494,32 @@ async function saveAndSyncFacebook() {
         alertEl.style.background = 'rgba(16,185,129,0.12)';
         alertEl.style.border = '1px solid #10b981';
         alertEl.style.color = '#065f46';
-        alertEl.innerHTML = `<b>Kết nối thành công Fanpage:</b> ${esc(data.page_name)} (ID: ${esc(data.page_id)}) — Đã nạp <b>${data.posts_synced}</b> bài viết, <b>${data.conversations_synced}</b> hội thoại và <b>${data.messages_synced}</b> tin nhắn thật.`;
+        alertEl.innerHTML = `<b>Kết nối thành công Fanpage:</b> ${esc(data.page_name || pageId)} (ID: ${esc(data.page_id)}) — Đã nạp <b>${data.posts_synced}</b> bài viết, <b>${data.conversations_synced}</b> hội thoại và <b>${data.messages_synced}</b> tin nhắn thật.`;
       }
       await loadFacebookPosts();
       await loadFacebookPageHealth();
       await loadAll(true);
     } else {
-      toast(data.error || 'Lỗi kết nối Facebook: ' + (data.code || res.status), 'error', 6000);
+      const errMsg = data.error || 'Token Facebook không hợp lệ hoặc đã hết hạn (Code: ' + (data.code || res.status) + ')';
+      toast(errMsg, 'error', 6000);
       if (alertEl) {
         alertEl.style.display = 'block';
         alertEl.style.background = 'rgba(239,68,68,0.12)';
         alertEl.style.border = '1px solid #ef4444';
         alertEl.style.color = '#991b1b';
-        alertEl.innerHTML = `<b>Không thể kết nối Facebook:</b> ${esc(data.error || 'Token không hợp lệ hoặc đã hết hạn')}`;
+        alertEl.innerHTML = `<b>Không thể kết nối Facebook:</b> ${esc(errMsg)}`;
       }
     }
   } catch(e) {
     console.error('saveAndSyncFacebook error:', e);
     toast('Lỗi kết nối: ' + e.message, 'error');
+    if (alertEl) {
+      alertEl.style.display = 'block';
+      alertEl.style.background = 'rgba(239,68,68,0.12)';
+      alertEl.style.border = '1px solid #ef4444';
+      alertEl.style.color = '#991b1b';
+      alertEl.innerHTML = `<b>Lỗi kết nối:</b> ${esc(e.message)}`;
+    }
   } finally {
     if (btn) { btn.disabled = false; btn.innerHTML = origText; renderIcons(); }
   }
@@ -3951,6 +3982,10 @@ function closeLightbox(e) {
 document.getElementById('cfgUrl').value = CFG.url;
 document.getElementById('cfgKey').value = CFG.key;
 document.getElementById('cfgSchema').value = CFG.schema;
+const fbPageIdInput = document.getElementById('cfgFbPageId');
+if (fbPageIdInput) fbPageIdInput.value = localStorage.getItem('fb_page_id') || '988656934325292';
+const fbTokenInput = document.getElementById('cfgFbPageToken');
+if (fbTokenInput && localStorage.getItem('fb_page_token')) fbTokenInput.value = localStorage.getItem('fb_page_token');
 renderIcons();    // Initial render of static icons (nav, badges)
 loadAll(true);
 

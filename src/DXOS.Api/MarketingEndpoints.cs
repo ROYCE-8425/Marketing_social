@@ -1565,6 +1565,21 @@ internal static class MarketingEndpoints
                 return Results.BadRequest(new { error = "FACEBOOK_PAGE_ACCESS_TOKEN is not configured.", code = "MissingToken" });
             }
 
+            var pageRecord = await db.SocialPages.FindAsync(new object[] { pageId }, ct);
+            if (pageRecord is null)
+            {
+                pageRecord = new SocialPageRecord
+                {
+                    Id = pageId,
+                    Name = "Facebook Fanpage",
+                    Type = "facebook",
+                    CreatedAt = DateTimeOffset.UtcNow,
+                    UpdatedAt = DateTimeOffset.UtcNow
+                };
+                db.SocialPages.Add(pageRecord);
+                await db.SaveChangesAsync(ct);
+            }
+
             var convs = await fbClient.GetPageConversationsAsync(pageId, pageToken, ct);
             int syncedConvs = 0;
             int syncedMsgs = 0;
@@ -1606,6 +1621,7 @@ internal static class MarketingEndpoints
                         existingCust.LastSeenAt = lastSeen;
                     }
                 }
+                await db.SaveChangesAsync(ct);
 
                 // Upsert conversation
                 var convId = c.Id.StartsWith("fb_") ? c.Id : $"fb_{c.Id}";
@@ -1637,6 +1653,7 @@ internal static class MarketingEndpoints
                     existingConv.UpdatedAt = lastSeen;
                     existingConv.MessageCount = Math.Max(existingConv.MessageCount, c.MessageCount ?? c.Messages.Count);
                 }
+                await db.SaveChangesAsync(ct);
 
                 // Upsert messages
                 foreach (var m in c.Messages)
@@ -1692,7 +1709,7 @@ internal static class MarketingEndpoints
             }
 
             // Update page stats
-            var pageRecord = await db.SocialPages.FindAsync(new object[] { pageId }, ct);
+            pageRecord = await db.SocialPages.FindAsync(new object[] { pageId }, ct);
             if (pageRecord is not null)
             {
                 pageRecord.TotalConversations = await db.SocialConversations.CountAsync(c => c.PageId == pageId, ct);
@@ -1763,6 +1780,7 @@ internal static class MarketingEndpoints
                 pageRecord.Name = pageInfo.Name ?? pageRecord.Name;
                 pageRecord.UpdatedAt = DateTimeOffset.UtcNow;
             }
+            await db.SaveChangesAsync(ct);
 
             // 2. Sync Posts & Metrics
             var posts = await fbClient.GetPagePostsAsync(pageId, pageToken, ct);
@@ -1867,6 +1885,7 @@ internal static class MarketingEndpoints
                     lastSeen = parsedUt;
                 }
 
+                // Upsert customer
                 var existingCust = await db.SocialCustomers.FindAsync(new object[] { custId }, ct);
                 if (existingCust is null)
                 {
@@ -1890,6 +1909,7 @@ internal static class MarketingEndpoints
                         existingCust.LastSeenAt = lastSeen;
                     }
                 }
+                await db.SaveChangesAsync(ct);
 
                 var convId = c.Id.StartsWith("fb_") ? c.Id : $"fb_{c.Id}";
                 var latestMsg = c.Messages.OrderByDescending(m => m.CreatedTime).FirstOrDefault();
@@ -1920,6 +1940,7 @@ internal static class MarketingEndpoints
                     existingConv.UpdatedAt = lastSeen;
                     existingConv.MessageCount = Math.Max(existingConv.MessageCount, c.MessageCount ?? c.Messages.Count);
                 }
+                await db.SaveChangesAsync(ct);
 
                 foreach (var m in c.Messages)
                 {
