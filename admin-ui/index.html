@@ -607,11 +607,15 @@
             <div class="tab" onclick="switchInboxTab('info', this)"><i data-lucide="user" class="icon-sm"></i>Thông tin khách</div>
           </div>
           <div class="inbox-pane-body" style="display:flex; flex-direction:column; height:100%; overflow:hidden;">
+            <div id="inboxTabMsgs" class="msg-thread" style="flex:1; overflow-y:auto;">
+              <div style="text-align:center; color:var(--text-muted); font-size:12px; padding:40px;">Đang tải tin nhắn...</div>
+            </div>
+            <div id="inboxTabInfo" class="info-panel" style="display:none; flex:1; overflow-y:auto;"></div>
             <div id="inboxAttachmentPreviewStrip" style="display:none; padding:8px 14px; background:var(--bg-subtle); border-top:1px solid var(--border); align-items:center; justify-content:space-between; gap:10px;">
               <div id="inboxAttPreviewContent" style="display:flex; align-items:center; gap:8px; flex:1; font-size:12px; overflow:hidden;"></div>
               <button type="button" onclick="clearInboxAttachment()" style="border:none; background:transparent; color:var(--text-muted); cursor:pointer; font-size:14px; padding:4px 8px;" title="Xóa đính kèm">✕</button>
             </div>
-            <div class="inbox-reply-bar" id="inboxReplyBar" style="display:none; display:flex; gap:8px; align-items:center;">
+            <div class="inbox-reply-bar" id="inboxReplyBar" style="display:none;">
               <input type="file" id="inboxAttachmentFileInput" style="display:none;" onchange="onInboxFileSelected(this)" accept="image/*,video/*,audio/*,.pdf,.docx,.xlsx,.txt,.zip">
               <button type="button" class="btn btn-sm" onclick="document.getElementById('inboxAttachmentFileInput').click()" title="Đính kèm ảnh / video / tài liệu" style="padding:9px 12px; background:var(--bg-card); border:1px solid var(--border); border-radius:6px; cursor:pointer;">
                 <i data-lucide="paperclip" class="icon-sm"></i>
